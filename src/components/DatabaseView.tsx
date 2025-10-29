@@ -35,7 +35,7 @@ function DatabaseView({
       setScannedLoading(true);
       setScannedError(null);
       try {
-        const res = await fetch('http://localhost:8000/scanned-cards', { signal: controller.signal });
+        const res = await fetch('https://syndy-aiagent-be-poc.onrender.com/scanned-cards', { signal: controller.signal });
         if (!res.ok) throw new Error(`Server responded ${res.status}`);
         const data = await res.json();
         console.log('Fetched scanned cards:', data.data);
