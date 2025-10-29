@@ -1,0 +1,1 @@
+# Syndy-AIAgent-Markteting_ScanCard_POC
