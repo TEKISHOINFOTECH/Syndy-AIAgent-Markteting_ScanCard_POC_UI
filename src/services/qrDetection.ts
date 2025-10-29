@@ -69,7 +69,7 @@ class QRDetectionService {
 
       // Call backend API directly
       console.log('🌐 Calling backend QR API...');
-      const response = await fetch('http://localhost:8000/qr-scan', {
+      const response = await fetch('https://syndy-aiagent-be-poc.onrender.com/qr-scan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -340,7 +340,7 @@ class QRDetectionService {
       formData.append('file', blob, 'qrcode.png');
 
       // Call backend proxy endpoint
-      const response = await fetch('http://localhost:8000/qr-scan-goqr', {
+      const response = await fetch('https://syndy-aiagent-be-poc.onrender.com/qr-scan-goqr', {
         method: 'POST',
         body: formData
       });
