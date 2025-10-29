@@ -42,11 +42,11 @@ function getApiBaseUrl(): string {
   try {
     return import.meta.env.VITE_API_BASE_URL || 
       (import.meta.env.PROD 
-        ? 'https://your-production-api-domain.com' 
-        : 'http://localhost:8000');
+        ? 'https://syndy-aiagent-be-poc.onrender.com' 
+        : 'https://syndy-aiagent-be-poc.onrender.com');
   } catch {
     // Fallback for environments where import.meta.env is not available
-    return 'http://localhost:8000';
+    return 'https://syndy-aiagent-be-poc.onrender.com';
   }
 }
 

@@ -214,7 +214,7 @@ const uploadAllFilesBatch = async () => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute timeout per file
         
-        const response = await fetch('http://localhost:8000/ai-business-card', {
+        const response = await fetch('https://syndy-aiagent-be-poc.onrender.com/ai-business-card', {
           method: 'POST',
           body: formData,
           signal: controller.signal,
