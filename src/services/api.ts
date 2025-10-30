@@ -1,10 +1,18 @@
-import type { UploadCardResponse, ScheduleMeetingResponse, BusinessCardData, UserInfo } from '../types/cardScanner';
+import type { UploadCardResponse, ScheduleMeetingResponse } from '../types/cardScanner';
 
 const API_BASE_URL = 'https://syndy-aiagent-be-poc.onrender.com';
 
 export class CardScannerAPI {
   /**
-   * Upload and process business card image
+   * API 1: Persist and process captured business card image
+   * 
+   * Flow:
+   * 1. Receives business card image
+   * 2. Generates UUID (transactionID)
+   * 3. Stores image in Supabase Storage (business_cards bucket)
+   * 4. Saves record to business_cards_data_tbl
+   * 5. Starts async LLM processing
+   * 6. Returns immediate response with transactionID
    */
   static async uploadCard(imageFile: File): Promise<UploadCardResponse> {
     // Validation
@@ -50,9 +58,18 @@ export class CardScannerAPI {
   }
 
   /**
-   * Schedule a meeting for a contact
+   * API 2: Initiate meeting scheduler
+   * 
+   * Flow:
+   * 1. Receives transactionID and isMeetingRequested
+   * 2. Updates meeting request status in customer_userInfo_tbl
+   * 3. Checks customer data (P1 path) OR business card data (P2 path)
+   * 4. Sends data to N8N for meeting scheduling
+   * 5. Returns response with transactionID
    */
   static async scheduleMeeting(transactionID: string): Promise<ScheduleMeetingResponse> {
+    console.log('📅 Scheduling meeting for transaction:', transactionID);
+
     const response = await fetch(`${API_BASE_URL}/api/intiateMeetingScheduler`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,60 +80,13 @@ export class CardScannerAPI {
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Meeting scheduling error:', response.status, errorText);
       throw new Error(`Failed to schedule meeting: ${response.status}`);
     }
     
-    return response.json();
-  }
-
-  /**
-   * Check processing status of a card
-   */
-  static async checkProcessingStatus(transactionID: string): Promise<BusinessCardData> {
-    const response = await fetch(`${API_BASE_URL}/api/checkCardStatus/${transactionID}`, {
-      method: 'GET',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to check status: ${response.status}`);
-    }
-    
-    return response.json();
-  }
-
-  /**
-   * Fetch extracted user info
-   */
-  static async getUserInfo(transactionID: string): Promise<UserInfo> {
-    const response = await fetch(`${API_BASE_URL}/api/getUserInfo/${transactionID}`, {
-      method: 'GET',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user info: ${response.status}`);
-    }
-    
     const result = await response.json();
-    
-    console.log('📥 Raw getUserInfo response:', result);
-    
-    // Backend returns: { status: 200, transactionID: "...", data: {...}, exists: true }
-    // Extract the nested data object
-    if (result.data) {
-      console.log('✅ Extracted user data:', result.data);
-      return {
-        transaction_id: result.transactionID || result.data.transaction_id,
-        email: result.data.email || null,
-        name: result.data.name || null,
-        phone: result.data.phone || null,
-        company: result.data.company || null,
-        is_meeting_requested: result.data.is_meeting_requested || false,
-        created_at: result.data.created_at,
-      };
-    }
-    
-    // Fallback if data structure is different
-    console.warn('⚠️ Unexpected response structure, using result directly');
+    console.log('✅ Meeting request sent:', result);
     return result;
   }
 }
