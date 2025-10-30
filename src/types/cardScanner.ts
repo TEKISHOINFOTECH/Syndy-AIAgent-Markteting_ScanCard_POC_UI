@@ -20,14 +20,14 @@ export interface UserInfo {
   created_at?: string;
 }
 
-export interface BusinessCardData {
-  transaction_id: string;
-  image_url: string | null;
-  processing_status: 'pending' | 'processing' | 'completed' | 'failed';
-  llm_response: LLMResponse | null;
-  created_at?: string;
-  processed_at?: string | null;
-}
+// export interface BusinessCardData {
+//   transaction_id: string;
+//   image_url: string | null;
+//   processing_status: 'pending' | 'processing' | 'completed' | 'failed';
+//   llm_response: LLMResponse | null;
+//   created_at?: string;
+//   processed_at?: string | null;
+// }
 
 export interface LLMResponse {
   extracted_data: {
@@ -43,7 +43,7 @@ export interface LLMResponse {
   processing_time_ms?: number;
 }
 
-export type CardScanStep = 'landing' | 'capture' | 'processing' | 'result' | 'meetingScheduler' | 'confirmation';
+export type CardScanStep = 'landing' | 'capture' | 'result' | 'meetingScheduler' | 'confirmation';
 
 export interface CardScanState {
   step: CardScanStep;

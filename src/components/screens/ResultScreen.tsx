@@ -91,19 +91,13 @@ export function ResultScreen({
               </Button>
               <Button 
                 onClick={onScheduleMeeting}
-                disabled={!isCompleted || !userInfo.email}
+                disabled={!isCompleted}
                 className="flex-1"
               >
                 <Calendar className="w-4 h-4" />
                 Schedule Meeting
               </Button>
             </div>
-
-            {!userInfo.email && (
-              <p className="text-amber-400 text-sm text-center">
-                ⚠️ Email address required to schedule meetings
-              </p>
-            )}
           </div>
         </Card>
       </motion.div>
