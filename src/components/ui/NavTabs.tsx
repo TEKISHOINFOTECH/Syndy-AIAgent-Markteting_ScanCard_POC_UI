@@ -1,4 +1,4 @@
-import { Home, MessageSquare, Camera, Upload, BarChart3, CreditCard } from 'lucide-react';
+import { MessageSquare, Camera, Upload, CreditCard } from 'lucide-react';
 
 interface NavTabsProps {
   activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
@@ -10,11 +10,9 @@ interface NavTabsProps {
 export function NavTabs({ activeView = 'home', onNavClick, className = '', compact = false }: NavTabsProps) {
   const navItems = [
     { label: 'Card Scanner', icon: <CreditCard className={compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"} />, view: 'cardscanner' as const },
-    { label: 'Home', icon: <Home className={compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"} />, view: 'home' as const },
     { label: 'Chatterbox', icon: <MessageSquare className={compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"} />, view: 'chat' as const },
     { label: 'Scanner', icon: <Camera className={compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"} />, view: 'scan' as const },
     { label: 'Upload Files', icon: <Upload className={compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"} />, view: 'upload' as const },
-    { label: 'Analysis', icon: <BarChart3 className={compact ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"} />, view: 'analysis' as const },
   ];
 
   if (!onNavClick) {

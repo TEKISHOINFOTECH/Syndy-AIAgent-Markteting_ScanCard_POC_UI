@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { PartyPopper, CheckCircle2, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { BackButton } from '../ui/BackButton';
 
 interface MeetingConfirmationScreenProps {
   transactionID: string;
@@ -11,6 +12,7 @@ interface MeetingConfirmationScreenProps {
 export function MeetingConfirmationScreen({ transactionID, onDone }: MeetingConfirmationScreenProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-1 px-4 sm:px-6 overflow-y-auto pb-6">
+      <BackButton onClick={onDone} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

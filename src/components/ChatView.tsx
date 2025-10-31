@@ -5,6 +5,7 @@ import RobotAvatar from './RobotAvatar';
 import UploadView from './UploadView';
 import ScanView from './ScanView';
 import DatabaseView from './DatabaseView';
+import { BackButton } from './ui/BackButton';
 
 interface ChatViewProps {
   activeView: 'chat' | 'upload' | 'scan' | 'analysis';
@@ -156,6 +157,9 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
   // Default chat view
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 relative overflow-hidden">
+      {/* Back Button */}
+      {onNavClick && <BackButton onClick={() => onNavClick('cardscanner')} />}
+      
       {/* Light glassmorphism background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>

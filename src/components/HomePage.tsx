@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Mic, Users, Zap, Search } from "lucide-react";
 import { TekishoCard } from "./TekishoCard";
 import { NavTabs } from "./ui/NavTabs";
+import { BackButton } from "./ui/BackButton";
 
 interface HomePageProps {
   onOpenVoiceAssistant: () => void;
@@ -19,6 +20,7 @@ export const HomePage = ({ onOpenVoiceAssistant, activeView, onNavClick }: HomeP
 
   return (
     <div className="min-h-screen bg-white relative">
+      {onNavClick && <BackButton onClick={() => onNavClick('cardscanner')} />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 md:py-6 lg:py-10">
         <div className="text-center mb-6 sm:mb-10">
           {/* Welcome Header */}

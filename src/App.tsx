@@ -9,7 +9,7 @@ import { VoiceAssistant } from './components/VoiceAssistant';
 import { CardScannerApp } from './components/CardScannerApp';
 
 function App() {
-  const [activeView, setActiveView] = useState<'home' | 'chat' | 'upload' | 'scan' | 'analysis' | 'cardscanner'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'chat' | 'upload' | 'scan' | 'analysis' | 'cardscanner'>('cardscanner');
   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
   // analysis subsection state
