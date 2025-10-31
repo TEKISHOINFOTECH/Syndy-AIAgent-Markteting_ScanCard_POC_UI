@@ -7,10 +7,13 @@
 
 # Python virtual environments
 .venv/
+**/.venv/
 venv/
+**/venv/
 env/
 ENV/
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
