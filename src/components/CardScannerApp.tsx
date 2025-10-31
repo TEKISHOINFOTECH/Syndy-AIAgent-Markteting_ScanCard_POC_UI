@@ -6,6 +6,7 @@ import { MeetingConfirmationScreen } from './screens/MeetingConfirmationScreen';
 import { Toast } from './ui/Toast';
 import { CardScannerAPI } from '../services/api';
 import type { CardScanState, UserInfo } from '../types/cardScanner';
+import { StepIndicator } from './ui/StepIndicator';
 
 export function CardScannerApp() {
   const [state, setState] = useState<CardScanState>({
@@ -34,12 +35,9 @@ export function CardScannerApp() {
 
     try {
       console.log('📤 Uploading file:', file.name, file.type, `${(file.size / 1024).toFixed(2)}KB`);
-      
       const response = await CardScannerAPI.uploadCard(file);
-      
       console.log('✅ Upload response:', response);
-      
-      // Create placeholder user info with transactionID
+
       const placeholderUserInfo: UserInfo = {
         transaction_id: response.transactionID,
         email: null,
@@ -49,8 +47,7 @@ export function CardScannerApp() {
         is_meeting_requested: false,
         created_at: new Date().toISOString(),
       };
-      
-      // Go directly to result screen (no polling needed)
+
       setState(prev => ({
         ...prev,
         step: 'result',
@@ -83,13 +80,10 @@ export function CardScannerApp() {
 
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      
-      console.log('� Scheduling meeting for transaction:', state.transactionID);
-      
+      console.log('📅 Scheduling meeting for transaction:', state.transactionID);
       const response = await CardScannerAPI.scheduleMeeting(state.transactionID);
-      
       console.log('✅ Meeting scheduled:', response);
-      
+
       setState(prev => ({
         ...prev,
         step: 'confirmation',
@@ -124,43 +118,55 @@ export function CardScannerApp() {
   };
 
   return (
-    <>
-      {state.step === 'landing' && (
-        <LandingScreen onStartScan={handleStartScan} />
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+      {/* Light glassmorphism background elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-40 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+      </div>
 
-      {state.step === 'capture' && (
-        <CardCaptureScreen 
-          onCapture={handleCapture} 
-          onCancel={handleCancelCapture}
-        />
-      )}
+      {/* Step Indicator */}
+      <StepIndicator currentStep={state.step} />
 
-      {state.step === 'result' && state.extractedData && (
-        <ResultScreen
-          userInfo={state.extractedData}
-          llmResponse={null}
-          processingStatus={state.processingStatus || 'completed'}
-          onScheduleMeeting={handleScheduleMeeting}
-          onScanAnother={handleScanAnother}
-        />
-      )}
+      <div className="relative z-10">
+        {state.step === 'landing' && (
+          <LandingScreen onStartScan={handleStartScan} />
+        )}
 
-      {state.step === 'confirmation' && state.transactionID && (
-        <MeetingConfirmationScreen
-          transactionID={state.transactionID}
-          onDone={handleDone}
-        />
-      )}
+        {state.step === 'capture' && (
+          <CardCaptureScreen 
+            onCapture={handleCapture} 
+            onCancel={handleCancelCapture}
+          />
+        )}
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          isVisible={true}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </>
+        {state.step === 'result' && state.extractedData && (
+          <ResultScreen
+            userInfo={state.extractedData}
+            llmResponse={null}
+            processingStatus={state.processingStatus || 'completed'}
+            onScheduleMeeting={handleScheduleMeeting}
+            onScanAnother={handleScanAnother}
+          />
+        )}
+
+        {state.step === 'confirmation' && state.transactionID && (
+          <MeetingConfirmationScreen
+            transactionID={state.transactionID}
+            onDone={handleDone}
+          />
+        )}
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            isVisible={true}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </div>
+    </div>
   );
 }

@@ -186,23 +186,23 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-2xl w-full"
       >
         <Card>
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-200">Capture Business Card</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Capture Business Card</h2>
               <button
                 onClick={handleCancelCapture}
-                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 aria-label="Cancel"
               >
-                <X className="w-5 h-5 text-slate-400" />
+                <X className="w-5 h-5 text-gray-600" />
               </button>
             </div>
 
@@ -235,19 +235,19 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
             )}
 
             {/* Capture Area */}
-            <div className="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[400px] flex items-center justify-center">
+            <div className="relative bg-gray-100 rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
               {/* Upload Mode */}
               {!previewUrl && captureMode === 'upload' && !isValidating && (
                 <div
                   onDrop={handleDrop}
                   onDragOver={(e) => e.preventDefault()}
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-600 hover:border-cyan-500 transition-colors cursor-pointer p-8"
+                  className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-green-400 transition-colors cursor-pointer p-6 sm:p-8"
                 >
-                  <Upload className="w-16 h-16 text-slate-500 mb-4" />
-                  <p className="text-slate-400 text-center">
+                  <Upload className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mb-3 sm:mb-4" />
+                  <p className="text-gray-600 text-center text-sm sm:text-base">
                     Click to upload or drag and drop<br />
-                    <span className="text-sm text-slate-500">Any image up to 10MB</span>
+                    <span className="text-xs sm:text-sm text-gray-500">Any image up to 10MB</span>
                   </p>
                   <input
                     ref={fileInputRef}
@@ -266,9 +266,9 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Camera className="w-16 h-16 text-cyan-400" />
+                    <Camera className="w-12 h-12 sm:w-16 sm:h-16 text-green-500" />
                   </motion.div>
-                  <p className="text-slate-400">Starting camera...</p>
+                  <p className="text-gray-600">Starting camera...</p>
                 </div>
               )}
 
@@ -285,19 +285,19 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                   {/* Camera Overlay Guides */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* Corner guides */}
-                    <div className="absolute top-4 left-4 w-12 h-12 border-l-4 border-t-4 border-cyan-400"></div>
-                    <div className="absolute top-4 right-4 w-12 h-12 border-r-4 border-t-4 border-cyan-400"></div>
-                    <div className="absolute bottom-4 left-4 w-12 h-12 border-l-4 border-b-4 border-cyan-400"></div>
-                    <div className="absolute bottom-4 right-4 w-12 h-12 border-r-4 border-b-4 border-cyan-400"></div>
+                    <div className="absolute top-4 left-4 w-12 h-12 border-l-4 border-t-4 border-green-500"></div>
+                    <div className="absolute top-4 right-4 w-12 h-12 border-r-4 border-t-4 border-green-500"></div>
+                    <div className="absolute bottom-4 left-4 w-12 h-12 border-l-4 border-b-4 border-green-500"></div>
+                    <div className="absolute bottom-4 right-4 w-12 h-12 border-r-4 border-b-4 border-green-500"></div>
                     
                     {/* Center frame */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-[80%] h-[60%] border-2 border-cyan-400/50 rounded-2xl"></div>
+                      <div className="w-[80%] h-[60%] border-2 border-green-500/50 rounded-2xl"></div>
                     </div>
                     
                     {/* Instruction text */}
                     <div className="absolute bottom-8 left-0 right-0 text-center">
-                      <p className="text-white text-sm bg-black/50 inline-block px-4 py-2 rounded-full">
+                      <p className="text-white text-sm bg-gray-900/70 inline-block px-4 py-2 rounded-full">
                         Position card within the frame
                       </p>
                     </div>
@@ -329,14 +329,14 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
 
               {/* Validating Overlay */}
               {isValidating && (
-                <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center">
+                <div className="absolute inset-0 bg-white/90 flex items-center justify-center">
                   <div className="text-center">
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full mx-auto mb-3"
+                      className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-3"
                     />
-                    <p className="text-slate-300">Validating...</p>
+                    <p className="text-gray-700">Validating...</p>
                   </div>
                 </div>
               )}
@@ -347,18 +347,18 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-500/10 border border-red-400/30 rounded-xl p-4 flex items-start gap-3"
+                className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4 flex items-start gap-3"
               >
-                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-red-400 font-semibold mb-1">Validation Failed</p>
-                  <p className="text-red-300 text-sm">{validationError}</p>
+                  <p className="text-red-600 font-semibold mb-1 text-sm sm:text-base">Validation Failed</p>
+                  <p className="text-red-600 text-xs sm:text-sm">{validationError}</p>
                 </div>
               </motion.div>
             )}
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               {previewUrl ? (
                 <>
                   <Button variant="secondary" onClick={handleRetake} className="flex-1">

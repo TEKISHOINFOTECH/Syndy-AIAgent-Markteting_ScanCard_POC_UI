@@ -352,28 +352,29 @@ const uploadAllFilesBatch = async () => {
   const errorCount = uploadedFiles.filter(f => f.status === 'error').length;
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 relative overflow-hidden">
-      {/* Dark glassmorphism background elements */}
-      <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-3xl"></div>
-      <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+    <div className="flex flex-col h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 relative overflow-hidden">
+      {/* Light glassmorphism background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-40 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+      </div>
 
       {/* Header */}
-      <div className="relative z-10 bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/50 px-6 py-4 shadow-lg">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Upload Files</h2>
-        <p className="text-slate-400 mt-1">Upload images for OCR processing</p>
+      <div className="relative z-10 bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
+        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Upload Files</h2>
+        <p className="text-gray-600 mt-1 text-sm sm:text-base">Upload images for OCR processing</p>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex-1 overflow-y-auto p-6">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <div className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
           {/* Upload Area */}
           <div
-            className={`backdrop-blur-2xl rounded-3xl p-12 text-center transition-all border border-slate-700/50 shadow-2xl ${
+            className={`backdrop-blur-2xl rounded-3xl p-6 sm:p-12 text-center transition-all border border-gray-200 shadow-xl ${
               isDragOver 
-                ? 'bg-slate-800/70 ring-2 ring-cyan-400/50' 
-                : 'bg-slate-800/60 hover:bg-slate-800/80'
+                ? 'bg-white/80 ring-2 ring-green-400/50' 
+                : 'bg-white/70 hover:bg-white/80'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -382,16 +383,16 @@ const uploadAllFilesBatch = async () => {
             {uploadedFiles.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center gap-4">
-                <div className="p-6 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-3xl group-hover:scale-110 transition-all duration-300 shadow-lg backdrop-blur-sm border border-emerald-400/30">
-                  <Upload className="w-12 h-12 text-emerald-400 drop-shadow-sm" />
+                <div className="p-6 bg-gradient-to-br from-green-100 to-emerald-100 rounded-3xl group-hover:scale-110 transition-all duration-300 shadow-lg backdrop-blur-sm border border-green-200">
+                  <Upload className="w-12 h-12 text-green-500 drop-shadow-sm" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-slate-200 mb-2 drop-shadow-sm">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
                     Drop your files here
                   </h3>
-                  <p className="text-slate-400 mb-4">or click to browse</p>
+                  <p className="text-gray-600 mb-4 text-sm sm:text-base">or click to browse</p>
                 </div>
-                <label className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-2xl hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-slate-600/50 font-semibold cursor-pointer">
+                <label className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold cursor-pointer text-sm sm:text-base">
                   Choose Files
                   <input
                     ref={fileInputRef}
@@ -402,25 +403,25 @@ const uploadAllFilesBatch = async () => {
                     className="hidden"
                   />
                 </label>
-                <p className="text-sm text-slate-500 mt-2">Supports JPEG, PNG, GIF, WebP (max 10MB each)</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">Supports JPEG, PNG, GIF, WebP (max 10MB each)</p>
               </div>
             ) : (
               // Files in upload area
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-200">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                     Uploaded Files ({uploadedFiles.length})
                   </h3>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-300 text-sm font-semibold"
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm font-semibold flex-1 sm:flex-none"
                     >
                       Add More
                     </button>
                     <button
                       onClick={clearAllFiles}
-                      className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 text-sm font-semibold"
+                      className="px-3 sm:px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm font-semibold flex-1 sm:flex-none"
                     >
                       Clear All
                     </button>
@@ -429,12 +430,12 @@ const uploadAllFilesBatch = async () => {
 
                 {/* Files uploaded message */}
                 <div className="text-center">
-                  <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-2xl backdrop-blur-sm border border-emerald-400/30 inline-block">
-                    <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                    <p className="text-slate-200 font-medium">
+                  <div className="p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl backdrop-blur-sm border border-green-200 inline-block">
+                    <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mx-auto mb-2" />
+                    <p className="text-gray-800 font-medium text-sm sm:text-base">
                       {uploadedFiles.length} files uploaded
                     </p>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-gray-600 text-xs sm:text-sm">
                       Files are listed below
                     </p>
                   </div>
@@ -456,45 +457,45 @@ const uploadAllFilesBatch = async () => {
 
           {/* Uploaded Files List */}
           {uploadedFiles.length > 0 && (
-            <div className="bg-slate-800/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-700/50 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-500/90 to-cyan-500/90 backdrop-blur-xl px-6 py-4 flex items-center justify-between shadow-lg">
+            <div className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-white" />
-                  <h3 className="text-lg font-semibold text-white">
+                  <h3 className="text-base sm:text-lg font-semibold text-white">
                     Uploaded Files ({uploadedFiles.length})
                   </h3>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-white/20 text-white rounded-xl hover:bg-white/30 transition-colors text-sm font-semibold backdrop-blur-sm"
+                    className="px-3 sm:px-4 py-2 bg-white/20 text-white rounded-xl hover:bg-white/30 transition-colors text-xs sm:text-sm font-semibold backdrop-blur-sm flex-1 sm:flex-none"
                   >
                     Add More
                   </button>
                   <button
                     onClick={clearAllFiles}
-                    className="px-4 py-2 bg-red-500/70 text-white rounded-xl hover:bg-red-500/90 transition-colors text-sm font-semibold"
+                    className="px-3 sm:px-4 py-2 bg-red-500/70 text-white rounded-xl hover:bg-red-500/90 transition-colors text-xs sm:text-sm font-semibold flex-1 sm:flex-none"
                   >
                     Clear All
                   </button>
                 </div>
               </div>
-              <div className="divide-y divide-slate-700/50">
+              <div className="divide-y divide-gray-200">
                 {uploadedFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="p-6 hover:bg-slate-700/30 transition-colors"
+                    className="p-4 sm:p-6 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-2xl backdrop-blur-sm border border-emerald-400/30">
-                          <FileImage className="w-6 h-6 text-emerald-400" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
+                        <div className="p-2 sm:p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl backdrop-blur-sm border border-green-200">
+                          <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-semibold text-slate-200 truncate">
+                          <h4 className="font-semibold text-gray-800 truncate text-sm sm:text-base">
                             {file.file.name}
                           </h4>
-                          <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
+                          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-600 mt-1">
                             <span>{(file.file.size / 1024 / 1024).toFixed(2)} MB</span>
                             <span>•</span>
                             <div className="flex items-center gap-1">
@@ -528,20 +529,20 @@ const uploadAllFilesBatch = async () => {
                           
                           {/* Error Message */}
                           {file.status === 'error' && file.error && (
-                            <p className="text-red-400 text-xs mt-1 bg-red-500/10 px-2 py-1 rounded border border-red-500/20">
+                            <p className="text-red-600 text-xs mt-1 bg-red-50 px-2 py-1 rounded border border-red-200">
                               {file.error}
                             </p>
                           )}
                           
                           {/* Result Preview for completed files */}
                           {file.status === 'completed' && file.result && (
-                            <div className="mt-2 p-2 bg-emerald-500/10 rounded-lg border border-emerald-400/30">
-                              <p className="text-emerald-400 font-medium text-xs mb-1">OCR Result:</p>
-                              <p className="text-slate-300 text-xs truncate">
+                            <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                              <p className="text-green-600 font-medium text-xs mb-1">OCR Result:</p>
+                              <p className="text-gray-700 text-xs truncate">
                                 {file.result.text?.substring(0, 80)}...
                               </p>
                               {file.result.qr_codes && file.result.qr_codes.length > 0 && (
-                                <p className="text-cyan-400 text-xs mt-1">
+                                <p className="text-green-600 text-xs mt-1">
                                   📱 {file.result.qr_codes.length} QR codes found
                                 </p>
                               )}
@@ -550,12 +551,12 @@ const uploadAllFilesBatch = async () => {
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 self-start sm:self-center">
                         {/* View Results Button */}
                         {file.status === 'completed' && file.result && (
                           <button
                             onClick={() => showFileResults(file)}
-                            className="px-3 py-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 transition-colors text-xs border border-cyan-400/30 font-semibold"
+                            className="px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-600 rounded-xl hover:from-green-500/30 hover:to-emerald-500/30 transition-colors text-xs border border-green-400/30 font-semibold"
                           >
                             View Results
                           </button>
@@ -564,10 +565,10 @@ const uploadAllFilesBatch = async () => {
                         {/* Remove Button */}
                         <button
                           onClick={() => removeFile(file.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors backdrop-blur-sm border border-red-500/20"
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-red-200"
                           title="Remove file"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                       </div>
                     </div>
@@ -577,21 +578,21 @@ const uploadAllFilesBatch = async () => {
               
               {/* Upload Button */}
               {pendingCount > 0 && (
-                <div className="p-6 bg-slate-800/50 border-t border-slate-700/50">
+                <div className="p-4 sm:p-6 bg-gray-50 border-t border-gray-200">
                   <div className="flex justify-center">
                     <button
                       onClick={uploadAllFilesBatch}
                       disabled={isUploading}
-                      className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-2xl hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-semibold text-lg"
+                      className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-3 font-semibold text-sm sm:text-lg"
                     >
                       {isUploading ? (
                         <>
-                          <Loader className="w-5 h-5 animate-spin" />
+                          <Loader className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                           Processing...
                         </>
                       ) : (
                         <>
-                          <Upload className="w-5 h-5" />
+                          <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                           Process All Files ({pendingCount})
                         </>
                       )}
@@ -626,24 +627,24 @@ const uploadAllFilesBatch = async () => {
         </div>
       </div>
 
-      {/* Results Modal */}
+          {/* Results Modal */}
       {showResults && selectedFile && selectedFile.result && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-white">OCR Results</h3>
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+              <h3 className="text-lg sm:text-xl font-semibold text-white">OCR Results</h3>
               <button
                 onClick={closeResults}
                 className="p-2 hover:bg-white/20 rounded-lg transition-colors"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </button>
             </div>
 
             {/* Modal Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Image Preview */}
                 <div>
                   <h4 className="text-lg font-semibold text-gray-800 mb-3">Original Image</h4>
@@ -664,14 +665,14 @@ const uploadAllFilesBatch = async () => {
                   <h4 className="text-lg font-semibold text-gray-800 mb-3">Extracted Information</h4>
                   
                   {/* Processing Info */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-blue-800 font-medium">Processing Engine:</span>
-                      <span className="text-blue-600">{selectedFile.result.engine || 'Unknown'}</span>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-green-800 font-medium">Processing Engine:</span>
+                      <span className="text-green-600">{selectedFile.result.engine || 'Unknown'}</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm mt-1">
-                      <span className="text-blue-800 font-medium">Confidence:</span>
-                      <span className="text-blue-600">{Math.round((selectedFile.result.confidence || 0) * 100)}%</span>
+                    <div className="flex items-center justify-between text-xs sm:text-sm mt-1">
+                      <span className="text-green-800 font-medium">Confidence:</span>
+                      <span className="text-green-600">{Math.round((selectedFile.result.confidence || 0) * 100)}%</span>
                     </div>
                   </div>
 

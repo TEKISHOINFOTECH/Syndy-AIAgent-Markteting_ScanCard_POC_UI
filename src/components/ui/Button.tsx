@@ -25,16 +25,16 @@ export function Button({
   const baseClasses = 'rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2';
   
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white shadow-lg',
-    secondary: 'bg-slate-700 hover:bg-slate-600 text-slate-200',
-    ghost: 'bg-transparent hover:bg-slate-700/50 text-slate-300'
-  };
+    primary: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg',
+    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+    ghost: 'bg-transparent hover:bg-gray-100 text-gray-600'
+  } as const;
   
   const sizeClasses = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg'
-  };
+    sm: 'px-3 py-2 text-sm sm:px-4',
+    md: 'px-4 py-2.5 text-base sm:px-6 sm:py-3',
+    lg: 'px-5 py-3 text-lg sm:px-8 sm:py-4'
+  } as const;
 
   return (
     <motion.button

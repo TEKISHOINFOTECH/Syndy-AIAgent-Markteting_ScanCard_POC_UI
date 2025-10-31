@@ -4,7 +4,6 @@ import {
   Camera,
   Upload,
   BarChart3,
-  Menu,
   Settings,
   CreditCard,
 } from 'lucide-react';
@@ -29,26 +28,17 @@ function NavButton({ label, icon, active, collapsed, onClick }: NavButtonProps) 
     <button
       onClick={onClick}
       aria-label={label}
-      className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out ${
-        collapsed ? 'justify-center px-0' : ''
-      } ${active ? 'bg-slate-700 text-cyan-400' : 'text-slate-300 hover:bg-slate-700/50'}`}
+      className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-xl transition-all duration-200 ease-in-out text-xs sm:text-sm font-medium flex-shrink-0 ${
+        active ? 'bg-green-500/10 text-green-600 ring-1 ring-green-200' : 'text-gray-600 hover:bg-white/60'
+      }`}
     >
-      <div className={`w-1 h-full absolute left-0 ${active ? 'bg-cyan-400' : ''}`} />
-      {icon}
-      {!collapsed && (
-        <span
-          className={`text-sm font-medium transition-opacity duration-300 ${
-            active ? 'text-cyan-400' : 'text-slate-300'
-          }`}
-        >
-          {label}
-        </span>
-      )}
+      <div className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-current shrink-0">{icon}</div>
+      <span className="whitespace-nowrap">{label}</span>
     </button>
   );
 }
 
-function Navbar({ activeView, onNavClick, isCollapsed, toggleCollapse }: NavbarProps) {
+function Navbar({ activeView, onNavClick }: NavbarProps) {
   const navItems: Array<{ label: string; icon: React.ReactNode; view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner' }> = [
     { label: 'Home', icon: <Home className="w-5 h-5" />, view: 'home' },
     { label: 'Chatterbox', icon: <MessageSquare className="w-5 h-5" />, view: 'chat' },
@@ -59,65 +49,44 @@ function Navbar({ activeView, onNavClick, isCollapsed, toggleCollapse }: NavbarP
   ];
 
   return (
-    <aside
-      role="navigation"
-      className={`flex flex-col bg-slate-800 border-r border-slate-700/50 transition-all duration-300 ease-in-out overflow-hidden ${
-        isCollapsed ? 'w-16' : 'w-72'
-      }`}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-slate-700 flex items-center justify-between">
-        <div className="flex items-center justify-center w-full">
-          <div
-            className={`flex items-center justify-center rounded-md text-white font-bold bg-gradient-to-r from-purple-400 to-cyan-400 ${
-              isCollapsed ? 'w-10 h-10' : 'w-10 h-10'
-            }`}
-            aria-hidden
-          >
-            T
+    <header className="w-full fixed top-0 left-0 z-30">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4">
+        <nav className="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm rounded-2xl mt-2 sm:mt-3 md:mt-4">
+          {/* Logo/Brand - Always on left */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-md bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">T</div>
+            <h1 className="text-sm sm:text-base md:text-lg font-bold text-gray-800 hidden sm:block">Tekisho</h1>
           </div>
-          {!isCollapsed && (
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Tekisho
-            </h1>
-          )}
-        </div>
-        {!isCollapsed && (
-          <button
-            onClick={toggleCollapse}
-            aria-label="Collapse sidebar"
-            className="p-2 rounded-md text-slate-300 hover:bg-slate-700/40"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-        )}
-      </div>
 
-      {/* Navigation */}
-      <div className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => (
-          <NavButton
-            key={item.view}
-            label={item.label}
-            icon={item.icon}
-            active={activeView === item.view}
-            collapsed={isCollapsed}
-            onClick={() => onNavClick(item.view)}
-          />
-        ))}
-      </div>
+          {/* Navigation Items - Scrollable from left on mobile */}
+          <div className="flex-1 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 whitespace-nowrap">
+              {navItems.map((item) => (
+                <NavButton
+                  key={item.view}
+                  label={item.label}
+                  icon={item.icon}
+                  active={activeView === item.view}
+                  collapsed={false}
+                  onClick={() => onNavClick(item.view)}
+                />
+              ))}
+            </div>
+          </div>
 
-      {/* Settings */}
-      <div className="p-4 border-t border-slate-700">
-        <NavButton
-          label="Settings"
-          icon={<Settings className="w-5 h-5" />}
-          active={false}
-          collapsed={isCollapsed}
-          onClick={() => console.log('Navigate to settings')}
-        />
+          {/* Settings Button - Always on right */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button
+              onClick={() => console.log('Open settings')}
+              className="px-2 sm:px-2.5 md:px-3 py-1.5 sm:py-2 rounded-lg bg-white/60 text-gray-700 border border-gray-100 shadow-sm hover:bg-white/80 transition-colors"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4 sm:w-4 md:w-4" />
+            </button>
+          </div>
+        </nav>
       </div>
-    </aside>
+    </header>
   );
 }
 

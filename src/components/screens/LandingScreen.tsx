@@ -14,53 +14,53 @@ export function LandingScreen({ onStartScan }: LandingScreenProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-4xl w-full text-center space-y-12"
+        className="max-w-4xl w-full text-center space-y-8 sm:space-y-12"
       >
         {/* Hero Section */}
-        <div className="space-y-6">
+        <div className="space-y-5 sm:space-y-6">
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring' }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-purple-500 to-cyan-500 mb-6"
+            className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-r from-green-500 to-emerald-500 mb-4 sm:mb-6"
           >
-            <Camera className="w-10 h-10 text-white" />
+            <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </motion.div>
 
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             Scan Business Cards
           </h1>
           
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
             Transform business cards into digital contacts instantly with AI-powered scanning and automated meeting scheduling
           </p>
 
-          <Button size="lg" onClick={onStartScan} className="mt-8">
+          <Button size="lg" onClick={onStartScan} className="mt-4 sm:mt-8">
             <Camera className="w-5 h-5" />
             Start Scanning
           </Button>
         </div>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16">
+        <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-16">
           {features.map((feature, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1 }}
-              className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50 hover:border-cyan-500/50 transition-colors"
+              className="bg-white/70 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-200 hover:border-green-300 transition-colors shadow-sm"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500/20 to-cyan-500/20 mb-4">
+              <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 mb-3 sm:mb-4 text-green-600">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-semibold text-slate-200 mb-2">{feature.title}</h3>
-              <p className="text-sm text-slate-400">{feature.description}</p>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">{feature.title}</h3>
+              <p className="text-sm text-gray-600">{feature.description}</p>
             </motion.div>
           ))}
         </div>
