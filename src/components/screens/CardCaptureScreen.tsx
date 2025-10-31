@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Upload, X, Check, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { BackButton } from '../ui/BackButton';
 
 interface CardCaptureScreenProps {
   onCapture: (file: File) => void;
@@ -187,6 +188,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-1 px-3 sm:px-4 md:px-6 overflow-y-auto pb-6">
+      <BackButton onClick={onCancel} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { BackButton } from '../ui/BackButton';
 import type { UserInfo, LLMResponse } from '../../types/cardScanner';
 
 interface ResultScreenProps {
@@ -23,6 +24,7 @@ export function ResultScreen({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-28 sm:pt-32 md:pt-36 p-4 sm:p-6 overflow-y-auto pb-6">
+      <BackButton onClick={onScanAnother} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
