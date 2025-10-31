@@ -352,17 +352,17 @@ const uploadAllFilesBatch = async () => {
   const errorCount = uploadedFiles.filter(f => f.status === 'error').length;
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 relative overflow-hidden">
-      {/* Dark glassmorphism background elements */}
-      <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-3xl"></div>
-      <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+    <div className="flex flex-col h-full bg-white relative overflow-hidden">
+      {/* Light glassmorphism background elements */}
+      <div className="absolute inset-0 bg-white/20 backdrop-blur-3xl"></div>
+      <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-green-500/10 to-lime-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
       {/* Header */}
-      <div className="relative z-10 bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/50 px-6 py-4 shadow-lg">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Upload Files</h2>
-        <p className="text-slate-400 mt-1">Upload images for OCR processing</p>
+      <div className="relative z-10 bg-white/80 backdrop-blur-xl border-b border-gray-200 px-6 py-4 shadow-lg">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Upload Files</h2>
+        <p className="text-gray-600 mt-1">Upload images for OCR processing</p>
       </div>
 
       {/* Content */}
@@ -370,10 +370,10 @@ const uploadAllFilesBatch = async () => {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Upload Area */}
           <div
-            className={`backdrop-blur-2xl rounded-3xl p-12 text-center transition-all border border-slate-700/50 shadow-2xl ${
+            className={`backdrop-blur-2xl rounded-3xl p-12 text-center transition-all border shadow-2xl ${
               isDragOver 
-                ? 'bg-slate-800/70 ring-2 ring-cyan-400/50' 
-                : 'bg-slate-800/60 hover:bg-slate-800/80'
+                ? 'bg-white/80 ring-2 ring-emerald-400/50 border-emerald-300/50' 
+                : 'bg-white/70 hover:bg-white/90 border-emerald-200/50'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -382,16 +382,16 @@ const uploadAllFilesBatch = async () => {
             {uploadedFiles.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center gap-4">
-                <div className="p-6 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-3xl group-hover:scale-110 transition-all duration-300 shadow-lg backdrop-blur-sm border border-emerald-400/30">
-                  <Upload className="w-12 h-12 text-emerald-400 drop-shadow-sm" />
+                <div className="p-6 bg-gradient-to-br from-emerald-100/60 to-green-100/60 rounded-3xl group-hover:scale-110 transition-all duration-300 shadow-lg backdrop-blur-sm border border-emerald-200/50">
+                  <Upload className="w-12 h-12 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-slate-200 mb-2 drop-shadow-sm">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
                     Drop your files here
                   </h3>
-                  <p className="text-slate-400 mb-4">or click to browse</p>
+                  <p className="text-gray-600 mb-4">or click to browse</p>
                 </div>
-                <label className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-2xl hover:from-emerald-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-slate-600/50 font-semibold cursor-pointer">
+                <label className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-2xl hover:from-emerald-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-emerald-200/50 font-semibold cursor-pointer">
                   Choose Files
                   <input
                     ref={fileInputRef}
@@ -402,19 +402,19 @@ const uploadAllFilesBatch = async () => {
                     className="hidden"
                   />
                 </label>
-                <p className="text-sm text-slate-500 mt-2">Supports JPEG, PNG, GIF, WebP (max 10MB each)</p>
+                <p className="text-sm text-gray-500 mt-2">Supports JPEG, PNG, GIF, WebP (max 10MB each)</p>
               </div>
             ) : (
               // Files in upload area
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-200">
+                  <h3 className="text-lg font-semibold text-gray-800">
                     Uploaded Files ({uploadedFiles.length})
                   </h3>
                   <div className="flex gap-2">
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-300 text-sm font-semibold"
+                      className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-xl hover:from-emerald-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-300 text-sm font-semibold"
                     >
                       Add More
                     </button>
@@ -456,7 +456,7 @@ const uploadAllFilesBatch = async () => {
 
           {/* Uploaded Files List */}
           {uploadedFiles.length > 0 && (
-            <div className="bg-slate-800/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-700/50 overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-emerald-200/50 overflow-hidden">
               <div className="bg-gradient-to-r from-emerald-500/90 to-cyan-500/90 backdrop-blur-xl px-6 py-4 flex items-center justify-between shadow-lg">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-white" />
@@ -483,7 +483,7 @@ const uploadAllFilesBatch = async () => {
                 {uploadedFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="p-6 hover:bg-slate-700/30 transition-colors"
+                    className="p-6 hover:bg-emerald-50/50 transition-colors"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -577,7 +577,7 @@ const uploadAllFilesBatch = async () => {
               
               {/* Upload Button */}
               {pendingCount > 0 && (
-                <div className="p-6 bg-slate-800/50 border-t border-slate-700/50">
+                <div className="p-6 bg-white/60 border-t border-emerald-200/50">
                   <div className="flex justify-center">
                     <button
                       onClick={uploadAllFilesBatch}

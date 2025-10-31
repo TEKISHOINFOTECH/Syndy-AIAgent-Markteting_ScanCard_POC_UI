@@ -1,70 +1,104 @@
 import { motion } from "framer-motion";
-import { Mic, Search } from "lucide-react";
-import { useState } from "react";
+import { Search, Users, Zap } from "lucide-react";
+import { TekishoCard } from "./TekishoCard";
 
-interface HomePageProps {
-  onOpenVoiceAssistant: () => void;
-}
+export const HomePage = () => {
 
-export const HomePage = ({ onOpenVoiceAssistant }: HomePageProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const features = [
+    { icon: <Users className="w-6 h-6" />, title: 'Enterprise Solutions', description: 'Connect with professionals instantly' },
+    { icon: <Zap className="w-6 h-6" />, title: 'AI-Powered Innovation', description: 'Advanced AI for business transformation' },
+    { icon: <Search className="w-6 h-6" />, title: 'Smart Analytics', description: 'Data-driven insights for better decisions' }
+  ];
 
   return (
-    <div className="flex flex-col h-full relative">
-      {/* Dark glassmorphism background elements */}
-      <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-3xl"></div>
-      <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+    <div className="min-h-screen bg-white relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-16">
+          {/* Welcome Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold">
+              <span className="text-gray-800">Tekisho - </span>
+              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                The Right Place for Innovative Solutions
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Tekisho helps enterprises modernize systems and build AI-powered solutions 
+              that deliver measurable business impact.
+            </p>
+          </motion.div>
+        </div>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 space-y-8">
-        {/* Welcome Header */}
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+          {/* Left Side - Features */}
+          <div className="space-y-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-3xl font-bold text-gray-800 mb-6">Smart Features</h2>
+              <div className="space-y-6">
+                {features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                    className="flex items-center space-x-4 p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-gray-200 hover:border-green-300 transition-colors shadow-sm"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-white">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">{feature.title}</h3>
+                      <p className="text-gray-600 text-sm">{feature.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right Side - Card Display */}
+          <div className="flex justify-center">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+              className="relative"
+            >
+              <TekishoCard 
+                name="John Doe"
+                designation="Senior Engineer" 
+                email="john@tekisho.com"
+                phone="+1 (555) 123-4567"
+                company="Tekisho Technologies"
+                animated={true}
+              />
+              <div className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                Preview
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Call to Action */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-4"
+          transition={{ delay: 0.6 }}
+          className="text-center"
         >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Welcome to Tekisho
-          </h1>
-          <p className="text-slate-400 max-w-2xl">
-            Your intelligent contact management assistant
-          </p>
+          <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl">
+            Start Networking Today
+          </button>
         </motion.div>
-
-        {/* Search Bar */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="w-full max-w-md"
-        >
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search contacts, files, or ask anything..."
-              className="w-full pl-12 pr-4 py-4 bg-slate-800/70 backdrop-blur-xl border border-slate-700/50 rounded-2xl focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20 outline-none text-slate-200 placeholder-slate-400"
-            />
-          </div>
-        </motion.div>
-
-        {/* Voice Assistant Button */}
-        <motion.button
-          onClick={onOpenVoiceAssistant}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center transition-all"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        >
-          <Mic className="w-8 h-8 text-white" />
-        </motion.button>
-
-        <p className="text-slate-300 text-center">
-          Click to activate voice assistant
-        </p>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import {
   Camera,
   Upload,
   BarChart3,
-  Menu,
   Settings,
   CreditCard,
 } from 'lucide-react';
@@ -29,21 +28,12 @@ function NavButton({ label, icon, active, collapsed, onClick }: NavButtonProps) 
     <button
       onClick={onClick}
       aria-label={label}
-      className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out ${
-        collapsed ? 'justify-center px-0' : ''
-      } ${active ? 'bg-slate-700 text-cyan-400' : 'text-slate-300 hover:bg-slate-700/50'}`}
+      className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ease-in-out text-sm font-medium ${
+        active ? 'bg-green-500/10 text-green-600 ring-1 ring-green-200' : 'text-gray-600 hover:bg-white/60'
+      }`}
     >
-      <div className={`w-1 h-full absolute left-0 ${active ? 'bg-cyan-400' : ''}`} />
-      {icon}
-      {!collapsed && (
-        <span
-          className={`text-sm font-medium transition-opacity duration-300 ${
-            active ? 'text-cyan-400' : 'text-slate-300'
-          }`}
-        >
-          {label}
-        </span>
-      )}
+      <div className="flex items-center justify-center w-5 h-5 text-current">{icon}</div>
+      <span>{label}</span>
     </button>
   );
 }
@@ -59,65 +49,40 @@ function Navbar({ activeView, onNavClick, isCollapsed, toggleCollapse }: NavbarP
   ];
 
   return (
-    <aside
-      role="navigation"
-      className={`flex flex-col bg-slate-800 border-r border-slate-700/50 transition-all duration-300 ease-in-out overflow-hidden ${
-        isCollapsed ? 'w-16' : 'w-72'
-      }`}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-slate-700 flex items-center justify-between">
-        <div className="flex items-center justify-center w-full">
-          <div
-            className={`flex items-center justify-center rounded-md text-white font-bold bg-gradient-to-r from-purple-400 to-cyan-400 ${
-              isCollapsed ? 'w-10 h-10' : 'w-10 h-10'
-            }`}
-            aria-hidden
-          >
-            T
+    <header className="w-full fixed top-0 left-0 z-30">
+      <div className="max-w-7xl mx-auto px-4">
+        <nav className="flex items-center justify-between p-3 bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm rounded-2xl mt-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-md bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold">T</div>
+              <h1 className="text-lg font-bold text-gray-800">Tekisho</h1>
+            </div>
           </div>
-          {!isCollapsed && (
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Tekisho
-            </h1>
-          )}
-        </div>
-        {!isCollapsed && (
-          <button
-            onClick={toggleCollapse}
-            aria-label="Collapse sidebar"
-            className="p-2 rounded-md text-slate-300 hover:bg-slate-700/40"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-        )}
-      </div>
 
-      {/* Navigation */}
-      <div className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => (
-          <NavButton
-            key={item.view}
-            label={item.label}
-            icon={item.icon}
-            active={activeView === item.view}
-            collapsed={isCollapsed}
-            onClick={() => onNavClick(item.view)}
-          />
-        ))}
-      </div>
+          <div className="flex items-center gap-2">
+            {navItems.map((item) => (
+              <NavButton
+                key={item.view}
+                label={item.label}
+                icon={item.icon}
+                active={activeView === item.view}
+                collapsed={false}
+                onClick={() => onNavClick(item.view)}
+              />
+            ))}
+          </div>
 
-      {/* Settings */}
-      <div className="p-4 border-t border-slate-700">
-        <NavButton
-          label="Settings"
-          icon={<Settings className="w-5 h-5" />}
-          active={false}
-          collapsed={isCollapsed}
-          onClick={() => console.log('Navigate to settings')}
-        />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => console.log('Open settings')}
+              className="px-3 py-2 rounded-lg bg-white/60 text-gray-700 border border-gray-100 shadow-sm"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </nav>
       </div>
-    </aside>
+    </header>
   );
 }
 

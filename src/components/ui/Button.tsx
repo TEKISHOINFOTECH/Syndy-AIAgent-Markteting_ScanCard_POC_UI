@@ -25,9 +25,9 @@ export function Button({
   const baseClasses = 'rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2';
   
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white shadow-lg',
-    secondary: 'bg-slate-700 hover:bg-slate-600 text-slate-200',
-    ghost: 'bg-transparent hover:bg-slate-700/50 text-slate-300'
+    primary: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg',
+    secondary: 'bg-white/70 backdrop-blur-sm hover:bg-white/90 text-gray-700 border border-gray-200 shadow-sm',
+    ghost: 'bg-transparent hover:bg-green-50 text-green-700 border border-green-200/50'
   };
   
   const sizeClasses = {

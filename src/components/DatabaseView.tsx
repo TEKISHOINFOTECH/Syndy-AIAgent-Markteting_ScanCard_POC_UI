@@ -89,21 +89,21 @@ function DatabaseView({
   };
 
   return (
-    <div className="flex h-full bg-slate-900 text-slate-200">
+    <div className="flex h-full bg-white text-gray-800">
       {loading ? (
         <div className="flex items-center justify-center w-full h-full">
-          <p className="text-slate-400 text-lg">Loading data...</p>
+          <p className="text-gray-600 text-lg">Loading data...</p>
         </div>
       ) : (
         <div className="flex-1 p-6 overflow-auto">
           <div className="max-w-6xl mx-auto space-y-6">
             {/* Header card with search, filters and add button */}
-            <div className="flex items-center justify-between bg-slate-800/70 backdrop-blur-2xl rounded-3xl p-4 border border-slate-700/50 shadow-lg">
+            <div className="flex items-center justify-between bg-white/80 backdrop-blur-2xl rounded-3xl p-4 border border-emerald-200/50 shadow-lg">
               <div className="flex items-center gap-4 w-full">
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
-                    className="w-full pl-12 pr-4 py-3 bg-slate-700/50 rounded-2xl border border-slate-600/50 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400/20"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50/80 rounded-2xl border border-gray-200 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
                     placeholder="Search customers..."
                     value={searchQuery}
                     onChange={(e) => {
@@ -116,19 +116,19 @@ function DatabaseView({
                 <div className="hidden sm:flex gap-2">
                   <button
                     onClick={() => setFilterType('all')}
-                    className={`px-4 py-2 rounded-2xl font-medium text-sm border ${filterType === 'all' ? 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow' : 'bg-slate-700/50 text-slate-300 border-slate-600/50'}`}
+                    className={`px-4 py-2 rounded-2xl font-medium text-sm border ${filterType === 'all' ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow' : 'bg-white/70 text-gray-700 border-gray-200'}`}
                   >
                     All
                   </button>
                   <button
                     onClick={() => setFilterType('active')}
-                    className={`px-4 py-2 rounded-2xl font-medium text-sm border ${filterType === 'active' ? 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow' : 'bg-slate-700/50 text-slate-300 border-slate-600/50'}`}
+                    className={`px-4 py-2 rounded-2xl font-medium text-sm border ${filterType === 'active' ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow' : 'bg-white/70 text-gray-700 border-gray-200'}`}
                   >
                     Active
                   </button>
                   <button
                     onClick={() => setFilterType('inactive')}
-                    className={`px-4 py-2 rounded-2xl font-medium text-sm border ${filterType === 'inactive' ? 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow' : 'bg-slate-700/50 text-slate-300 border-slate-600/50'}`}
+                    className={`px-4 py-2 rounded-2xl font-medium text-sm border ${filterType === 'inactive' ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow' : 'bg-white/70 text-gray-700 border-gray-200'}`}
                   >
                     Inactive
                   </button>
@@ -136,18 +136,18 @@ function DatabaseView({
               </div>
 
               <div className="ml-4">
-                <button className="px-4 py-2 rounded-2xl bg-violet-500 text-white font-semibold shadow hover:opacity-95">+</button>
+                <button className="px-4 py-2 rounded-2xl bg-emerald-500 text-white font-semibold shadow hover:opacity-95">+</button>
               </div>
             </div>
 
             {/* Table Card */}
-            <div className="bg-slate-800/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-700/50 overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-emerald-200/50 overflow-hidden">
               {scannedLoading ? (
-                <div className="p-6 text-center text-slate-400">Loading...</div>
+                <div className="p-6 text-center text-gray-600">Loading...</div>
               ) : scannedError ? (
-                <div className="p-6 text-center text-red-400">{scannedError}</div>
+                <div className="p-6 text-center text-red-600">{scannedError}</div>
               ) : filteredData.length === 0 ? (
-                <div className="p-6 text-center text-slate-400">No results found.</div>
+                <div className="p-6 text-center text-gray-600">No results found.</div>
               ) : (
                 <table className="w-full table-auto min-w-[640px]">
                   <thead className="text-slate-400 text-sm">
@@ -179,14 +179,14 @@ function DatabaseView({
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-6 py-3 border-t border-slate-700/50 bg-slate-800/60">
-              <div className="text-sm text-slate-400">
+            <div className="flex items-center justify-between px-6 py-3 border-t border-emerald-200/50 bg-white/70">
+              <div className="text-sm text-gray-600">
                 {start}-{end} of {filteredData.length} results
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
-                  className="px-3 py-1 rounded-md bg-slate-700/50 text-slate-200 hover:bg-slate-700"
+                  className="px-3 py-1 rounded-md bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
                 >
                   ‹
                 </button>
@@ -194,14 +194,14 @@ function DatabaseView({
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={`w-8 h-8 rounded-md ${p === page ? 'bg-violet-500 text-white' : 'bg-slate-700/50 text-slate-200'}`}
+                    className={`w-8 h-8 rounded-md ${p === page ? 'bg-emerald-500 text-white' : 'bg-white/70 text-gray-700 border border-gray-200'}`}
                   >
                     {p}
                   </button>
                 ))}
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  className="px-3 py-1 rounded-md bg-slate-700/50 text-slate-200 hover:bg-slate-700"
+                  className="px-3 py-1 rounded-md bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
                 >
                   ›
                 </button>
@@ -233,7 +233,7 @@ function DatabaseView({
           <div className="mb-6">
             <h3 className="text-sm font-medium text-slate-300 mb-2">Uploaded Files</h3>
             <div className="space-y-2">
-              <div className="flex items-center gap-3 bg-slate-800/60 p-3 rounded-lg">
+              <div className="flex items-center gap-3 bg-white/70 p-3 rounded-lg border border-emerald-200/50">
                 <img
                   src={selected.image}
                   alt={selected.name}

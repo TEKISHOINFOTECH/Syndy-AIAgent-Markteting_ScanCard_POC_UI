@@ -14,20 +14,16 @@ function RobotAvatar() {
         ease: "easeInOut",
       }}
     >
-      <motion.div
-        className="w-48 h-48 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 shadow-2xl flex items-center justify-center relative overflow-hidden"
-        animate={{
-          boxShadow: [
-            '0 0 20px hsla(263, 70%, 64%, 0.5)',
-            '0 0 40px hsla(263, 70%, 64%, 0.8)',
-            '0 0 20px hsla(263, 70%, 64%, 0.5)',
-          ],
+            <motion.div
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ 
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          duration: 0.8
         }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+        className="w-48 h-48 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 shadow-2xl flex items-center justify-center relative overflow-hidden"
       >
         <img 
           src={avatarImage} 
@@ -36,7 +32,7 @@ function RobotAvatar() {
         />
         
         {/* Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-cyan-400/20 rounded-full"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-400/20 rounded-full"></div>
       </motion.div>
       
       {/* Orbital rings */}

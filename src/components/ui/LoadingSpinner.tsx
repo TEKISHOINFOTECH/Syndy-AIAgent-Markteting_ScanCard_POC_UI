@@ -13,6 +13,6 @@ export function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerPr
   };
 
   return (
-    <Loader2 className={`${sizeClasses[size]} animate-spin text-cyan-400 ${className}`} />
+    <Loader2 className={`${sizeClasses[size]} animate-spin text-green-600 ${className}`} />
   );
 }
