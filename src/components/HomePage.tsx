@@ -27,7 +27,7 @@ export const HomePage = ({ onOpenVoiceAssistant, activeView, onNavClick }: HomeP
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4 sm:space-y-6"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
               <span className="text-gray-800">Tekisho - </span>
               <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                 The Right Place for Innovative Solutions

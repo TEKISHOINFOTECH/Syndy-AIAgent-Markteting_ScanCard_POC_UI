@@ -24,9 +24,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
   };
 
   return (
-    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-green-200/50 p-1.5 sm:p-2 md:p-3 shadow-sm">
+    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-green-200/50 px-2 pt-2 pb-2 sm:px-3 sm:pt-3 sm:pb-3 md:px-4 md:pt-4 md:pb-4 shadow-sm">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-1.5 sm:mb-2 md:mb-3 gap-1">
+        <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4 gap-1">
           {steps.map((step, index) => {
             const status = getStatus(index);
             return (
@@ -51,7 +51,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
             return (
               <div key={step.key} className="flex flex-col items-center flex-1 px-1">
                 <div
-                  className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full mb-0.5 sm:mb-1 transition-all duration-300 ${
+                  className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full mb-1.5 sm:mb-2 md:mb-2.5 transition-all duration-300 ${
                     status === 'completed'
                       ? 'bg-green-100 text-green-600'
                       : status === 'current'
