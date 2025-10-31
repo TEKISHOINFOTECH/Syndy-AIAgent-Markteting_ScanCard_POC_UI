@@ -214,7 +214,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                   onClick={() => {
                     setCaptureMode('upload');
                     stopCamera();
-                    // Open file picker immediately when clicking Upload File button
+                    // Open file picker immediately when clicking Upload button
                     setTimeout(() => {
                       fileInputRef.current?.click();
                     }, 100);
@@ -222,7 +222,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                   className="flex-1"
                 >
                   <Upload className="w-4 h-4" />
-                  Upload File
+                  Upload
                 </Button>
                 <Button
                   variant={captureMode === 'camera' ? 'primary' : 'secondary'}
@@ -233,7 +233,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                   className="flex-1"
                 >
                   <Camera className="w-4 h-4" />
-                  Use Camera
+                  Camera
                 </Button>
               </div>
             )}

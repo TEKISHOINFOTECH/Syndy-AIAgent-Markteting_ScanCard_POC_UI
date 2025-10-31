@@ -98,7 +98,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
         } : null,
         isLoading: false,
       }));
-      setToast({ message: 'Meeting request received!', type: 'success' });
+      setToast({ message: 'Meeting requested!', type: 'success' });
     } catch (err) {
       console.error('❌ Meeting scheduling error:', err);
       setState(prev => ({ ...prev, isLoading: false }));

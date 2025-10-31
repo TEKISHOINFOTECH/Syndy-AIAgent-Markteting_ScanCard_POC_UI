@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Camera, Zap, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { NavTabs } from '../ui/NavTabs';
 
 interface LandingScreenProps {
   onStartScan: () => void;
@@ -17,47 +16,54 @@ export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavCl
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-20 sm:pt-24 md:items-center md:pt-0 p-4 sm:p-6 overflow-y-auto pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex flex-col px-4 sm:px-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-4xl w-full text-center space-y-6 sm:space-y-8 md:space-y-12"
+        className="max-w-4xl w-full mx-auto pt-1 sm:pt-2"
       >
-        {/* Hero Section */}
-        <div className="space-y-4 sm:space-y-5 md:space-y-6">
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring' }}
-            className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-r from-green-500 to-emerald-500 mb-3 sm:mb-4 md:mb-6"
-          >
-            <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-          </motion.div>
+        {/* Heading Section - Top */}
+        <div className="text-center space-y-2 sm:space-y-3 md:space-y-4">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-5">
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+              className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-r from-green-500 to-emerald-500 flex-shrink-0"
+            >
+              <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            </motion.div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            Scan Business Cards
-          </h1>
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              Scan Business Cards
+            </h1>
+          </div>
           
           <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto">
             Transform business cards into digital contacts with AI-powered scanning
           </p>
-
-          <Button size="lg" onClick={onStartScan} className="mt-3 sm:mt-4 md:mt-8">
-            <Camera className="w-5 h-5" />
-            Start Scanning
-          </Button>
         </div>
+      </motion.div>
 
-        {/* Navigation Tabs */}
-        {onNavClick && (
-          <div className="mb-6 sm:mb-8">
-            <NavTabs activeView={activeView} onNavClick={onNavClick} />
-          </div>
-        )}
+      {/* Button - Center of Screen */}
+      <div className="flex items-center justify-center max-w-4xl w-full mx-auto py-4 sm:py-6">
+        <Button size="lg" onClick={onStartScan}>
+          <Camera className="w-5 h-5" />
+          Start Scanning
+        </Button>
+      </div>
+
+      {/* Features - Bottom */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="max-w-4xl w-full mx-auto pb-4"
+      >
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 md:mt-16">
+        <div className="grid md:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
           {features.map((feature, index) => (
             <motion.div
               key={index}
