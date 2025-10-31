@@ -5,6 +5,17 @@
 /.pnp
 .pnp.js
 
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
 # testing
 /coverage
 
