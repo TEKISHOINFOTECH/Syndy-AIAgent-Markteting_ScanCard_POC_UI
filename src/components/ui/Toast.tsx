@@ -19,9 +19,9 @@ export function Toast({ message, type = 'info', isVisible, onClose, duration = 5
   }, [isVisible, duration, onClose]);
 
   const icons = {
-    success: <CheckCircle className="w-5 h-5" />,
-    error: <AlertCircle className="w-5 h-5" />,
-    info: <Info className="w-5 h-5" />
+    success: <CheckCircle className="w-4 h-4" />,
+    error: <AlertCircle className="w-4 h-4" />,
+    info: <Info className="w-4 h-4" />
   };
 
   const colors = {
@@ -31,22 +31,25 @@ export function Toast({ message, type = 'info', isVisible, onClose, duration = 5
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
-          className={`fixed top-4 right-4 z-50 ${colors[type]} backdrop-blur-xl px-6 py-4 rounded-2xl shadow-lg border flex items-center gap-3 max-w-md`}
+          key={message}
+          initial={{ opacity: 0, y: -50, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -50, scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className={`fixed top-36 sm:top-40 md:top-44 right-4 z-[9999] ${colors[type]} backdrop-blur-xl px-4 py-2.5 rounded-xl shadow-lg border flex items-center gap-2 max-w-xs text-sm pointer-events-auto`}
+          style={{ isolation: 'isolate' }}
         >
           {icons[type]}
-          <span className="flex-1 font-medium">{message}</span>
+          <span className="flex-1 font-medium text-sm">{message}</span>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+            className="p-0.5 hover:bg-white/20 rounded transition-colors flex-shrink-0"
             aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </motion.div>
       )}

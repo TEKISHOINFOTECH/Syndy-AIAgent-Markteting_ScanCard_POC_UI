@@ -24,7 +24,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-green-200/50 p-3 sm:p-4 shadow-sm">
+    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-green-200/50 p-3 sm:p-4 shadow-sm">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-3 gap-1">
           {steps.map((step, index) => {

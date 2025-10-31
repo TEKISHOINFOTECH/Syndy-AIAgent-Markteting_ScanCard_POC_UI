@@ -7,6 +7,7 @@ import {
   Settings,
   CreditCard,
 } from 'lucide-react';
+import tekishoLogo from '../resources/Logo_Tekisho.png';
 
 interface NavbarProps {
   activeView: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
@@ -28,7 +29,7 @@ function NavButton({ label, icon, active, collapsed, onClick }: NavButtonProps) 
     <button
       onClick={onClick}
       aria-label={label}
-      className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-xl transition-all duration-200 ease-in-out text-xs sm:text-sm font-medium flex-shrink-0 ${
+      className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-4 py-2 sm:py-2 rounded-xl transition-all duration-200 ease-in-out text-xs sm:text-sm font-medium flex-shrink-0 ${
         active ? 'bg-green-500/10 text-green-600 ring-1 ring-green-200' : 'text-gray-600 hover:bg-white/60'
       }`}
     >
@@ -40,10 +41,10 @@ function NavButton({ label, icon, active, collapsed, onClick }: NavButtonProps) 
 
 function Navbar({ activeView, onNavClick }: NavbarProps) {
   const navItems: Array<{ label: string; icon: React.ReactNode; view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner' }> = [
+    { label: 'Card Scanner', icon: <CreditCard className="w-5 h-5" />, view: 'cardscanner' },
     { label: 'Home', icon: <Home className="w-5 h-5" />, view: 'home' },
     { label: 'Chatterbox', icon: <MessageSquare className="w-5 h-5" />, view: 'chat' },
     { label: 'Scanner', icon: <Camera className="w-5 h-5" />, view: 'scan' },
-    { label: 'Card Scanner', icon: <CreditCard className="w-5 h-5" />, view: 'cardscanner' },
     { label: 'Upload Files', icon: <Upload className="w-5 h-5" />, view: 'upload' },
     { label: 'Analysis', icon: <BarChart3 className="w-5 h-5" />, view: 'analysis' },
   ];
@@ -51,10 +52,14 @@ function Navbar({ activeView, onNavClick }: NavbarProps) {
   return (
     <header className="w-full fixed top-0 left-0 z-30">
       <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4">
-        <nav className="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm rounded-2xl mt-2 sm:mt-3 md:mt-4">
+        <nav className="flex items-center gap-2 sm:gap-3 p-3 sm:p-2.5 md:p-3 bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm rounded-2xl mt-2 sm:mt-3 md:mt-4">
           {/* Logo/Brand - Always on left */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-md bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">T</div>
+            <img 
+              src={tekishoLogo} 
+              alt="Tekisho Logo" 
+              className="h-9 sm:h-9 md:h-10 w-auto object-contain"
+            />
             <h1 className="text-sm sm:text-base md:text-lg font-bold text-gray-800 hidden sm:block">Tekisho</h1>
           </div>
 
@@ -78,7 +83,7 @@ function Navbar({ activeView, onNavClick }: NavbarProps) {
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => console.log('Open settings')}
-              className="px-2 sm:px-2.5 md:px-3 py-1.5 sm:py-2 rounded-lg bg-white/60 text-gray-700 border border-gray-100 shadow-sm hover:bg-white/80 transition-colors"
+              className="px-2 sm:px-2.5 md:px-3 py-2 sm:py-2 rounded-lg bg-white/60 text-gray-700 border border-gray-100 shadow-sm hover:bg-white/80 transition-colors"
               aria-label="Settings"
             >
               <Settings className="w-4 h-4 sm:w-4 md:w-4" />

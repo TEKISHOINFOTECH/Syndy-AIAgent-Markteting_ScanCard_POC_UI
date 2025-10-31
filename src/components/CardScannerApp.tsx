@@ -93,7 +93,7 @@ export function CardScannerApp() {
         } : null,
         isLoading: false,
       }));
-      setToast({ message: 'Meeting invitation sent!', type: 'success' });
+      setToast({ message: 'Meeting request received!', type: 'success' });
     } catch (err) {
       console.error('❌ Meeting scheduling error:', err);
       setState(prev => ({ ...prev, isLoading: false }));
@@ -129,7 +129,7 @@ export function CardScannerApp() {
       {/* Step Indicator */}
       <StepIndicator currentStep={state.step} />
 
-      <div className="relative z-10">
+      <div className="relative z-50">
         {state.step === 'landing' && (
           <LandingScreen onStartScan={handleStartScan} />
         )}
