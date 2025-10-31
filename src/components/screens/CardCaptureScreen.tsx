@@ -186,29 +186,29 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-24 sm:pt-28 md:pt-32 p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-2 sm:pt-16 md:pt-24 p-3 sm:p-4 md:p-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-2xl w-full"
+        className="max-w-2xl w-full my-auto"
       >
-        <Card>
-          <div className="space-y-5 sm:space-y-6">
+        <Card className="mx-auto">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6 p-4 sm:p-5 md:p-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Capture Business Card</h2>
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Capture Business Card</h2>
               <button
                 onClick={handleCancelCapture}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
                 aria-label="Cancel"
               >
-                <X className="w-5 h-5 text-gray-600" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </button>
             </div>
 
             {/* Capture Mode Toggle */}
             {!previewUrl && (
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <Button
                   variant={captureMode === 'upload' ? 'primary' : 'secondary'}
                   onClick={() => {
@@ -239,7 +239,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
             )}
 
             {/* Capture Area */}
-            <div className="relative bg-gray-100 rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
+            <div className="relative bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[350px] md:min-h-[400px] flex items-center justify-center mt-2">
               {/* Upload Mode */}
               {!previewUrl && captureMode === 'upload' && !isValidating && (
                 <div
@@ -289,19 +289,19 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                   {/* Camera Overlay Guides */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* Corner guides */}
-                    <div className="absolute top-4 left-4 w-12 h-12 border-l-4 border-t-4 border-green-500"></div>
-                    <div className="absolute top-4 right-4 w-12 h-12 border-r-4 border-t-4 border-green-500"></div>
-                    <div className="absolute bottom-4 left-4 w-12 h-12 border-l-4 border-b-4 border-green-500"></div>
-                    <div className="absolute bottom-4 right-4 w-12 h-12 border-r-4 border-b-4 border-green-500"></div>
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 border-l-[3px] sm:border-l-4 border-t-[3px] sm:border-t-4 border-green-500"></div>
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 border-r-[3px] sm:border-r-4 border-t-[3px] sm:border-t-4 border-green-500"></div>
+                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 border-l-[3px] sm:border-l-4 border-b-[3px] sm:border-b-4 border-green-500"></div>
+                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 border-r-[3px] sm:border-r-4 border-b-[3px] sm:border-b-4 border-green-500"></div>
                     
                     {/* Center frame */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-[80%] h-[60%] border-2 border-green-500/50 rounded-2xl"></div>
+                      <div className="w-[85%] sm:w-[80%] h-[55%] sm:h-[60%] border-2 border-green-500/50 rounded-xl sm:rounded-2xl"></div>
                     </div>
                     
                     {/* Instruction text */}
-                    <div className="absolute bottom-8 left-0 right-0 text-center">
-                      <p className="text-white text-sm bg-gray-900/70 inline-block px-4 py-2 rounded-full">
+                    <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-0 right-0 text-center px-2">
+                      <p className="text-white text-xs sm:text-sm bg-gray-900/70 inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
                         Position card within the frame
                       </p>
                     </div>

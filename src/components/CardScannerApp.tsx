@@ -8,7 +8,12 @@ import { CardScannerAPI } from '../services/api';
 import type { CardScanState, UserInfo } from '../types/cardScanner';
 import { StepIndicator } from './ui/StepIndicator';
 
-export function CardScannerApp() {
+interface CardScannerAppProps {
+  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
+  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
+}
+
+export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardScannerAppProps) {
   const [state, setState] = useState<CardScanState>({
     step: 'landing',
     transactionID: null,
@@ -118,7 +123,7 @@ export function CardScannerApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 overflow-y-auto">
       {/* Light glassmorphism background elements */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -129,9 +134,9 @@ export function CardScannerApp() {
       {/* Step Indicator */}
       <StepIndicator currentStep={state.step} />
 
-      <div className="relative z-50">
+      <div className="relative z-50 pb-6">
         {state.step === 'landing' && (
-          <LandingScreen onStartScan={handleStartScan} />
+          <LandingScreen onStartScan={handleStartScan} activeView={activeView} onNavClick={onNavClick} />
         )}
 
         {state.step === 'capture' && (

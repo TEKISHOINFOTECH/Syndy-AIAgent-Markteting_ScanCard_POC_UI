@@ -15,9 +15,13 @@ interface Customer {
 function DatabaseView({
   toggleNavbar,
   setIsSidePanelOpen,
+  activeView,
+  onNavClick,
 }: {
   toggleNavbar: () => void;
   setIsSidePanelOpen: (isOpen: boolean) => void;
+  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
+  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'active' | 'inactive'>('all');

@@ -5,7 +5,12 @@ import { DatabaseService } from '../lib/supabase';
 
 type ScanMode = 'qr' | 'nfc' | 'text' | null;
 
-function ScanView() {
+interface ScanViewProps {
+  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
+  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
+}
+
+function ScanView({ activeView = 'scan', onNavClick }: ScanViewProps) {
   const [scanMode, setScanMode] = useState<ScanMode>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);

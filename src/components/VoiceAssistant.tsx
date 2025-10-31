@@ -85,22 +85,22 @@ export const VoiceAssistant = ({ isOpen, onClose }: VoiceAssistantProps) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
           transition={{ type: "spring", duration: 0.5, bounce: 0.4 }}
-          className="fixed bottom-24 right-8 w-[450px] bg-slate-800/95 backdrop-blur-2xl border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden z-50"
+          className="fixed bottom-24 right-8 w-[450px] bg-white/90 backdrop-blur-2xl border border-gray-200/50 rounded-3xl shadow-2xl overflow-hidden z-50"
         >
-          <div className="bg-gradient-to-r from-purple-500/90 to-cyan-500/90 backdrop-blur-xl p-4 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-green-500/90 to-emerald-500/90 backdrop-blur-xl p-4 flex items-center justify-between">
             <h3 className="text-white font-semibold">Voice Assistant</h3>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-white"
+              className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50">
             {/* Voice Assistant Avatar */}
             <div className="flex justify-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-4 ring-green-100">
                 <img 
                   src={avatarMascot} 
                   alt="Voice Assistant Mascot" 
@@ -115,7 +115,7 @@ export const VoiceAssistant = ({ isOpen, onClose }: VoiceAssistantProps) => {
                 className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-lg ${
                   isListening
                     ? "bg-red-500 hover:bg-red-600 shadow-red-500/25"
-                    : "bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600"
+                    : "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                 }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -130,17 +130,17 @@ export const VoiceAssistant = ({ isOpen, onClose }: VoiceAssistantProps) => {
               </motion.button>
             </div>
 
-            <div className="min-h-[100px] max-h-[150px] overflow-y-auto bg-slate-700/50 rounded-lg p-4">
+            <div className="min-h-[100px] max-h-[150px] overflow-y-auto bg-white/70 backdrop-blur-sm border border-gray-200 rounded-lg p-4">
               {transcript ? (
-                <p className="text-sm text-slate-200">{transcript}</p>
+                <p className="text-sm text-gray-800">{transcript}</p>
               ) : (
-                <p className="text-sm text-slate-400 text-center">
+                <p className="text-sm text-gray-600 text-center">
                   {isListening ? "Listening..." : "Click the microphone to start"}
                 </p>
               )}
             </div>
 
-            <p className="text-xs text-slate-500 text-center">
+            <p className="text-xs text-gray-500 text-center">
               Speak naturally. Your voice will be transcribed in real-time.
             </p>
           </div>

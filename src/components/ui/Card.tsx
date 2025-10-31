@@ -10,7 +10,7 @@ export function Card({ children, className = '', hover = false }: CardProps) {
   return (
     <motion.div
       whileHover={hover ? { y: -4 } : {}}
-      className={`bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-5 md:p-6 ${className}`}
+      className={`bg-white/70 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-200 ${className}`}
     >
       {children}
     </motion.div>

@@ -11,9 +11,10 @@ interface ChatViewProps {
   analysisSubsection?: 'overview' | 'stats' | 'database' | null;
   setAnalysisSubsection?: (subsection: 'overview' | 'stats' | 'database' | null) => void;
   setActiveView?: (view: 'chat' | 'upload' | 'scan' | 'analysis') => void;
+  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setActiveView }: ChatViewProps) {
+function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setActiveView, onNavClick }: ChatViewProps) {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
 
