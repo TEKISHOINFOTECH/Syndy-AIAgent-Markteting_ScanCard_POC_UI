@@ -16,6 +16,8 @@ A powerful, modern web application that leverages AI to scan, extract, and analy
 - **File Upload**: Batch processing with drag-and-drop support
 - **Camera Integration**: Real-time webcam capture with live preview
 
+- 
+
 ### 🃏 Card Scanner App
 - **Dedicated Card Scanner**: Streamlined workflow for business card processing
 - **Real-time Processing**: Live status updates from backend
