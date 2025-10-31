@@ -10,13 +10,13 @@ interface MeetingConfirmationScreenProps {
 
 export function MeetingConfirmationScreen({ transactionID, onDone }: MeetingConfirmationScreenProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-center justify-center pt-24 sm:pt-28 md:pt-32 md:pt-0 p-4 sm:p-6 overflow-y-auto pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-1 px-4 sm:px-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full mx-auto"
       >
-        <Card className="text-center space-y-4 sm:space-y-5 md:space-y-6 p-5 sm:p-6 md:p-8">
+        <Card className="text-center space-y-3 sm:space-y-4 md:space-y-5 p-4 sm:p-5 md:p-6">
           {/* Success Animation */}
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
@@ -29,10 +29,10 @@ export function MeetingConfirmationScreen({ transactionID, onDone }: MeetingConf
 
           <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
             <div className="flex items-center justify-center gap-2">
-              <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Meeting Requested</h2>
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-500" />
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">Meeting Requested</h2>
             </div>
-            <p className="text-sm sm:text-base text-gray-600">
+            <p className="text-xs sm:text-sm md:text-base text-gray-600 px-2">
               Your meeting request has been successfully processed
             </p>
           </div>

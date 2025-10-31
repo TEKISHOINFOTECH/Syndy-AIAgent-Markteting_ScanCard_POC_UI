@@ -186,14 +186,14 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-2 sm:pt-16 md:pt-24 p-3 sm:p-4 md:p-6 overflow-y-auto pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-1 px-3 sm:px-4 md:px-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-2xl w-full my-auto"
+        className="max-w-2xl w-full"
       >
         <Card className="mx-auto">
-          <div className="space-y-4 sm:space-y-5 md:space-y-6 p-4 sm:p-5 md:p-6">
+          <div className="space-y-3 sm:space-y-4 md:space-y-5 p-3 sm:p-4 md:p-5">
             {/* Header */}
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Capture Business Card</h2>
@@ -219,7 +219,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                       fileInputRef.current?.click();
                     }, 100);
                   }}
-                  className="flex-1"
+                  className="flex-1 !px-3 !py-1.5 !text-sm !rounded-lg"
                 >
                   <Upload className="w-4 h-4" />
                   Upload
@@ -230,7 +230,7 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
                     setCaptureMode('camera');
                     startCamera();
                   }}
-                  className="flex-1"
+                  className="flex-1 !px-3 !py-1.5 !text-sm !rounded-lg"
                 >
                   <Camera className="w-4 h-4" />
                   Camera
@@ -362,20 +362,20 @@ export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProp
             )}
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               {previewUrl ? (
                 <>
-                  <Button variant="secondary" onClick={handleRetake} className="flex-1">
+                  <Button variant="secondary" onClick={handleRetake} className="flex-1 !px-3 !py-1.5 !text-sm !rounded-lg">
                     <X className="w-4 h-4" />
                     Retake
                   </Button>
-                  <Button onClick={handleProcess} className="flex-1" disabled={isValidating}>
+                  <Button onClick={handleProcess} className="flex-1 !px-3 !py-1.5 !text-sm !rounded-lg" disabled={isValidating}>
                     <Check className="w-4 h-4" />
                     Process Card
                   </Button>
                 </>
               ) : captureMode === 'camera' && stream && !isCameraLoading && (
-                <Button onClick={capturePhoto} className="w-full" disabled={isValidating}>
+                <Button onClick={capturePhoto} className="w-full !px-3 !py-1.5 !text-sm !rounded-lg" disabled={isValidating}>
                   <Camera className="w-4 h-4" />
                   Capture Photo
                 </Button>
