@@ -29,7 +29,7 @@ export function ResultScreen({
         className="max-w-2xl w-full"
       >
         <Card>
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-3 sm:space-y-4 p-4 sm:p-5 md:p-6">
             {/* Success Header */}
             <motion.div
               initial={{ scale: 0 }}
@@ -80,12 +80,12 @@ export function ResultScreen({
             )}
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-1 sm:pt-2">
-              <Button onClick={onScheduleMeeting} className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-1 sm:pt-2 justify-center">
+              <Button onClick={onScheduleMeeting} className="sm:max-w-[200px] !px-4 !py-2 !text-sm !rounded-lg">
                 <Calendar className="w-4 h-4" />
                 Schedule Meeting
               </Button>
-              <Button variant="secondary" onClick={onScanAnother} className="flex-1">
+              <Button variant="secondary" onClick={onScanAnother} className="sm:max-w-[200px] !px-4 !py-2 !text-sm !rounded-lg">
                 Scan Another
               </Button>
             </div>
