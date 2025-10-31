@@ -1,12 +1,15 @@
 import { motion } from 'framer-motion';
 import { Camera, Zap, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { NavTabs } from '../ui/NavTabs';
 
 interface LandingScreenProps {
   onStartScan: () => void;
+  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
+  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-export function LandingScreen({ onStartScan }: LandingScreenProps) {
+export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavClick }: LandingScreenProps) {
   const features = [
     { icon: <Camera className="w-6 h-6" />, title: 'Instant Scanning', description: 'Capture business cards in seconds' },
     { icon: <Zap className="w-6 h-6" />, title: 'AI-Powered', description: 'Smart extraction using advanced AI' },
@@ -14,7 +17,7 @@ export function LandingScreen({ onStartScan }: LandingScreenProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-20 sm:pt-24 md:items-center md:pt-0 p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-20 sm:pt-24 md:items-center md:pt-0 p-4 sm:p-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -32,12 +35,12 @@ export function LandingScreen({ onStartScan }: LandingScreenProps) {
             <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </motion.div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             Scan Business Cards
           </h1>
           
           <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Transform business cards into digital contacts instantly with AI-powered scanning and automated meeting scheduling
+            Transform business cards into digital contacts with AI-powered scanning
           </p>
 
           <Button size="lg" onClick={onStartScan} className="mt-3 sm:mt-4 md:mt-8">
@@ -45,6 +48,13 @@ export function LandingScreen({ onStartScan }: LandingScreenProps) {
             Start Scanning
           </Button>
         </div>
+
+        {/* Navigation Tabs */}
+        {onNavClick && (
+          <div className="mb-6 sm:mb-8">
+            <NavTabs activeView={activeView} onNavClick={onNavClick} />
+          </div>
+        )}
 
         {/* Features */}
         <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 md:mt-16">

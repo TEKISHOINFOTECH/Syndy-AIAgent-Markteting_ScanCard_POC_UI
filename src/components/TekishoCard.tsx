@@ -31,12 +31,13 @@ export function TekishoCard({
         {...cardProps}
         className="relative w-80 h-48 bg-gradient-to-br from-gray-900 to-black rounded-2xl shadow-2xl overflow-hidden group"
       >
-      {/* Glossy Flash Effect */}
-      <div className="absolute inset-0 z-20 overflow-hidden rounded-2xl pointer-events-none">
+      {/* Moving Shine Effect on Hover */}
+      <div className="absolute inset-0 z-20 overflow-hidden rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <div 
-          className="absolute inset-0 w-[200%] shimmer-effect"
+          className="absolute inset-0 w-[150%] h-full -left-[150%] group-hover:left-[100%] transition-all duration-1500 ease-in-out"
           style={{
-            background: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(255,255,255,0.5) 50%, transparent 55%, transparent 100%)'
+            background: 'linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.6) 45%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.6) 55%, transparent 75%)',
+            transform: 'skewX(-25deg)'
           }}
         ></div>
       </div>

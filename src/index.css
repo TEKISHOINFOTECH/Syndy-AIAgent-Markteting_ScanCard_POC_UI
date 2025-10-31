@@ -8,11 +8,13 @@
   }
 
   html {
-    @apply overflow-hidden;
+    @apply overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
-    @apply font-sans antialiased bg-white text-gray-800;
+    @apply font-sans antialiased bg-white text-gray-800 overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -31,6 +33,25 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Custom scrollbar styling for better visibility */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
   }
 
   .gradient-text {

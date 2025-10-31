@@ -10,7 +10,7 @@ interface MeetingConfirmationScreenProps {
 
 export function MeetingConfirmationScreen({ transactionID, onDone }: MeetingConfirmationScreenProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-24 sm:pt-28 md:pt-32 md:items-center md:pt-0 p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-24 sm:pt-28 md:pt-32 md:items-center md:pt-0 p-4 sm:p-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

@@ -14,9 +14,11 @@ interface UploadedFile {
 
 interface UploadViewProps {
   onFilesProcessed?: (results: any[]) => void;
+  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
+  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-function UploadView({ onFilesProcessed }: UploadViewProps) {
+function UploadView({ onFilesProcessed, activeView = 'upload', onNavClick }: UploadViewProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
