@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LandingScreen } from './screens/LandingScreen';
 import { CardCaptureScreen } from './screens/CardCaptureScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { MeetingConfirmationScreen } from './screens/MeetingConfirmationScreen';
 import { Toast } from './ui/Toast';
 import { CardScannerAPI } from '../services/api';
-import type { CardScanState, UserInfo } from '../types/cardScanner';
+import type { CardScanState, UserInfo, LLMResponse } from '../types/cardScanner';
 import { StepIndicator } from './ui/StepIndicator';
 
 interface CardScannerAppProps {
@@ -22,9 +22,163 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     processingStatus: null,
     isLoading: false,
     error: null,
+    llmResponse: null,
   });
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollCountRef = useRef<number>(0);
+
+  // Poll for updated card data when on result step and processing
+  useEffect(() => {
+    // Only poll if we're on result step and processing status indicates company enrichment
+    if (state.step === 'result' && state.transactionID && state.processingStatus === 'processing') {
+      const maxPolls = 30; // Poll for max 30 times (30 * 2 seconds = 60 seconds total)
+      const pollInterval = 2000; // Poll every 2 seconds
+      pollCountRef.current = 0; // Reset poll count for new polling cycle
+
+      const pollForCompanyData = async () => {
+        try {
+          pollCountRef.current++;
+          console.log(`🔄 Polling for company data (attempt ${pollCountRef.current}/${maxPolls})...`);
+          
+          const updatedData = await CardScannerAPI.getCardData(state.transactionID!);
+          
+          // Debug: Log the full response to see its structure
+          console.log('📦 Full backend response:', JSON.stringify(updatedData, null, 2));
+          
+          // Check if company data is available (2nd LLM call completed)
+          // Check multiple possible locations for company data in the response
+          const hasCompanyData = updatedData?.structured_data?.company_description ||
+                                updatedData?.company_data?.company_description ||
+                                updatedData?.company_description ||
+                                updatedData?.structured_data?.industry ||
+                                updatedData?.company_data?.industry ||
+                                updatedData?.structured_data?.company_data?.industry ||
+                                updatedData?.industry ||
+                                // Check if any company enrichment fields exist
+                                updatedData?.structured_data?.num_of_employees ||
+                                updatedData?.company_data?.num_of_employees ||
+                                updatedData?.num_of_employees ||
+                                updatedData?.structured_data?.revenue ||
+                                updatedData?.company_data?.revenue ||
+                                updatedData?.revenue;
+          
+          if (hasCompanyData || pollCountRef.current >= maxPolls) {
+            // Company data is available or max polls reached
+            if (pollingIntervalRef.current) {
+              clearInterval(pollingIntervalRef.current);
+              pollingIntervalRef.current = null;
+            }
+
+            // Extract updated company data - check multiple possible response structures
+            // Backend might return data in: structured_data, company_data, or directly at root
+            const rootData = updatedData || {};
+            const structuredData = rootData.structured_data || rootData.company_data || {};
+            const companyDataObj = rootData.company_data || 
+                                  rootData.structured_data?.company_data ||
+                                  rootData.additional_info?.company_data ||
+                                  rootData.additional_info ||
+                                  {}; // Fallback to empty object
+            
+            // Merge all possible data sources (root level, structured_data, company_data nested)
+            const allCompanyData = {
+              ...rootData, // Root level fields
+              ...structuredData, // structured_data fields
+              ...companyDataObj, // company_data nested fields
+            };
+
+            console.log('🔍 Extracted company data:', {
+              rootData: Object.keys(rootData),
+              structuredData: Object.keys(structuredData),
+              companyDataObj: Object.keys(companyDataObj),
+              allCompanyData: Object.keys(allCompanyData),
+            });
+
+            // Update LLM response with enriched company data
+            // Try all possible locations for each field
+            const enrichedLLMResponse: LLMResponse = {
+              extracted_data: {
+                ...state.llmResponse?.extracted_data,
+                // Extract each field from multiple possible locations
+                company_description: allCompanyData.company_description || structuredData.company_description || rootData.company_description,
+                products: allCompanyData.products || structuredData.products || rootData.products,
+                location: allCompanyData.location || structuredData.location || rootData.location || state.llmResponse?.extracted_data?.location,
+                industry: allCompanyData.industry || structuredData.industry || rootData.industry || state.llmResponse?.extracted_data?.industry,
+                num_of_employees: allCompanyData.num_of_employees || structuredData.num_of_employees || rootData.num_of_employees,
+                revenue: allCompanyData.revenue || structuredData.revenue || rootData.revenue,
+                market_share: allCompanyData.market_share || structuredData.market_share || rootData.market_share,
+                investors: allCompanyData.investors || structuredData.investors || rootData.investors,
+                summarised_llm_company_response: allCompanyData.summarised_llm_company_response || structuredData.summarised_llm_company_response || rootData.summarised_llm_company_response,
+                other_info_of_company: allCompanyData.other_info_of_company || structuredData.other_info_of_company || rootData.other_info_of_company,
+              },
+              confidence_score: state.llmResponse?.confidence_score || rootData.confidence || 0.85,
+            };
+
+            console.log('✅ Enriched LLM Response:', {
+              extracted_data_keys: Object.keys(enrichedLLMResponse.extracted_data),
+              company_fields: {
+                company_description: !!enrichedLLMResponse.extracted_data.company_description,
+                products: !!enrichedLLMResponse.extracted_data.products,
+                industry: !!enrichedLLMResponse.extracted_data.industry,
+                num_of_employees: !!enrichedLLMResponse.extracted_data.num_of_employees,
+                revenue: !!enrichedLLMResponse.extracted_data.revenue,
+                market_share: !!enrichedLLMResponse.extracted_data.market_share,
+                investors: !!enrichedLLMResponse.extracted_data.investors,
+                summarised_llm_company_response: !!enrichedLLMResponse.extracted_data.summarised_llm_company_response,
+                other_info_of_company: !!enrichedLLMResponse.extracted_data.other_info_of_company,
+              }
+            });
+
+            setState(prev => ({
+              ...prev,
+              llmResponse: enrichedLLMResponse,
+              processingStatus: 'completed',
+            }));
+
+            if (hasCompanyData) {
+              setToast({ message: 'Company data enriched!', type: 'success' });
+              console.log('✅ Company data enrichment completed');
+            } else {
+              setToast({ message: 'Company data enrichment timed out. Showing available data.', type: 'info' });
+              console.log('⏱️ Company data enrichment timed out');
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error polling for company data:', error);
+          
+          // On error, stop polling after max attempts
+          if (pollCountRef.current >= maxPolls) {
+            if (pollingIntervalRef.current) {
+              clearInterval(pollingIntervalRef.current);
+              pollingIntervalRef.current = null;
+            }
+            setState(prev => ({
+              ...prev,
+              processingStatus: 'completed', // Mark as completed even if enrichment failed
+            }));
+            setToast({ message: 'Company enrichment unavailable. Showing available data.', type: 'info' });
+          }
+        }
+      };
+
+      // Start polling immediately
+      pollForCompanyData();
+      
+      // Set interval for subsequent polls
+      pollingIntervalRef.current = setInterval(() => {
+        pollForCompanyData();
+      }, pollInterval);
+
+      // Cleanup on unmount or when step changes
+      return () => {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      };
+    }
+  }, [state.step, state.transactionID, state.processingStatus]);
 
   const handleStartScan = () => {
     setState(prev => ({ ...prev, step: 'capture' }));
@@ -43,25 +197,53 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
       const response = await CardScannerAPI.uploadCard(file);
       console.log('✅ Upload response:', response);
 
-      const placeholderUserInfo: UserInfo = {
-        transaction_id: response.transactionID,
-        email: null,
-        name: null,
-        phone: null,
-        company: null,
+      // Extract structured data from the AI response
+      const structuredData = response.aiResponse?.structured_data || {};
+      
+      const extractedUserInfo: UserInfo = {
+        transactionID: response.transactionID, // Using transactionID universally (maps to backend record_id)
+        email: structuredData.email || null,
+        name: structuredData.name || null,
+        phone: structuredData.phone || null,
+        company: structuredData.company || null,
         is_meeting_requested: false,
         created_at: new Date().toISOString(),
       };
+
+      // Create LLMResponse from AI response for ResultScreen
+      // Extract company data from structured_data, additional_info, or nested company_data
+      const companyData = response.aiResponse?.structured_data?.company_data || 
+                         response.aiResponse?.additional_info?.company_data ||
+                         response.aiResponse?.additional_info || {};
+      
+      const llmResponse: LLMResponse | null = response.aiResponse ? {
+        extracted_data: {
+          ...structuredData,
+          // Company insights fields
+          company_description: companyData.company_description || structuredData.company_description,
+          products: companyData.products || structuredData.products,
+          location: companyData.location || structuredData.location || structuredData.address,
+          industry: companyData.industry || structuredData.industry,
+          num_of_employees: companyData.num_of_employees || structuredData.num_of_employees,
+          revenue: companyData.revenue || structuredData.revenue,
+          market_share: companyData.market_share || structuredData.market_share,
+          investors: companyData.investors || structuredData.investors,
+          summarised_llm_company_response: companyData.summarised_llm_company_response || structuredData.summarised_llm_company_response,
+          other_info_of_company: companyData.other_info_of_company || structuredData.other_info_of_company,
+        },
+        confidence_score: response.aiResponse.confidence || 0.85,
+      } : null;
 
       setState(prev => ({
         ...prev,
         step: 'result',
         transactionID: response.transactionID,
-        extractedData: placeholderUserInfo,
-        processingStatus: 'completed',
+        extractedData: extractedUserInfo,
+        processingStatus: 'processing', // Set to 'processing' to indicate company enrichment in progress
         isLoading: false,
+        llmResponse: llmResponse,
       }));
-      setToast({ message: 'Card uploaded successfully!', type: 'success' });
+      setToast({ message: 'Card processed! Enriching company data...', type: 'info' });
     } catch (err) {
       console.error('❌ Upload error:', err);
       setState(prev => ({
@@ -107,6 +289,12 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
   };
 
   const handleScanAnother = () => {
+    // Clear polling interval if active
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    
     setState({
       step: 'landing',
       transactionID: null,
@@ -115,6 +303,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
       processingStatus: null,
       isLoading: false,
       error: null,
+      llmResponse: null,
     });
   };
 
@@ -149,10 +338,14 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
         {state.step === 'result' && state.extractedData && (
           <ResultScreen
             userInfo={state.extractedData}
-            llmResponse={null}
+            llmResponse={state.llmResponse}
             processingStatus={state.processingStatus || 'completed'}
             onScheduleMeeting={handleScheduleMeeting}
             onScanAnother={handleScanAnother}
+            onVoiceRecord={() => {
+              console.log('🎤 Voice recording triggered');
+              // Voice recording functionality can be added here
+            }}
           />
         )}
 

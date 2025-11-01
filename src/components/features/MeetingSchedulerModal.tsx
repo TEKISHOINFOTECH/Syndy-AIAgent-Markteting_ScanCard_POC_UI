@@ -101,7 +101,7 @@ export function MeetingSchedulerModal({
                 <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-3">
                   <p className="text-blue-300 text-xs">
                     <strong>Transaction ID:</strong><br />
-                    <span className="font-mono">{userInfo.transaction_id}</span>
+                    <span className="font-mono">{userInfo.transactionID}</span>
                   </p>
                   <p className="text-blue-400 text-xs mt-2">
                     This will update your meeting request status

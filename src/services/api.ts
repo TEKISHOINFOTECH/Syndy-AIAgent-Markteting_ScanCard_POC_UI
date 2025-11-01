@@ -1,6 +1,6 @@
 import type { UploadCardResponse, ScheduleMeetingResponse } from '../types/cardScanner';
 
-const API_BASE_URL = 'https://syndy-aiagent-be-poc.onrender.com';
+const API_BASE_URL = 'http://localhost:8000';
 
 export class CardScannerAPI {
   /**
@@ -25,15 +25,15 @@ export class CardScannerAPI {
   }
 
   /**
-   * API 1: Persist and process captured business card image
+   * API 1: Process business card image with AI Vision
    * 
    * Flow:
    * 1. Receives business card image
-   * 2. Generates UUID (transactionID)
-   * 3. Stores image in Supabase Storage (business_cards bucket)
-   * 4. Saves record to business_cards_data_tbl
-   * 5. Starts async LLM processing
-   * 6. Returns immediate response with transactionID
+   * 2. Processes image with OpenAI Vision API
+   * 3. Extracts structured data (name, email, phone, company, etc.)
+   * 4. Detects QR codes if present
+   * 5. Saves to database automatically
+   * 6. Returns structured data immediately
    */
   static async uploadCard(imageFile: File): Promise<UploadCardResponse> {
     // Validation
@@ -56,7 +56,7 @@ export class CardScannerAPI {
     
     console.log('📤 Uploading card image:', imageFile.name, imageFile.type, `${(imageFile.size / 1024).toFixed(2)}KB`);
 
-    const response = await fetch(`${API_BASE_URL}/api/persistNprocessCapturedCard`, {
+    const response = await fetch(`${API_BASE_URL}/ai-business-card`, {
       method: 'POST',
       body: formData,
     });
@@ -75,11 +75,59 @@ export class CardScannerAPI {
     
     const result = await response.json();
     console.log('✅ Upload successful:', result);
+    
+    // Backend returns record_id - map it to transactionID for consistency
+    // If record_id is not available, generate a fallback transactionID
+    const transactionID = result.record_id || result.transactionID || `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Return in the expected format with full AI response for immediate data access
+    return {
+      status: 200,
+      message: "User Card Image is stored and being processed",
+      transactionID: transactionID, // Using transactionID universally (record_id from backend mapped here)
+      aiResponse: result, // Include full AI response with structured_data, confidence, etc.
+    };
+  }
+
+  /**
+   * API 2: Fetch updated card data by transactionID (record_id)
+   * 
+   * Fetches the latest data from database including company enrichment (2nd LLM call)
+   * This is used to poll for company data completion
+   * 
+   * IMPORTANT: Update the endpoint URL below to match your backend API endpoint
+   * Common options:
+   * - GET /api/getCardData/{record_id}
+   * - GET /api/getUserInfo/{record_id}  
+   * - GET /api/customer-scanned-data/{record_id}
+   * - Or your custom endpoint
+   */
+  static async getCardData(transactionID: string): Promise<any> {
+    console.log('📥 Fetching card data for transaction:', transactionID);
+
+    // TODO: Update this endpoint to match your backend API
+    // Replace with your actual endpoint that returns card data by record_id
+    const endpoint = `${API_BASE_URL}/api/getCardData/${transactionID}`;
+    
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Fetch card data error:', response.status, errorText);
+      console.error('💡 Tip: Make sure your backend has an endpoint to fetch card data by record_id');
+      throw new Error(`Failed to fetch card data: ${response.status}. Endpoint: ${endpoint}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Card data fetched:', result);
     return result;
   }
 
   /**
-   * API 2: Initiate meeting scheduler
+   * API 3: Initiate meeting scheduler
    * 
    * Flow:
    * 1. Receives transactionID and isMeetingRequested

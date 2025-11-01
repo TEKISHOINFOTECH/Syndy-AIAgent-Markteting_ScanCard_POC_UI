@@ -192,7 +192,7 @@ function ScanView({ activeView = 'scan', onNavClick }: ScanViewProps) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
       
-      const response = await fetch('https://syndy-aiagent-be-poc.onrender.com/ai-business-card', {
+      const response = await fetch('http://localhost:8000/ai-business-card', {
         method: 'POST',
         body: formData,
         signal: controller.signal,
@@ -318,7 +318,7 @@ function ScanView({ activeView = 'scan', onNavClick }: ScanViewProps) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
       
-      const response = await fetch('https://syndy-aiagent-be-poc.onrender.com/ai-business-card', {
+      const response = await fetch('http://localhost:8000/ai-business-card', {
         method: 'POST',
         body: formData,
         signal: controller.signal,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Circle, Camera, FileText, Calendar } from 'lucide-react';
+import { CheckCircle2, Circle, Camera, FileText, Calendar, User, Clock, Loader2 } from 'lucide-react';
 import type { CardScanStep } from '../../types/cardScanner';
 
 interface StepIndicatorProps {
@@ -9,9 +9,11 @@ interface StepIndicatorProps {
 const steps: Array<{ key: CardScanStep; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { key: 'landing', label: 'Start', icon: Circle },
   { key: 'capture', label: 'Capture', icon: Camera },
+  { key: 'processing', label: 'Process', icon: Loader2 },
   { key: 'result', label: 'Results', icon: FileText },
+  { key: 'selfie', label: 'Selfie', icon: User },
   { key: 'meetingScheduler', label: 'Schedule', icon: Calendar },
-  { key: 'confirmation', label: 'Done', icon: CheckCircle2 },
+  { key: 'confirmation', label: 'Done', icon: Clock },
 ];
 
 export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
@@ -66,12 +68,15 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                     status === 'completed'
                       ? 'text-green-600'
                       : status === 'current'
-                      ? 'text-green-700'
+                      ? 'text-green-700 underline decoration-green-600 decoration-2'
                       : 'text-gray-500'
                   }`}
                 >
                   {step.label}
                 </p>
+                {status === 'current' && (
+                  <p className="text-xs text-gray-600 mt-0.5">Review extracted information</p>
+                )}
               </div>
             );
           })}

@@ -2,6 +2,23 @@ export interface UploadCardResponse {
   status: 200;
   message: "User Card Image is stored and being processed";
   transactionID: string;
+  aiResponse?: {
+    success: boolean;
+    structured_data: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      company?: string;
+      title?: string;
+      website?: string;
+      address?: string;
+      [key: string]: any;
+    };
+    confidence: number;
+    qr_codes?: Array<any>;
+    qr_count?: number;
+    [key: string]: any;
+  };
 }
 
 export interface ScheduleMeetingResponse {
@@ -11,7 +28,7 @@ export interface ScheduleMeetingResponse {
 }
 
 export interface UserInfo {
-  transaction_id: string;
+  transactionID: string; // Unified naming: same as record_id from backend, mapped to transactionID
   email: string | null;
   name: string | null;
   phone: string | null;
@@ -43,7 +60,7 @@ export interface LLMResponse {
   processing_time_ms?: number;
 }
 
-export type CardScanStep = 'landing' | 'capture' | 'result' | 'meetingScheduler' | 'confirmation';
+export type CardScanStep = 'landing' | 'capture' | 'processing' | 'result' | 'selfie' | 'meetingScheduler' | 'confirmation';
 
 export interface CardScanState {
   step: CardScanStep;
@@ -53,4 +70,5 @@ export interface CardScanState {
   processingStatus: 'pending' | 'processing' | 'completed' | 'failed' | null;
   isLoading: boolean;
   error: string | null;
+  llmResponse: LLMResponse | null;
 }
