@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Zap, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { CardScannerAPI } from '../../services/api';
 
 interface LandingScreenProps {
   onStartScan: () => void;
@@ -9,6 +11,17 @@ interface LandingScreenProps {
 }
 
 export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavClick }: LandingScreenProps) {
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'ready' | 'error'>('checking');
+
+  useEffect(() => {
+    // Check backend status only when component mounts
+    const checkBackend = async () => {
+      const isReachable = await CardScannerAPI.pingBackend();
+      setBackendStatus(isReachable ? 'ready' : 'error');
+    };
+    checkBackend();
+  }, []);
+
   const features = [
     { icon: <Camera className="w-6 h-6" />, title: 'Instant Scanning', description: 'Capture business cards in seconds' },
     { icon: <Zap className="w-6 h-6" />, title: 'AI-Powered', description: 'Smart extraction using advanced AI' },
@@ -16,7 +29,59 @@ export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavCl
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex flex-col px-4 sm:px-6 overflow-y-auto pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex flex-col px-4 sm:px-6 overflow-y-auto pb-6 relative">
+      {/* Backend Status Indicator - Top Right */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3, type: 'spring' }}
+        className="fixed top-16 sm:top-20 right-4 sm:right-6 z-40"
+      >
+        <div
+          className={`
+            px-4 py-2 rounded-full backdrop-blur-2xl border shadow-lg
+            flex items-center gap-2 text-xs sm:text-sm font-medium
+            transition-all duration-500
+            ${backendStatus === 'ready'
+              ? 'bg-green-500/20 border-green-400/50 text-green-700 shadow-green-500/30'
+              : backendStatus === 'error'
+              ? 'bg-red-500/20 border-red-400/50 text-red-700 shadow-red-500/30'
+              : 'bg-gray-500/20 border-gray-400/50 text-gray-700 shadow-gray-500/30'
+            }
+          `}
+          style={{
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          }}
+        >
+          {/* Status Dot with Glow */}
+          <span
+            className={`
+              relative flex h-3 w-3 sm:h-3.5 sm:w-3.5
+            `}
+          >
+            {/* Ping animation for ready state */}
+            {backendStatus === 'ready' && (
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            )}
+            <span
+              className={`
+                relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5
+                ${backendStatus === 'ready'
+                  ? 'bg-green-500 shadow-lg shadow-green-500/50'
+                  : backendStatus === 'error'
+                  ? 'bg-red-500 shadow-lg shadow-red-500/50'
+                  : 'bg-gray-400 shadow-lg shadow-gray-400/50 animate-pulse'
+                }
+              `}
+            ></span>
+          </span>
+          <span>
+            {backendStatus === 'ready' ? 'Ready' : backendStatus === 'error' ? 'Offline' : 'Checking...'}
+          </span>
+        </div>
+      </motion.div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
