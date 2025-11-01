@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Mic, User, Building2, Globe, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Mic, User, Building2, Globe, ExternalLink, ChevronLeft, ChevronRight, Edit2, Save, X, Square } from 'lucide-react';
 import { Card } from '../ui/Card';
 import type { UserInfo, LLMResponse } from '../../types/cardScanner';
 
@@ -10,14 +11,39 @@ interface ResultScreenProps {
   onScheduleMeeting: () => void;
   onScanAnother: () => void;
   onVoiceRecord?: () => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
 }
 
 export function ResultScreen({ 
   userInfo, 
   llmResponse, 
   onScheduleMeeting,
-  onVoiceRecord
+  onVoiceRecord,
+  onPrevious,
+  onNext
 }: ResultScreenProps) {
+  const [notepadContent, setNotepadContent] = useState('');
+  const [isEditingNotepad, setIsEditingNotepad] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+
+  const handleVoiceRecord = () => {
+    if (isRecording) {
+      // Stop recording
+      setIsRecording(false);
+      console.log('🛑 Recording stopped');
+      if (onVoiceRecord) {
+        onVoiceRecord();
+      }
+    } else {
+      // Start recording
+      setIsRecording(true);
+      console.log('🎤 Recording started');
+      if (onVoiceRecord) {
+        onVoiceRecord();
+      }
+    }
+  };
   // Get structured data from API response or userInfo
   const structuredData = llmResponse?.extracted_data || {};
   const name = userInfo.name || structuredData.name || 'N/A';
@@ -50,36 +76,75 @@ export function ResultScreen({
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 pt-20 pb-6 px-4 sm:px-6 overflow-y-auto">
       <div className="max-w-6xl mx-auto">
-        {/* Profile Complete Section */}
-      <motion.div
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={onPrevious}
+            disabled={!onPrevious}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              onPrevious
+                ? 'bg-white text-gray-700 hover:bg-green-50 hover:text-green-700 border border-gray-300 hover:border-green-300 shadow-sm'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+            aria-label="Previous Step"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Previous</span>
+          </button>
+
+          <button
+            onClick={onNext}
+            disabled={!onNext}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              onNext
+                ? 'bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+            aria-label="Next Step"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Profile Complete Section - Made Smaller */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
           <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-            <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6">
-              <div className="flex items-center gap-6 flex-1">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-              </div>
-              <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 gap-4">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-0.5">
                     Profile Complete!
                   </h2>
-                  <p className="text-gray-600 text-sm sm:text-base mb-1">
+                  <p className="text-gray-600 text-xs sm:text-sm">
                     Card scanned & company data enriched
                   </p>
-                  <p className="text-gray-600 text-sm sm:text-base">
+                  <p className="text-gray-600 text-xs sm:text-sm">
                     ✨ Ready for next step: Selfie capture
                   </p>
                 </div>
               </div>
               <button
-                onClick={onVoiceRecord}
-                className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center p-0 flex-shrink-0 transition-all hover:scale-105 active:scale-95 shadow-lg"
-                aria-label="Voice Recording"
+                onClick={handleVoiceRecord}
+                className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center p-0 flex-shrink-0 transition-all hover:scale-105 active:scale-95 shadow-lg ${
+                  isRecording 
+                    ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                    : 'bg-green-500 hover:bg-green-600'
+                }`}
+                aria-label={isRecording ? 'Stop Recording' : 'Start Recording'}
               >
-                <Mic className="w-16 h-16 sm:w-20 sm:h-20 text-white" />
+                {isRecording ? (
+                  <Square className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="white" />
+                ) : (
+                  <Mic className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                )}
               </button>
             </div>
           </Card>
@@ -134,6 +199,66 @@ export function ResultScreen({
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Address:</p>
                       <p className="text-base font-medium text-gray-800">{address}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Notepad Section */}
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <span>📝</span>
+                      Notes
+                    </h4>
+                    {!isEditingNotepad ? (
+                      <button
+                        onClick={() => setIsEditingNotepad(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors"
+                        aria-label="Edit Notes"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        <span>Edit</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setIsEditingNotepad(false);
+                            // Save functionality can be added here
+                          }}
+                          className="flex items-center gap-1 px-3 py-1.5 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors"
+                          aria-label="Save Notes"
+                        >
+                          <Save className="w-4 h-4" />
+                          <span>Save</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsEditingNotepad(false);
+                          }}
+                          className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                          aria-label="Cancel"
+                        >
+                          <X className="w-4 h-4" />
+                          <span>Cancel</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {isEditingNotepad ? (
+                    <textarea
+                      value={notepadContent}
+                      onChange={(e) => setNotepadContent(e.target.value)}
+                      placeholder="Add your notes here..."
+                      className="w-full min-h-[150px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-sm text-gray-700"
+                    />
+                  ) : (
+                    <div className="min-h-[150px] p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                      {notepadContent ? (
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{notepadContent}</p>
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">No notes added yet. Click Edit to add notes.</p>
+                      )}
                     </div>
                   )}
                 </div>

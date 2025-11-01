@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Circle, Camera, FileText, Calendar, User, Clock, Loader2 } from 'lucide-react';
+import { CheckCircle2, Circle, Camera, FileText, Calendar, User, Clock, Loader2, Mail } from 'lucide-react';
 import type { CardScanStep } from '../../types/cardScanner';
 
 interface StepIndicatorProps {
@@ -12,6 +12,7 @@ const steps: Array<{ key: CardScanStep; label: string; icon: React.ComponentType
   { key: 'processing', label: 'Process', icon: Loader2 },
   { key: 'result', label: 'Results', icon: FileText },
   { key: 'selfie', label: 'Selfie', icon: User },
+  { key: 'emailDraft', label: 'Email', icon: Mail },
   { key: 'meetingScheduler', label: 'Schedule', icon: Calendar },
   { key: 'confirmation', label: 'Done', icon: Clock },
 ];
@@ -75,7 +76,14 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                   {step.label}
                 </p>
                 {status === 'current' && (
-                  <p className="text-xs text-gray-600 mt-0.5">Review extracted information</p>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    {step.key === 'result' ? 'Review extracted information' :
+                     step.key === 'emailDraft' ? 'Edit your email draft' :
+                     step.key === 'selfie' ? 'Take a selfie' :
+                     step.key === 'meetingScheduler' ? 'Schedule a meeting' :
+                     step.key === 'processing' ? 'Processing your card' :
+                     ''}
+                  </p>
                 )}
               </div>
             );

@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { LandingScreen } from './screens/LandingScreen';
 import { CardCaptureScreen } from './screens/CardCaptureScreen';
+import { ProcessingScreen } from './screens/ProcessingScreen';
 import { ResultScreen } from './screens/ResultScreen';
+import { SelfieCaptureScreen } from './screens/SelfieCaptureScreen';
+import { EmailDraftScreen } from './screens/EmailDraftScreen';
 import { MeetingConfirmationScreen } from './screens/MeetingConfirmationScreen';
 import { Toast } from './ui/Toast';
 import { CardScannerAPI } from '../services/api';
@@ -23,6 +26,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     isLoading: false,
     error: null,
     llmResponse: null,
+    emailDraft: null,
   });
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -185,11 +189,13 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
   };
 
   const handleCapture = async (file: File) => {
+    // Move to processing step first
     setState(prev => ({ 
       ...prev, 
       capturedImage: file,
       isLoading: true,
       error: null,
+      step: 'processing',
     }));
 
     try {
@@ -234,25 +240,78 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
         confidence_score: response.aiResponse.confidence || 0.85,
       } : null;
 
+      // Update state with transactionID and data, then auto-navigate to result after brief delay
       setState(prev => ({
         ...prev,
-        step: 'result',
         transactionID: response.transactionID,
         extractedData: extractedUserInfo,
         processingStatus: 'processing', // Set to 'processing' to indicate company enrichment in progress
-        isLoading: false,
         llmResponse: llmResponse,
       }));
-      setToast({ message: 'Card processed! Enriching company data...', type: 'info' });
+
+      // Auto-navigate to result after showing processing screen briefly
+      setTimeout(() => {
+        setState(prev => ({
+          ...prev,
+          step: 'result',
+          isLoading: false,
+        }));
+        setToast({ message: 'Card processed! Enriching company data...', type: 'info' });
+      }, 2000); // Show processing screen for 2 seconds
     } catch (err) {
       console.error('❌ Upload error:', err);
       setState(prev => ({
         ...prev,
         error: err instanceof Error ? err.message : 'Failed to upload card',
         isLoading: false,
+        step: 'capture', // Go back to capture on error
       }));
       setToast({ message: 'Failed to upload card', type: 'error' });
     }
+  };
+
+  const handleSelfieCapture = async (selfieFile: File, _previewUrl: string) => {
+    if (!state.transactionID) {
+      setToast({ message: 'No transaction ID available', type: 'error' });
+      return;
+    }
+
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
+      // Upload selfie to backend
+      const result = await CardScannerAPI.uploadSelfie(state.transactionID, selfieFile);
+      
+      console.log('✅ Selfie uploaded:', result);
+      
+      setState(prev => ({
+        ...prev,
+        step: 'emailDraft', // Navigate to email draft after successful upload
+        isLoading: false,
+      }));
+      
+      setToast({ message: result.message || 'Selfie captured successfully!', type: 'success' });
+    } catch (err) {
+      console.error('❌ Selfie upload error:', err);
+      setState(prev => ({ ...prev, isLoading: false }));
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload selfie';
+      setToast({ message: errorMessage, type: 'error' });
+    }
+  };
+
+  const handleSkipSelfie = () => {
+    setState(prev => ({
+      ...prev,
+      step: 'emailDraft', // Skip to email draft
+    }));
+  };
+
+  const handleSaveEmailDraft = (draft: { to: string; subject: string; body: string }) => {
+    setState(prev => ({
+      ...prev,
+      emailDraft: draft,
+    }));
+    console.log('📧 Email draft saved:', draft);
   };
 
   const handleCancelCapture = () => {
@@ -304,6 +363,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
       isLoading: false,
       error: null,
       llmResponse: null,
+      emailDraft: null,
     });
   };
 
@@ -332,6 +392,20 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
           <CardCaptureScreen 
             onCapture={handleCapture} 
             onCancel={handleCancelCapture}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'landing' }))}
+            onNext={() => {
+              // onNext will be handled by handleCapture after file is captured
+            }}
+          />
+        )}
+
+        {state.step === 'processing' && (
+          <ProcessingScreen
+            transactionID={state.transactionID}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'capture' }))}
+            onNext={() => {
+              // Auto-navigate to result - this is handled in handleCapture
+            }}
           />
         )}
 
@@ -346,6 +420,61 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
               console.log('🎤 Voice recording triggered');
               // Voice recording functionality can be added here
             }}
+            onPrevious={() => {
+              setState(prev => ({ ...prev, step: 'capture' }));
+            }}
+            onNext={() => {
+              // Navigate to selfie step
+              setState(prev => ({ ...prev, step: 'selfie' }));
+            }}
+          />
+        )}
+
+        {state.step === 'selfie' && state.transactionID && (
+          <SelfieCaptureScreen
+            transactionID={state.transactionID}
+            onCapture={handleSelfieCapture}
+            onSkip={handleSkipSelfie}
+            isLoading={state.isLoading}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'result' }))}
+            onNext={() => {
+              // Navigate to email draft
+              setState(prev => ({ ...prev, step: 'emailDraft' }));
+            }}
+          />
+        )}
+
+        {state.step === 'emailDraft' && state.transactionID && (
+          <EmailDraftScreen
+            userInfo={state.extractedData}
+            transactionID={state.transactionID}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'selfie' }))}
+            onNext={() => {
+              // Navigate to confirmation after meeting is scheduled
+              setState(prev => ({
+                ...prev,
+                step: 'confirmation',
+                extractedData: prev.extractedData ? {
+                  ...prev.extractedData,
+                  is_meeting_requested: true,
+                } : null,
+              }));
+            }}
+            onSaveDraft={handleSaveEmailDraft}
+            onScheduleMeeting={() => {
+              // This callback is called after successful API call
+              setToast({ message: 'Meeting requested!', type: 'success' });
+            }}
+            isLoading={state.isLoading}
+          />
+        )}
+
+        {state.step === 'meetingScheduler' && state.transactionID && (
+          <MeetingConfirmationScreen
+            transactionID={state.transactionID}
+            onDone={handleDone}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'emailDraft' }))}
+            onNext={() => setState(prev => ({ ...prev, step: 'confirmation' }))}
           />
         )}
 
@@ -353,6 +482,8 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
           <MeetingConfirmationScreen
             transactionID={state.transactionID}
             onDone={handleDone}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'meetingScheduler' }))}
+            onNext={() => setState(prev => ({ ...prev, step: 'landing' }))}
           />
         )}
 

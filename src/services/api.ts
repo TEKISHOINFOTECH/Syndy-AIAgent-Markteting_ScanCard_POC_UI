@@ -127,7 +127,70 @@ export class CardScannerAPI {
   }
 
   /**
-   * API 3: Initiate meeting scheduler
+   * API 3: Upload selfie image
+   * 
+   * Flow:
+   * 1. Receives selfie image file and record_id (transactionID)
+   * 2. Uploads image to Supabase storage
+   * 3. Updates record with selfie URL
+   * 4. Returns selfie URL and confirmation
+   */
+  static async uploadSelfie(recordId: string, selfieFile: File): Promise<{
+    status: number;
+    message: string;
+    record_id: string;
+    selfie_url: string;
+  }> {
+    // Validation
+    if (!selfieFile) {
+      throw new Error('No selfie file provided');
+    }
+
+    if (!recordId) {
+      throw new Error('No record ID provided');
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(selfieFile.type)) {
+      throw new Error(`Invalid file type. Please upload a JPEG or PNG image.`);
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (selfieFile.size > maxSize) {
+      throw new Error(`File size exceeds 10MB limit.`);
+    }
+
+    const formData = new FormData();
+    formData.append('file', selfieFile, selfieFile.name);
+    
+    console.log('📤 Uploading selfie:', selfieFile.name, selfieFile.type, `${(selfieFile.size / 1024).toFixed(2)}KB`);
+    console.log('📋 Record ID:', recordId);
+
+    const response = await fetch(`${API_BASE_URL}/api/uploadSelfie?record_id=${recordId}`, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Selfie upload error:', response.status, errorText);
+      
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.detail || errorJson.message || `Selfie upload failed: ${response.status}`);
+      } catch {
+        throw new Error(`Selfie upload failed (${response.status}): ${errorText}`);
+      }
+    }
+    
+    const result = await response.json();
+    console.log('✅ Selfie upload successful:', result);
+    
+    return result;
+  }
+
+  /**
+   * API 4: Initiate meeting scheduler
    * 
    * Flow:
    * 1. Receives transactionID and isMeetingRequested

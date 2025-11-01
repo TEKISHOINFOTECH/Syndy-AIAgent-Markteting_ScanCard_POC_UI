@@ -60,7 +60,7 @@ export interface LLMResponse {
   processing_time_ms?: number;
 }
 
-export type CardScanStep = 'landing' | 'capture' | 'processing' | 'result' | 'selfie' | 'meetingScheduler' | 'confirmation';
+export type CardScanStep = 'landing' | 'capture' | 'processing' | 'result' | 'selfie' | 'emailDraft' | 'meetingScheduler' | 'confirmation';
 
 export interface CardScanState {
   step: CardScanStep;
@@ -71,4 +71,9 @@ export interface CardScanState {
   isLoading: boolean;
   error: string | null;
   llmResponse: LLMResponse | null;
+  emailDraft?: {
+    to: string;
+    subject: string;
+    body: string;
+  } | null;
 }

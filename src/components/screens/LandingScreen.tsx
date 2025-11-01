@@ -62,7 +62,6 @@ export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavCl
       {/* Button with Status Indicator - Center of Screen */}
       <div className="flex items-center justify-center gap-3 max-w-4xl w-full mx-auto py-4 sm:py-6">
         <Button size="lg" onClick={onStartScan}>
-          <Camera className="w-5 h-5" />
           Start Scanning
         </Button>
         
