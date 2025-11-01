@@ -4,6 +4,27 @@ const API_BASE_URL = 'https://syndy-aiagent-be-poc.onrender.com';
 
 export class CardScannerAPI {
   /**
+   * Ping endpoint to check backend availability
+   * Returns true if backend is reachable, false otherwise
+   */
+  static async pingBackend(): Promise<boolean> {
+    try {
+      console.log('🏓 Pinging backend:', `${API_BASE_URL}/ping`);
+      const response = await fetch(`${API_BASE_URL}/ping`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(5000), // 5 second timeout
+      });
+      
+      const isReachable = response.ok;
+      console.log(isReachable ? '✅ Backend is reachable' : '❌ Backend returned error');
+      return isReachable;
+    } catch (error) {
+      console.error('❌ Backend is not reachable:', error);
+      return false;
+    }
+  }
+
+  /**
    * API 1: Persist and process captured business card image
    * 
    * Flow:
