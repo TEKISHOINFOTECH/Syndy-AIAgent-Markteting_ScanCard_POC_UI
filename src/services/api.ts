@@ -1,4 +1,4 @@
-import type { UploadCardResponse, ScheduleMeetingResponse } from '../types/cardScanner';
+import type { UploadCardResponse, ScheduleMeetingResponse, EmailDraftResponse } from '../types/cardScanner';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -190,24 +190,86 @@ export class CardScannerAPI {
   }
 
   /**
-   * API 4: Initiate meeting scheduler
+   * API 4: Generate email draft using LLM
+   * 
+   * Flow:
+   * 1. Receives record_id (transactionID)
+   * 2. Optionally accepts notes and audio_transcript in request body
+   * 3. Fetches all available context from database:
+   *    - summarised_llm_response (from business card analysis)
+   *    - summarised_llm_company_response (from company research)
+   *    - notes (optional)
+   *    - audio_transcript (optional)
+   * 4. Generates personalized email draft using OpenAI
+   * 5. Saves email draft to database
+   * 6. Returns generated email draft with subject and body
+   */
+  static async generateEmailDraft(
+    recordId: string,
+    options?: {
+      notes?: string;
+      audio_transcript?: string;
+    }
+  ): Promise<EmailDraftResponse> {
+    console.log('📧 Generating email draft for record:', recordId);
+
+    const requestBody: any = {};
+    if (options?.notes) {
+      requestBody.notes = options.notes;
+    }
+    if (options?.audio_transcript) {
+      requestBody.audio_transcript = options.audio_transcript;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/generateEmailDraft/${recordId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody), // Always send JSON body (even if empty object)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Email draft generation error:', response.status, errorText);
+      
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.detail || `Email draft generation failed: ${response.status}`);
+      } catch {
+        throw new Error(`Email draft generation failed (${response.status}): ${errorText}`);
+      }
+    }
+    
+    const result = await response.json();
+    console.log('✅ Email draft generated:', result);
+    return result;
+  }
+
+  /**
+   * API 5: Initiate meeting scheduler
    * 
    * Flow:
    * 1. Receives transactionID and isMeetingRequested
-   * 2. Updates meeting request status in customer_userInfo_tbl
-   * 3. Checks customer data (P1 path) OR business card data (P2 path)
-   * 4. Sends data to N8N for meeting scheduling
-   * 5. Returns response with transactionID
+   * 2. Receives includeSelfie flag (NEW)
+   * 3. Updates meeting request status in customer_userInfo_tbl
+   * 4. Checks customer data (P1 path) OR business card data (P2 path)
+   * 5. If includeSelfie is true, backend fetches selfie_url from database
+   * 6. Sends data to N8N for meeting scheduling (with selfie URL if includeSelfie is true)
+   * 7. Returns response with transactionID
    */
-  static async scheduleMeeting(transactionID: string): Promise<ScheduleMeetingResponse> {
+  static async scheduleMeeting(
+    transactionID: string, 
+    includeSelfie: boolean = false
+  ): Promise<ScheduleMeetingResponse> {
     console.log('📅 Scheduling meeting for transaction:', transactionID);
+    console.log('📸 Include selfie in email:', includeSelfie);
 
     const response = await fetch(`${API_BASE_URL}/api/intiateMeetingScheduler`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         transactionID, 
-        isMeetingRequested: true 
+        isMeetingRequested: true,
+        includeSelfie: includeSelfie // NEW: send includeSelfie flag
       }),
     });
     

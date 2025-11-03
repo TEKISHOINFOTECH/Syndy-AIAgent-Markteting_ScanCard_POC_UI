@@ -29,6 +29,9 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     emailDraft: null,
   });
 
+  // Add includeSelfie state (default true if selfie was captured, false if skipped)
+  const [includeSelfie, setIncludeSelfie] = useState<boolean>(false);
+
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollCountRef = useRef<number>(0);
@@ -283,14 +286,53 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
       const result = await CardScannerAPI.uploadSelfie(state.transactionID, selfieFile);
       
       console.log('✅ Selfie uploaded:', result);
-      
-      setState(prev => ({
-        ...prev,
-        step: 'emailDraft', // Navigate to email draft after successful upload
-        isLoading: false,
-      }));
-      
       setToast({ message: result.message || 'Selfie captured successfully!', type: 'success' });
+      
+      // After successful upload, set includeSelfie to true (user captured selfie)
+      setIncludeSelfie(true);
+
+      // Generate email draft after successful selfie upload
+      try {
+        console.log('📧 Generating email draft after selfie upload...');
+        const emailDraftResult = await CardScannerAPI.generateEmailDraft(state.transactionID);
+        
+        if (emailDraftResult.success && emailDraftResult.email_draft) {
+          // Extract email draft data
+          const emailDraft = emailDraftResult.email_draft;
+          const generatedDraft = {
+            to: state.extractedData?.email || '',
+            subject: emailDraft.subject || emailDraftResult.email_subject || '',
+            body: emailDraft.body || emailDraftResult.email_body || '',
+          };
+          
+          setState(prev => ({
+            ...prev,
+            step: 'emailDraft',
+            emailDraft: generatedDraft,
+            isLoading: false,
+          }));
+          
+          setToast({ message: 'Email draft generated successfully!', type: 'success' });
+          console.log('✅ Email draft generated:', emailDraftResult);
+        } else {
+          // Navigate to email draft even if generation fails (user can still edit)
+          setState(prev => ({
+            ...prev,
+            step: 'emailDraft',
+            isLoading: false,
+          }));
+          setToast({ message: 'Email draft generation unavailable. You can create your own draft.', type: 'info' });
+        }
+      } catch (emailErr) {
+        console.error('❌ Email draft generation error:', emailErr);
+        // Navigate to email draft anyway (user can still create their own)
+        setState(prev => ({
+          ...prev,
+          step: 'emailDraft',
+          isLoading: false,
+        }));
+        setToast({ message: 'Email draft generation failed. You can create your own draft.', type: 'info' });
+      }
     } catch (err) {
       console.error('❌ Selfie upload error:', err);
       setState(prev => ({ ...prev, isLoading: false }));
@@ -299,11 +341,56 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     }
   };
 
-  const handleSkipSelfie = () => {
-    setState(prev => ({
-      ...prev,
-      step: 'emailDraft', // Skip to email draft
-    }));
+  const handleSkipSelfie = async () => {
+    if (!state.transactionID) {
+      setToast({ message: 'No transaction ID available', type: 'error' });
+      return;
+    }
+
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
+      // Generate email draft when skipping selfie
+      console.log('📧 Generating email draft (selfie skipped)...');
+      const emailDraftResult = await CardScannerAPI.generateEmailDraft(state.transactionID);
+      
+      if (emailDraftResult.success && emailDraftResult.email_draft) {
+        // Extract email draft data
+        const emailDraft = emailDraftResult.email_draft;
+        const generatedDraft = {
+          to: state.extractedData?.email || '',
+          subject: emailDraft.subject || emailDraftResult.email_subject || '',
+          body: emailDraft.body || emailDraftResult.email_body || '',
+        };
+        
+        setState(prev => ({
+          ...prev,
+          step: 'emailDraft',
+          emailDraft: generatedDraft,
+          isLoading: false,
+        }));
+        
+        setToast({ message: 'Email draft generated successfully!', type: 'success' });
+        console.log('✅ Email draft generated:', emailDraftResult);
+      } else {
+        // Navigate to email draft even if generation fails (user can still edit)
+        setState(prev => ({
+          ...prev,
+          step: 'emailDraft',
+          isLoading: false,
+        }));
+        setToast({ message: 'Email draft generation unavailable. You can create your own draft.', type: 'info' });
+      }
+    } catch (emailErr) {
+      console.error('❌ Email draft generation error:', emailErr);
+      // Navigate to email draft anyway (user can still create their own)
+      setState(prev => ({
+        ...prev,
+        step: 'emailDraft',
+        isLoading: false,
+      }));
+      setToast({ message: 'Email draft generation failed. You can create your own draft.', type: 'info' });
+    }
   };
 
   const handleSaveEmailDraft = (draft: { to: string; subject: string; body: string }) => {
@@ -327,7 +414,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       console.log('📅 Scheduling meeting for transaction:', state.transactionID);
-      const response = await CardScannerAPI.scheduleMeeting(state.transactionID);
+      const response = await CardScannerAPI.scheduleMeeting(state.transactionID, includeSelfie);
       console.log('✅ Meeting scheduled:', response);
 
       setState(prev => ({
@@ -369,6 +456,11 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
 
   const handleDone = () => {
     handleScanAnother();
+  };
+
+  // Add handler for includeSelfie toggle change
+  const handleIncludeSelfieChange = (value: boolean) => {
+    setIncludeSelfie(value);
   };
 
   return (
@@ -448,6 +540,9 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
           <EmailDraftScreen
             userInfo={state.extractedData}
             transactionID={state.transactionID}
+            emailDraft={state.emailDraft}
+            includeSelfie={includeSelfie}
+            onIncludeSelfieChange={handleIncludeSelfieChange}
             onPrevious={() => setState(prev => ({ ...prev, step: 'selfie' }))}
             onNext={() => {
               // Navigate to confirmation after meeting is scheduled
@@ -461,9 +556,16 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
               }));
             }}
             onSaveDraft={handleSaveEmailDraft}
-            onScheduleMeeting={() => {
-              // This callback is called after successful API call
-              setToast({ message: 'Meeting requested!', type: 'success' });
+            onScheduleMeeting={async () => {
+              // Pass includeSelfie when scheduling meeting
+              if (!state.transactionID) return;
+              try {
+                await CardScannerAPI.scheduleMeeting(state.transactionID, includeSelfie);
+                setToast({ message: 'Meeting requested!', type: 'success' });
+              } catch (err) {
+                console.error('❌ Meeting scheduling error:', err);
+                setToast({ message: 'Failed to schedule meeting', type: 'error' });
+              }
             }}
             isLoading={state.isLoading}
           />

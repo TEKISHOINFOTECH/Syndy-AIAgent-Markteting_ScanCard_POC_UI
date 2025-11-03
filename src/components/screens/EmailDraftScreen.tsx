@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, ChevronLeft, ChevronRight, Send, Edit2, Loader2 } from 'lucide-react';
+import { Mail, ChevronLeft, ChevronRight, Send, Edit2, Loader2, User } from 'lucide-react';
 import { Card } from '../ui/Card';
-import { CardScannerAPI } from '../../services/api';
 import type { UserInfo } from '../../types/cardScanner';
 
 interface EmailDraftScreenProps {
   userInfo: UserInfo | null;
   transactionID: string | null;
+  emailDraft?: { to: string; subject: string; body: string } | null;
+  includeSelfie: boolean; // NEW: prop to control selfie inclusion
+  onIncludeSelfieChange: (value: boolean) => void; // NEW: callback for toggle change
   onPrevious?: () => void;
   onNext?: () => void;
   onSaveDraft?: (draft: { to: string; subject: string; body: string }) => void;
@@ -18,6 +20,9 @@ interface EmailDraftScreenProps {
 export function EmailDraftScreen({ 
   userInfo, 
   transactionID,
+  emailDraft: propEmailDraft,
+  includeSelfie, // NEW: destructure prop
+  onIncludeSelfieChange, // NEW: destructure callback
   onPrevious, 
   onNext,
   onSaveDraft,
@@ -29,26 +34,40 @@ export function EmailDraftScreen({
   const [body, setBody] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratedDraft, setIsGeneratedDraft] = useState(false);
 
-  // Initialize email with extracted data
+  // Initialize email with generated draft (priority) or extracted data
   useEffect(() => {
+    // First, check if we have a generated email draft from props
+    if (propEmailDraft) {
+      if (propEmailDraft.to) {
+        setTo(propEmailDraft.to);
+      }
+      if (propEmailDraft.subject) {
+        setSubject(propEmailDraft.subject);
+      }
+      if (propEmailDraft.body) {
+        setBody(propEmailDraft.body);
+      }
+      setIsGeneratedDraft(true);
+      return;
+    }
+
+    // Fallback to user info defaults if no generated draft
     if (userInfo) {
       // Set recipient email if available
-      if (userInfo.email && !to) {
+      if (userInfo.email) {
         setTo(userInfo.email);
       }
 
       // Generate default subject
-      if (!subject) {
-        const defaultSubject = userInfo.name 
-          ? `Meeting Request - ${userInfo.name}`
-          : 'Meeting Request - Business Card Connection';
-        setSubject(defaultSubject);
-      }
+      const defaultSubject = userInfo.name 
+        ? `Meeting Request - ${userInfo.name}`
+        : 'Meeting Request - Business Card Connection';
+      setSubject(defaultSubject);
 
       // Generate default email body template
-      if (!body) {
-        const defaultBody = `Dear ${userInfo.name || 'Sir/Madam'},
+      const defaultBody = `Dear ${userInfo.name || 'Sir/Madam'},
 
 I hope this email finds you well. I came across your business card and would like to connect with you.
 
@@ -59,10 +78,10 @@ I would love to schedule a meeting to discuss potential collaboration opportunit
 Looking forward to hearing from you.
 
 Best regards`;
-        setBody(defaultBody);
-      }
+      setBody(defaultBody);
+      setIsGeneratedDraft(false);
     }
-  }, [userInfo, to, subject, body]);
+  }, [propEmailDraft, userInfo]);
 
   const handleSchedule = async () => {
     if (!transactionID) {
@@ -84,13 +103,9 @@ Best regards`;
       setIsLoading(true);
       setError(null);
 
-      // Call the meeting scheduler API
-      const result = await CardScannerAPI.scheduleMeeting(transactionID);
-      console.log('✅ Meeting scheduled:', result);
-
-      // Call the onScheduleMeeting callback if provided
+      // Call the meeting scheduler API (onScheduleMeeting will handle includeSelfie)
       if (onScheduleMeeting) {
-        onScheduleMeeting();
+        await onScheduleMeeting();
       }
 
       // Navigate to next step
@@ -154,10 +169,17 @@ Best regards`;
                 <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                   <Mail className="w-5 h-5 text-blue-600" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h2 className="text-xl font-semibold text-gray-800">Email Draft</h2>
-                  <p className="text-sm text-gray-600">Compose and edit your email</p>
+                  <p className="text-sm text-gray-600">
+                    {isGeneratedDraft ? 'AI-generated draft (you can edit)' : 'Compose and edit your email'}
+                  </p>
                 </div>
+                {isGeneratedDraft && (
+                  <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                    AI Generated
+                  </span>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -204,6 +226,43 @@ Best regards`;
                     rows={12}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-gray-800"
                   />
+                </div>
+
+                {/* NEW: Include Selfie Toggle */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <User className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <label htmlFor="include-selfie" className="text-sm font-medium text-gray-700 cursor-pointer">
+                          Include Selfie in Email
+                        </label>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {includeSelfie 
+                            ? 'Your selfie will be included in the email' 
+                            : 'Selfie will not be included in the email'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={includeSelfie}
+                      onClick={() => onIncludeSelfieChange(!includeSelfie)}
+                      disabled={isLoading || externalLoading}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                        includeSelfie ? 'bg-green-600' : 'bg-gray-300'
+                      } ${isLoading || externalLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          includeSelfie ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Transaction ID Info */}

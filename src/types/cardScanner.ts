@@ -27,6 +27,27 @@ export interface ScheduleMeetingResponse {
   transactionID: string;
 }
 
+export interface EmailDraftResponse {
+  success: boolean;
+  record_id: string;
+  email_draft?: {
+    subject?: string;
+    body?: string;
+    greeting?: string;
+    summary?: string;
+  };
+  email_subject?: string;
+  email_body?: string;
+  email_greeting?: string;
+  email_summary?: string;
+  context_used?: {
+    business_card_summary: boolean;
+    company_summary: boolean;
+    notes: boolean;
+    audio_transcript: boolean;
+  };
+}
+
 export interface UserInfo {
   transactionID: string; // Unified naming: same as record_id from backend, mapped to transactionID
   email: string | null;
