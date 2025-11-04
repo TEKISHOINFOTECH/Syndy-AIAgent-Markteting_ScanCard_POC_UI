@@ -8,8 +8,8 @@ interface EmailDraftScreenProps {
   userInfo: UserInfo | null;
   transactionID: string | null;
   emailDraft?: { to: string; subject: string; body: string } | null;
-  includeSelfie: boolean; // NEW: prop to control selfie inclusion
-  onIncludeSelfieChange: (value: boolean) => void; // NEW: callback for toggle change
+  includeSelfie: boolean;
+  onIncludeSelfieChange: (value: boolean) => void;
   onPrevious?: () => void;
   onNext?: () => void;
   onSaveDraft?: (draft: { to: string; subject: string; body: string }) => void;
@@ -21,8 +21,8 @@ export function EmailDraftScreen({
   userInfo, 
   transactionID,
   emailDraft: propEmailDraft,
-  includeSelfie, // NEW: destructure prop
-  onIncludeSelfieChange, // NEW: destructure callback
+  includeSelfie,
+  onIncludeSelfieChange,
   onPrevious, 
   onNext,
   onSaveDraft,
@@ -33,6 +33,7 @@ export function EmailDraftScreen({
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGeneratedDraft, setIsGeneratedDraft] = useState(false);
 
@@ -182,98 +183,114 @@ Best regards`;
                 )}
               </div>
 
-              <div className="space-y-4">
-                {/* To Field */}
-                <div>
-                  <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-2">
-                    To <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="to"
-                    type="email"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value)}
-                    placeholder="recipient@example.com"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
-                  />
+              {/* Loading State */}
+              {isGenerating && (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+                  <p className="text-gray-600 text-center">
+                    Generating personalized email draft using AI...
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    This may take a few seconds
+                  </p>
                 </div>
+              )}
 
-                {/* Subject Field */}
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="subject"
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Email subject"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
-                  />
-                </div>
-
-                {/* Body Field */}
-                <div>
-                  <label htmlFor="body" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    id="body"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    placeholder="Write your email message here..."
-                    rows={12}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-gray-800"
-                  />
-                </div>
-
-                {/* NEW: Include Selfie Toggle */}
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                        <User className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <label htmlFor="include-selfie" className="text-sm font-medium text-gray-700 cursor-pointer">
-                          Include Selfie in Email
-                        </label>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {includeSelfie 
-                            ? 'Your selfie will be included in the email' 
-                            : 'Selfie will not be included in the email'}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={includeSelfie}
-                      onClick={() => onIncludeSelfieChange(!includeSelfie)}
-                      disabled={isLoading || externalLoading}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                        includeSelfie ? 'bg-green-600' : 'bg-gray-300'
-                      } ${isLoading || externalLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          includeSelfie ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
+              {/* Email Form - Only render when not generating */}
+              {!isGenerating && (
+                <div className="space-y-4">
+                  {/* To Field */}
+                  <div>
+                    <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-2">
+                      To <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="to"
+                      type="email"
+                      value={to}
+                      onChange={(e) => setTo(e.target.value)}
+                      placeholder="recipient@example.com"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
+                    />
                   </div>
-                </div>
 
-                {/* Transaction ID Info */}
-                {transactionID && (
+                  {/* Subject Field */}
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                      Subject <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="subject"
+                      type="text"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      placeholder="Email subject"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
+                    />
+                  </div>
+
+                  {/* Body Field */}
+                  <div>
+                    <label htmlFor="body" className="block text-sm font-medium text-gray-700 mb-2">
+                      Message <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      id="body"
+                      value={body}
+                      onChange={(e) => setBody(e.target.value)}
+                      placeholder="Write your email message here..."
+                      rows={12}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-gray-800"
+                    />
+                  </div>
+
+                  {/* Include Selfie Toggle */}
                   <div className="pt-4 border-t border-gray-200">
-                    <p className="text-xs text-gray-500">
-                      Transaction ID: <span className="font-mono text-green-600">{transactionID}</span>
-                    </p>
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                          <User className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <label htmlFor="include-selfie" className="text-sm font-medium text-gray-700 cursor-pointer">
+                            Include Selfie in Email
+                          </label>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {includeSelfie 
+                              ? 'Your selfie will be included in the email' 
+                              : 'Selfie will not be included in the email'}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={includeSelfie}
+                        onClick={() => onIncludeSelfieChange(!includeSelfie)}
+                        disabled={isLoading || externalLoading}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                          includeSelfie ? 'bg-green-600' : 'bg-gray-300'
+                        } ${isLoading || externalLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            includeSelfie ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
+
+                  {/* Transaction ID Info */}
+                  {transactionID && (
+                    <div className="pt-4 border-t border-gray-200">
+                      <p className="text-xs text-gray-500">
+                        Transaction ID: <span className="font-mono text-green-600">{transactionID}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Error Message */}
               {error && (
@@ -283,29 +300,31 @@ Best regards`;
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
-                <div className="text-sm text-gray-600 flex items-center gap-2">
-                  <Edit2 className="w-4 h-4" />
-                  <span>Edit the email fields above</span>
+              {!isGenerating && (
+                <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                  <div className="text-sm text-gray-600 flex items-center gap-2">
+                    <Edit2 className="w-4 h-4" />
+                    <span>Edit the email fields above</span>
+                  </div>
+                  <button
+                    onClick={handleSchedule}
+                    disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
+                    className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                  >
+                    {loadingState ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Scheduling Meeting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Continue to Schedule</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-                <button
-                  onClick={handleSchedule}
-                  disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
-                  className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
-                >
-                  {loadingState ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Scheduling Meeting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Continue to Schedule</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              )}
             </div>
           </Card>
         </motion.div>

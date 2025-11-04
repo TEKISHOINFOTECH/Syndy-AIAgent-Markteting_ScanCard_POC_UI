@@ -283,4 +283,45 @@ export class CardScannerAPI {
     console.log('✅ Meeting request sent:', result);
     return result;
   }
+
+  /**
+   * API 3: Generate Email Draft
+   * 
+   * Generates an AI-powered email draft based on:
+   * - Business card analysis (summarised_llm_response)
+   * - Company research (summarised_llm_company_response)
+   * - Optional notes and audio transcript
+   */
+  static async generateEmailDraft(recordId: string): Promise<{
+    success: boolean;
+    record_id: string;
+    email_draft: string;
+    email_subject: string;
+    email_body: string;
+    email_greeting: string;
+    email_summary: string;
+    context_used: {
+      business_card_summary: boolean;
+      company_summary: boolean;
+      notes: boolean;
+      audio_transcript: boolean;
+    };
+  }> {
+    console.log('📧 Generating email draft for record:', recordId);
+
+    const response = await fetch(`${API_BASE_URL}/api/generateEmailDraft/${recordId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Email draft generation error:', response.status, errorText);
+      throw new Error(`Failed to generate email draft: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Email draft generated:', result);
+    return result;
+  }
 }

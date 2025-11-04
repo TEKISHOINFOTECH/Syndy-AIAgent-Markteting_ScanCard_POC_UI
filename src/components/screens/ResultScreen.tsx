@@ -44,6 +44,7 @@ export function ResultScreen({
       }
     }
   };
+
   // Get structured data from API response or userInfo
   const structuredData = llmResponse?.extracted_data || {};
   const name = userInfo.name || structuredData.name || 'N/A';
@@ -163,7 +164,7 @@ export function ResultScreen({
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                     <User className="w-5 h-5 text-blue-600" />
-            </div>
+                  </div>
                   <h3 className="text-xl font-semibold text-gray-800">Personal Information</h3>
                 </div>
                 
@@ -310,9 +311,9 @@ export function ResultScreen({
                           {companyInsights.website}
                           <ExternalLink className="w-4 h-4" />
                         </a>
-                </div>
-              </div>
-            )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Company Stats - Always show section */}
                   <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200">
@@ -399,10 +400,10 @@ export function ResultScreen({
                       />
                     </div>
                   </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </div>

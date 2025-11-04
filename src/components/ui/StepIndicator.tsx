@@ -11,6 +11,7 @@ const steps: Array<{ key: CardScanStep; label: string; icon: React.ComponentType
   { key: 'capture', label: 'Capture', icon: Camera },
   { key: 'processing', label: 'Process', icon: Loader2 },
   { key: 'result', label: 'Results', icon: FileText },
+  { key: 'avatar', label: 'Avatar', icon: User },
   { key: 'selfie', label: 'Selfie', icon: User },
   { key: 'emailDraft', label: 'Email', icon: Mail },
   { key: 'meetingScheduler', label: 'Schedule', icon: Calendar },

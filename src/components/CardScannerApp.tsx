@@ -9,6 +9,7 @@ import { MeetingConfirmationScreen } from './screens/MeetingConfirmationScreen';
 import { Toast } from './ui/Toast';
 import { CardScannerAPI } from '../services/api';
 import type { CardScanState, UserInfo, LLMResponse } from '../types/cardScanner';
+import AvatarScreen from './screens/AvatarScreen';
 import { StepIndicator } from './ui/StepIndicator';
 
 interface CardScannerAppProps {
@@ -393,6 +394,20 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     }
   };
 
+  const handleProceedToSelfie = () => {
+    setState(prev => ({
+      ...prev,
+      step: 'selfie',
+    }));
+  };
+
+  const handleBackToResult = () => {
+    setState(prev => ({
+      ...prev,
+      step: 'result',
+    }));
+  };
+
   const handleSaveEmailDraft = (draft: { to: string; subject: string; body: string }) => {
     setState(prev => ({
       ...prev,
@@ -516,9 +531,15 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
               setState(prev => ({ ...prev, step: 'capture' }));
             }}
             onNext={() => {
-              // Navigate to selfie step
-              setState(prev => ({ ...prev, step: 'selfie' }));
+              // Navigate to avatar step
+              setState(prev => ({ ...prev, step: 'avatar' }));
             }}
+          />
+        )}
+        {state.step === 'avatar' && state.extractedData && (
+          <AvatarScreen
+            onProceedToSelfie={handleProceedToSelfie}
+            onGoBack={handleBackToResult}
           />
         )}
 
@@ -528,7 +549,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             onCapture={handleSelfieCapture}
             onSkip={handleSkipSelfie}
             isLoading={state.isLoading}
-            onPrevious={() => setState(prev => ({ ...prev, step: 'result' }))}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'avatar' }))}
             onNext={() => {
               // Navigate to email draft
               setState(prev => ({ ...prev, step: 'emailDraft' }));
