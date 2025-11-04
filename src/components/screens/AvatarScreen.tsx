@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle, MessageCircle, Video, Users, Sparkles, Clock, Play, Volume2, Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../avatar-styles.css';
@@ -26,6 +26,10 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     company?: string;
     messageCount?: number;
   }>({});
+
+  // Create refs for containers and iframe
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const normalContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Simulate loading delay for better UX
@@ -88,6 +92,32 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     };
   }, []);
 
+  // Effect to update iframe position when fullscreen toggles
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    if (isFullscreen) {
+      // Make iframe fullscreen using CSS
+      console.log('📺 Switching to fullscreen mode');
+      iframe.style.position = 'fixed';
+      iframe.style.top = '80px'; // Below header
+      iframe.style.left = '0';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '100%';
+      iframe.style.height = 'calc(100vh - 80px)';
+      iframe.style.zIndex = '50';
+    } else {
+      // Reset to normal positioning
+      console.log('📺 Switching to normal mode');
+      iframe.style.position = 'static';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.zIndex = 'auto';
+    }
+  }, [isFullscreen]);
+
   // Handle fullscreen mode
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
@@ -123,16 +153,99 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     setShowSuccessModal(false);
   };
 
-  // Fullscreen Modal Component
+  // Create iframe once on mount - keeps it in one place always
+  useEffect(() => {
+    if (!iframeSrc) return;
+
+    // Create iframe element
+    const iframe = document.createElement('iframe');
+    iframe.src = iframeSrc;
+    iframe.className = "w-full h-full border-0";
+    iframe.allow = "camera; microphone; autoplay";
+    iframe.title = "AI Avatar Assistant";
+    iframe.style.backgroundColor = '#f0f0f0';
+    
+    // Store reference
+    (iframeRef as React.MutableRefObject<HTMLIFrameElement | null>).current = iframe;
+
+    // Append to normal container - it stays here always
+    const normalContainer = normalContainerRef.current;
+    if (normalContainer) {
+      normalContainer.appendChild(iframe);
+      console.log('✅ Iframe created and appended to container');
+    }
+
+    // Cleanup on unmount only
+    return () => {
+      if (iframe.parentNode) {
+        iframe.parentNode.removeChild(iframe);
+      }
+      (iframeRef as React.MutableRefObject<HTMLIFrameElement | null>).current = null;
+      console.log('🧹 Iframe cleaned up');
+    };
+  }, [iframeSrc]);
+
+  // Session completed component
+  const SessionCompleted = ({ isFullscreenMode = false }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-8"
+    >
+      <div className="text-center max-w-md">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", delay: 0.2 }}
+        >
+          <CheckCircle className={`text-green-500 mx-auto ${isFullscreenMode ? 'w-24 h-24 mb-6' : 'w-20 h-20 mb-4'}`} />
+        </motion.div>
+        <h3 className={`font-bold text-gray-900 ${isFullscreenMode ? 'text-3xl mb-4' : 'text-2xl mb-2'}`}>
+          Great Conversation!
+        </h3>
+        <p className={`text-gray-600 ${isFullscreenMode ? 'text-lg mb-8' : 'mb-6'}`}>
+          Your session with Aria has been completed and all insights have been saved.
+        </p>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleContinueToSelfie}
+          className={`bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg ${
+            isFullscreenMode ? 'px-8 py-4 text-lg' : 'px-6 py-3'
+          }`}
+        >
+          Continue to Next Step
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+
+  // Loading component
+  const LoadingState = ({ isFullscreenMode = false }) => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50"
+    >
+      <div className="text-center">
+        <div className={`border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4 ${isFullscreenMode ? 'w-20 h-20' : 'w-16 h-16'}`}></div>
+        <h3 className={`font-semibold text-gray-900 mb-2 ${isFullscreenMode ? 'text-2xl' : 'text-lg'}`}>Preparing Avatar</h3>
+        <p className="text-gray-600">Setting up your AI assistant...</p>
+      </div>
+    </motion.div>
+  );
+
+  // Fullscreen Modal Component - Just shows backdrop and controls
   const FullscreenAvatar = () => (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black"
+      className="fixed inset-0 z-40 bg-black"
     >
       {/* Fullscreen Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+      <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
@@ -171,71 +284,12 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
         </div>
       </div>
 
-      {/* Fullscreen Avatar Container */}
-      <div className="pt-20 h-full">
-        <AnimatePresence>
-          {isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50"
-            >
-              <div className="text-center">
-                <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Preparing Avatar</h3>
-                <p className="text-gray-600">Setting up your AI assistant...</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {!sessionEnded ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: isLoading ? 0 : 1, scale: isLoading ? 0.95 : 1 }}
-            transition={{ delay: 0.5 }}
-            className="h-full"
-          >
-            <iframe
-              src={iframeSrc}
-              className="w-full h-full border-0"
-              allow="camera; microphone; autoplay"
-              title="AI Avatar Assistant - Fullscreen"
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-8"
-          >
-            <div className="text-center max-w-md">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.2 }}
-              >
-                <CheckCircle className="w-24 h-24 text-green-500 mx-auto mb-6" />
-              </motion.div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                Great Conversation!
-              </h3>
-              <p className="text-gray-600 mb-8 text-lg">
-                Your session with Aria has been completed and all insights have been saved.
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleContinueToSelfie}
-                className="px-8 py-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg text-lg"
-              >
-                Continue to Next Step
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </div>
+      {/* Session completed overlay shown in fullscreen if needed */}
+      {sessionEnded && (
+        <div className="pt-20 h-full relative">
+          <SessionCompleted isFullscreenMode={true} />
+        </div>
+      )}
     </motion.div>
   );
 
@@ -267,21 +321,16 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
 
           <button
             onClick={handleContinueToSelfie}
-            disabled={!sessionEnded}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all shadow-md ${
-              sessionEnded 
-                ? 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg' 
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all shadow-md bg-green-600 text-white hover:bg-green-700 hover:shadow-lg"
           >
             <span className="hidden sm:inline">Next</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </motion.div>
 
-        {/* Main Content with improved layout */}
+        {/* Main Content */}
         <div className="flex gap-6">
-          {/* Left Sidebar - Instructions & Status */}
+          {/* Left Sidebar */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ 
@@ -420,7 +469,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
             )}
           </motion.div>
 
-          {/* Right Content - Avatar Interface (Now with flex-grow) */}
+          {/* Right Content - Avatar Interface */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -468,69 +517,30 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
                 </div>
               </div>
 
-              {/* Avatar Container with improved height */}
+              {/* Avatar Container - Always rendered, iframe lives here */}
               <div className="relative" style={{ height: 'calc(100vh - 300px)', minHeight: '600px' }}>
                 <AnimatePresence>
-                  {isLoading && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50"
-                    >
-                      <div className="text-center">
-                        <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Preparing Avatar</h3>
-                        <p className="text-gray-600">Setting up your AI assistant...</p>
-                      </div>
-                    </motion.div>
-                  )}
+                  {isLoading && <LoadingState isFullscreenMode={false} />}
                 </AnimatePresence>
 
-                {!sessionEnded ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: isLoading ? 0 : 1, scale: isLoading ? 0.95 : 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="h-full"
-                  >
-                    <iframe
-                      src={iframeSrc}
-                      className="w-full h-full border-0"
-                      allow="camera; microphone; autoplay"
-                      title="AI Avatar Assistant"
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-8"
-                  >
-                    <div className="text-center max-w-md">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", delay: 0.2 }}
-                      >
-                        <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
-                      </motion.div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                        Great Conversation!
-                      </h3>
-                      <p className="text-gray-600 mb-6">
-                        Your session with Aria has been completed and all insights have been saved.
-                      </p>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleContinueToSelfie}
-                        className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg"
-                      >
-                        Continue to Next Step
-                      </motion.button>
+                {/* Iframe container - always present */}
+                {!sessionEnded && (
+                  <div ref={normalContainerRef} className="h-full" />
+                )}
+
+                {/* Session completed view */}
+                {sessionEnded && <SessionCompleted isFullscreenMode={false} />}
+
+                {/* Placeholder overlay when in fullscreen mode */}
+                {isFullscreen && !sessionEnded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 z-10">
+                    <div className="text-center">
+                      <Maximize className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Avatar in Fullscreen</h3>
+                      <p className="text-gray-600">Your session is running in fullscreen mode</p>
+                      <p className="text-sm text-gray-500 mt-2">Press ESC or click minimize to return</p>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </div>
             </div>
@@ -543,7 +553,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
         {isFullscreen && <FullscreenAvatar />}
       </AnimatePresence>
 
-      {/* Enhanced Success Modal */}
+      {/* Success Modal */}
       <AnimatePresence>
         {showSuccessModal && (
           <motion.div
@@ -558,7 +568,6 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative overflow-hidden"
             >
-              {/* Decorative background */}
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-blue-500"></div>
               
               <div className="text-center">
