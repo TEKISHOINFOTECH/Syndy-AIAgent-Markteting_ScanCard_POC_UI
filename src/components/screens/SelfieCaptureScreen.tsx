@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card } from '../ui/Card';
@@ -28,33 +28,39 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [selfieFile, setSelfieFile] = useState<File | null>(null);
 
+  // Memoize startCamera function so it can be called from multiple places
+  const startCamera = useCallback(async () => {
+    try {
+      // Stop existing stream if any
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' }, 
+        audio: false 
+      });
+      
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      setStreamError(null); // Clear any previous errors
+    } catch (err: any) {
+      console.error('Camera error:', err);
+      setStreamError(err?.message || 'Camera access denied or unavailable');
+    }
+  }, [stream]);
+
   useEffect(() => {
     let mounted = true;
     
-    const startCamera = async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
-          audio: false 
-        });
-        
-        if (!mounted) {
-          // Component was unmounted before stream was obtained
-          mediaStream.getTracks().forEach(track => track.stop());
-          return;
-        }
-        
-        setStream(mediaStream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      } catch (err: any) {
-        console.error('Camera error:', err);
-        setStreamError(err?.message || 'Camera access denied or unavailable');
-      }
+    const initCamera = async () => {
+      if (!mounted) return;
+      await startCamera();
     };
 
-    startCamera();
+    initCamera();
 
     return () => {
       mounted = false;
@@ -63,7 +69,7 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, []); // Only run on mount
 
   // Clean up stream when component unmounts
   useEffect(() => {
@@ -108,6 +114,11 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
       // Save for preview
       setSelfieFile(file);
       setCapturedImage(imageUrl);
+      
+      // Stop the video stream to save resources
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     } catch (err) {
       console.error('Capture error:', err);
       setStreamError('Failed to capture photo. Please try again.');
@@ -125,10 +136,12 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
     }
   };
 
-  const handleRetakeSelfie = () => {
+  const handleRetakeSelfie = async () => {
     setCapturedImage(null);
     setSelfieFile(null);
     setStreamError(null);
+    // Restart the camera
+    await startCamera();
   };
 
   return (

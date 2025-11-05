@@ -258,30 +258,41 @@ export class CardScannerAPI {
    */
   static async scheduleMeeting(
     transactionID: string, 
-    includeSelfie: boolean = false
+    includeSelfie: boolean = false,
+    emailDraft?: { to: string; subject: string; body: string }
   ): Promise<ScheduleMeetingResponse> {
-    console.log('📅 Scheduling meeting for transaction:', transactionID);
-    console.log('📸 Include selfie in email:', includeSelfie);
-
+    console.log('📅 Scheduling meeting:', { transactionID, includeSelfie, emailDraft });
+    
     const response = await fetch(`${API_BASE_URL}/api/intiateMeetingScheduler`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        transactionID, 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        record_id: transactionID, // Backend expects 'record_id'
         isMeetingRequested: true,
-        includeSelfie: includeSelfie // NEW: send includeSelfie flag
+        includeSelfie,
+        ...(emailDraft && {
+          email_draft: {
+            to: emailDraft.to,
+            subject: emailDraft.subject,
+            body: emailDraft.body,
+          },
+        }),
       }),
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Meeting scheduling error:', response.status, errorText);
-      throw new Error(`Failed to schedule meeting: ${response.status}`);
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.detail || `Meeting scheduling failed: ${response.status}`);
+      } catch {
+        throw new Error(`Meeting scheduling failed (${response.status}): ${errorText}`);
+      }
     }
-    
-    const result = await response.json();
-    console.log('✅ Meeting request sent:', result);
-    return result;
+
+    return response.json();
   }
 
   /**
@@ -323,5 +334,39 @@ export class CardScannerAPI {
     const result = await response.json();
     console.log('✅ Email draft generated:', result);
     return result;
+  }
+
+  // Add new method to save email draft
+  static async saveEmailDraft(
+    transactionID: string,
+    emailDraft: { to: string; subject: string; body: string }
+  ): Promise<{ success: boolean; message: string }> {
+    console.log('📧 Saving email draft:', { transactionID, emailDraft });
+    
+    const response = await fetch(`${API_BASE_URL}/api/generateEmailDraft/${transactionID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email_draft: {
+          to: emailDraft.to,
+          subject: emailDraft.subject,
+          body: emailDraft.body,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.detail || `Email draft save failed: ${response.status}`);
+      } catch {
+        throw new Error(`Email draft save failed (${response.status}): ${errorText}`);
+      }
+    }
+
+    return response.json();
   }
 }

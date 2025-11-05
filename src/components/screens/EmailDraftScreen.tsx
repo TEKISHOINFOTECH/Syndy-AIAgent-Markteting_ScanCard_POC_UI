@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, ChevronLeft, ChevronRight, Send, Edit2, Loader2, User } from 'lucide-react';
 import { Card } from '../ui/Card';
 import type { UserInfo } from '../../types/cardScanner';
+import { CardScannerAPI } from '../../services/api';
 
 interface EmailDraftScreenProps {
   userInfo: UserInfo | null;
@@ -13,7 +14,7 @@ interface EmailDraftScreenProps {
   onPrevious?: () => void;
   onNext?: () => void;
   onSaveDraft?: (draft: { to: string; subject: string; body: string }) => void;
-  onScheduleMeeting?: () => void;
+  onScheduleMeeting?: (emailDraft: { to: string; subject: string; body: string }) => void;
   isLoading?: boolean;
 }
 
@@ -95,21 +96,36 @@ Best regards`;
       return;
     }
 
-    // Save draft if handler is provided
-    if (onSaveDraft) {
-      onSaveDraft({ to, subject, body });
-    }
+    const draft = { to, subject, body };
 
     try {
       setIsLoading(true);
       setError(null);
 
-      // Call the meeting scheduler API (onScheduleMeeting will handle includeSelfie)
-      if (onScheduleMeeting) {
-        await onScheduleMeeting();
+      // Step 1: Save email draft to backend first
+      console.log('💾 Saving email draft to backend...');
+      try {
+        await CardScannerAPI.saveEmailDraft(transactionID, draft);
+        console.log('✅ Email draft saved successfully');
+      } catch (saveErr) {
+        console.error('❌ Failed to save email draft:', saveErr);
+        // Continue anyway - don't block the meeting scheduling
+        setError('Warning: Could not save draft, but proceeding with meeting request...');
       }
 
-      // Navigate to next step
+      // Step 2: Save draft to parent component state
+      if (onSaveDraft) {
+        onSaveDraft(draft);
+      }
+
+      // Step 3: Call the meeting scheduler with email draft
+      console.log('📅 Scheduling meeting with email draft...');
+      if (onScheduleMeeting) {
+        await onScheduleMeeting(draft);
+      }
+
+      // Step 4: Navigate to next step
+      console.log('✅ Meeting scheduled successfully');
       if (onNext) {
         onNext();
       }
@@ -130,9 +146,9 @@ Best regards`;
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onPrevious}
-            disabled={!onPrevious}
+            disabled={!onPrevious || loadingState}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-              onPrevious
+              onPrevious && !loadingState
                 ? 'bg-white text-gray-700 hover:bg-green-50 hover:text-green-700 border border-gray-300 hover:border-green-300 shadow-sm'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
@@ -141,6 +157,15 @@ Best regards`;
             <ChevronLeft className="w-5 h-5" />
             <span className="hidden sm:inline">Previous</span>
           </button>
+
+          <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-gray-600">Step 5 of 6</span>
+            </div>
+            <div className="w-px h-4 bg-gray-300"></div>
+            <span className="text-sm font-medium text-gray-800">Email Draft</span>
+          </div>
 
           <button
             onClick={handleSchedule}
@@ -153,7 +178,9 @@ Best regards`;
             aria-label="Schedule Meeting"
           >
             {loadingState && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span className="hidden sm:inline">{loadingState ? 'Scheduling...' : 'Next'}</span>
+            <span className="hidden sm:inline">
+              {loadingState ? 'Saving & Scheduling...' : 'Continue to Schedule'}
+            </span>
             {!loadingState && <ChevronRight className="w-5 h-5" />}
           </button>
         </div>
@@ -210,7 +237,8 @@ Best regards`;
                       value={to}
                       onChange={(e) => setTo(e.target.value)}
                       placeholder="recipient@example.com"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
+                      disabled={loadingState}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -225,7 +253,8 @@ Best regards`;
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
                       placeholder="Email subject"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800"
+                      disabled={loadingState}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -240,7 +269,8 @@ Best regards`;
                       onChange={(e) => setBody(e.target.value)}
                       placeholder="Write your email message here..."
                       rows={12}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-gray-800"
+                      disabled={loadingState}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -267,10 +297,10 @@ Best regards`;
                         role="switch"
                         aria-checked={includeSelfie}
                         onClick={() => onIncludeSelfieChange(!includeSelfie)}
-                        disabled={isLoading || externalLoading}
+                        disabled={loadingState}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                           includeSelfie ? 'bg-green-600' : 'bg-gray-300'
-                        } ${isLoading || externalLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        } ${loadingState ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <span
                           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -294,12 +324,16 @@ Best regards`;
 
               {/* Error Message */}
               {error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+                >
                   <p className="text-sm text-red-600">{error}</p>
-                </div>
+                </motion.div>
               )}
 
-              {/* Action Buttons */}
+              {/* Action Info */}
               {!isGenerating && (
                 <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
                   <div className="text-sm text-gray-600 flex items-center gap-2">
@@ -314,7 +348,7 @@ Best regards`;
                     {loadingState ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Scheduling Meeting...</span>
+                        <span>Saving & Scheduling...</span>
                       </>
                     ) : (
                       <>
@@ -325,6 +359,47 @@ Best regards`;
                   </button>
                 </div>
               )}
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-6"
+        >
+          <Card>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Mail className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-1">What happens next?</h3>
+                  <ul className="text-xs text-blue-800 space-y-1">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>Your email draft will be saved to the backend</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>A meeting scheduler will be initiated with your custom email</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>You'll be able to schedule a meeting in the next step</span>
+                    </li>
+                    {includeSelfie && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-0.5">•</span>
+                        <span>Your selfie will be included with the meeting request</span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
             </div>
           </Card>
         </motion.div>
