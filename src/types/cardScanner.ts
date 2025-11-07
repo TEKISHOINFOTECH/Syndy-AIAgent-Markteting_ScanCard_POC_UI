@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface UploadCardResponse {
   success: boolean;
@@ -153,7 +153,7 @@ export class CardScannerAPI {
   /**
    * Generate email draft using AI
    */
-  static async generateEmailDraft(recordId: string): Promise<GenerateEmailDraftResponse> {
+  static async generateEmailDraft(recordId: string): Promise<EmailDraftResponse> {
     console.log('📧 Generating email draft for record:', recordId);
 
     const response = await fetch(`${API_BASE_URL}/api/generateEmailDraft/${recordId}`, {
