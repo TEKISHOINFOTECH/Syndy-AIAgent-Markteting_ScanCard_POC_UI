@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Mic, Send, Bot, Users, BarChart3 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Mic, Send, Bot, Users, BarChart3, Square } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RobotAvatar from './RobotAvatar';
 import UploadView from './UploadView';
 import ScanView from './ScanView';
 import DatabaseView from './DatabaseView';
 import { BackButton } from './ui/BackButton';
+import { CardScannerAPI } from '../services/api';
 
 interface ChatViewProps {
   activeView: 'chat' | 'upload' | 'scan' | 'analysis';
@@ -13,11 +14,17 @@ interface ChatViewProps {
   setAnalysisSubsection?: (subsection: 'overview' | 'stats' | 'database' | null) => void;
   setActiveView?: (view: 'chat' | 'upload' | 'scan' | 'analysis') => void;
   onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
+  transactionID?: string; // Add transactionID for voice recording
 }
 
-function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setActiveView, onNavClick }: ChatViewProps) {
+function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setActiveView, onNavClick, transactionID }: ChatViewProps) {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // MediaRecorder refs
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleSend = () => {
     if (message.trim()) {
@@ -33,8 +40,75 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
     }
   };
 
+  const startRecording = async () => {
+    if (!transactionID) {
+      alert('Please upload a business card first to enable voice recording');
+      return;
+    }
+
+    try {
+      audioChunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(track => track.stop());
+        await uploadAndTranscribe();
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      console.log('🎤 Recording started in ChatView');
+    } catch (error) {
+      console.error('❌ Failed to start recording:', error);
+      alert('Failed to access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      console.log('🛑 Recording stopped in ChatView');
+    }
+  };
+
+  const uploadAndTranscribe = async () => {
+    if (audioChunksRef.current.length === 0 || !transactionID) return;
+
+    try {
+      setIsProcessing(true);
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      console.log('📤 Uploading audio from ChatView:', `${(audioBlob.size / 1024).toFixed(2)}KB`);
+
+      const result = await CardScannerAPI.recordAudioWithoutAvatar(transactionID, audioBlob);
+      
+      // Add transcript to chat as a message
+      const transcriptMessage = `📝 Transcript: ${result.transcript}\n\n🔍 Summary: ${result.analysis.summary}`;
+      setMessage(transcriptMessage);
+      
+      console.log('✅ Transcription successful in ChatView');
+    } catch (error) {
+      console.error('❌ Transcription failed:', error);
+      alert(error instanceof Error ? error.message : 'Failed to transcribe audio');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const toggleRecording = () => {
-    setIsRecording(!isRecording);
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
   };
 
   // Render different views based on activeView
@@ -216,18 +290,25 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
               <div className="absolute right-2 bottom-2 flex gap-1.5 sm:gap-2">
                 <button
                   onClick={toggleRecording}
+                  disabled={isProcessing}
                   className={`p-1.5 sm:p-2 rounded-lg transition-all ${
                     isRecording
-                      ? 'bg-red-500 text-white shadow-lg'
+                      ? 'bg-red-500 text-white shadow-lg animate-pulse'
+                      : isProcessing
+                      ? 'bg-gray-300 text-gray-500 cursor-wait'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
                   }`}
-                  title="Voice input"
+                  title={isRecording ? "Stop recording" : isProcessing ? "Processing..." : "Voice input"}
                 >
-                  <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  {isRecording ? (
+                    <Square className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  ) : (
+                    <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  )}
                 </button>
                 <button
                   onClick={handleSend}
-                  disabled={!message.trim()}
+                  disabled={!message.trim() || isProcessing}
                   className="p-1.5 sm:p-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                   title="Send message"
                 >

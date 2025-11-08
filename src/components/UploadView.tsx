@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Upload, X, FileImage, Loader, CheckCircle } from 'lucide-react';
 import { qrDetectionService } from '../services/qrDetection';
+import { CardScannerAPI } from '../services/api';
 import { BackButton } from './ui/BackButton';
 
 interface UploadedFile {
@@ -19,7 +20,7 @@ interface UploadViewProps {
   onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-function UploadView({ onFilesProcessed, activeView = 'upload', onNavClick }: UploadViewProps) {
+function UploadView({ onFilesProcessed, /* activeView unused */ onNavClick }: UploadViewProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -211,41 +212,39 @@ const uploadAllFilesBatch = async () => {
       setUploadStatus(`🤖 Processing file ${i + 1}/${pendingFiles.length}: ${file.file.name}...`);
       
       try {
-        const formData = new FormData();
-        formData.append('file', file.file);
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 1 minute timeout per file
-        
-        const response = await fetch('http://localhost:8000/ai-business-card', {
-          method: 'POST',
-          body: formData,
-          signal: controller.signal,
+        let initialPayload: any = null;
+        const result = await CardScannerAPI.uploadCard(file.file, {
+          streamCompanyResearch: true,
+          onInitial: (payload: any) => {
+            initialPayload = payload;
+            setUploadStatus(prev => `${prev}\n🚀 Company research in progress${payload.structured_data?.company ? ` for ${payload.structured_data.company}` : ''}...`);
+          },
+          onStreamEvent: ({ event, data }: any) => {
+            if (event === 'company_research_start') {
+              setUploadStatus(prev => `${prev}\n🔎 Company research started...`);
+            } else if (event === 'company_research_saved') {
+              setUploadStatus(prev => `${prev}\n✅ Company research saved to database`);
+            } else if (event === 'company_research_error') {
+              setUploadStatus(prev => `${prev}\n❌ Company research error: ${data?.message || 'Unknown error'}`);
+            }
+          }
         });
-        
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`Upload failed: ${response.status}`);
-        }
-
-        const result = await response.json();
         
         // Merge QR data with AI OCR result
         const qrData = qrResults.find((q: any) => q.filename === file.file.name);
+        const payload = initialPayload || result.aiResponse;
         const mergedResult = {
-          ...result,
+          ...payload,
           filename: file.file.name,
-          qr_codes: qrData?.qr_codes || [],
-          qr_count: qrData?.qr_count || 0,
-          has_qr_codes: (qrData?.qr_count || 0) > 0,
-          // Map AI business card fields to expected format
-          text: result.raw_analysis || result.formatted_output || '',
-          engine: result.method || 'ai_vision',
-          engine_used: result.method || 'ai_vision',
-          // Keep structured_data for compatibility
-          structured_data: result.structured_data || result.structuredInfo || {},
-          structuredInfo: result.structured_data || result.structuredInfo || {},
+          qr_codes: (qrData?.qr_codes || []).concat(payload?.qr_codes || []),
+          qr_count: (qrData?.qr_count || 0) + (Array.isArray(payload?.qr_codes) ? payload.qr_codes.length : 0),
+          has_qr_codes: ((qrData?.qr_count || 0) + (Array.isArray(payload?.qr_codes) ? payload.qr_codes.length : 0)) > 0,
+          text: payload?.raw_analysis || payload?.formatted_output || '',
+          engine: payload?.method || 'ai_vision',
+          engine_used: payload?.method || 'ai_vision',
+          structured_data: payload?.structured_data || payload?.structuredInfo || {},
+          structuredInfo: payload?.structured_data || payload?.structuredInfo || {},
+          transactionID: result.transactionID,
         };
         
         results.push(mergedResult);
@@ -253,7 +252,7 @@ const uploadAllFilesBatch = async () => {
         // NOTE: Database saving is handled by the backend /ai-business-card endpoint
         // No need to save from frontend to avoid duplicates
         console.log('✅ File processed successfully:', file.file.name);
-        if (result.saved_to_database) {
+        if (payload?.saved_to_database) {
           console.log('✅ Backend saved to database:', file.file.name);
         }
         
@@ -263,10 +262,10 @@ const uploadAllFilesBatch = async () => {
             f.id === file.id
               ? {
                   ...f,
-                  status: result.success ? 'completed' : 'error',
-                  progress: result.success ? 100 : 0,
-                  result: result.success ? mergedResult : null,
-                  error: result.success ? null : result.error || 'Processing failed'
+                  status: payload?.success ? 'completed' : 'error',
+                  progress: payload?.success ? 100 : 0,
+                  result: payload?.success ? mergedResult : null,
+                  error: payload?.success ? null : payload?.error || 'Processing failed'
                 }
               : f
           )

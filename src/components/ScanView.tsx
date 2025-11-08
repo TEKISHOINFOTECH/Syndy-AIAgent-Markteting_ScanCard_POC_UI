@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { QrCode, FileText, Nfc, Camera, X, ExternalLink } from 'lucide-react';
 import { qrDetectionService } from '../services/qrDetection';
-import { DatabaseService } from '../lib/supabase';
+import { CardScannerAPI } from '../services/api';
+// Removed unused DatabaseService import after refactor
 import { BackButton } from './ui/BackButton'; 
 
 type ScanMode = 'qr' | 'nfc' | 'text' | null;
@@ -11,13 +12,14 @@ interface ScanViewProps {
   onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-function ScanView({ activeView = 'scan', onNavClick }: ScanViewProps) {
+function ScanView({ /* activeView unused */ onNavClick }: ScanViewProps) {
   const [scanMode, setScanMode] = useState<ScanMode>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState<string>('Idle');
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
   const [enrichResults, setEnrichResults] = useState<any>(null);
+  const [, setTransactionID] = useState<string | null>(null); // captured for DB continuity (no direct reads here)
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -184,123 +186,113 @@ function ScanView({ activeView = 'scan', onNavClick }: ScanViewProps) {
       setStatus('⚠️ QR detection had issues.\n\n🤖 Step 2/2: Analyzing with AI Vision...');
     }
     
-    // Now send to AI business card endpoint
+    // Now send to AI business card endpoint via centralized API with streaming
     try {
-      const formData = new FormData();
-      formData.append('file', blob, 'business_card.jpeg');
+      const fileObj = new File([blob], 'business_card.jpeg', { type: 'image/jpeg' });
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-      
-      const response = await fetch('http://localhost:8000/ai-business-card', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
+  // Placeholder to capture initial payload
+  // (kept for potential future enrichment merge)
+  // let initialStructured: any = null;
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-      }
+      const result = await CardScannerAPI.uploadCard(fileObj, {
+        streamCompanyResearch: true,
+        onInitial: (payload) => {
+          // Save transactionID from record_id
+          setTransactionID(payload.record_id);
+          const structuredInfo = payload.structured_data || {};
 
-      const result = await response.json();
-      
-      console.log('🔍 Backend AI response:', result);
-      
-      if (result.success) {
-        const structuredInfo = result.structured_data || result.structuredInfo || {};
-        
-        // Merge frontend QR detection with backend QR detection
-        const allQRCodes = [...parsedQRCodes];
-        
-        // Add backend QR codes if they exist and aren't duplicates
-        if (result.qr_codes && Array.isArray(result.qr_codes)) {
-          result.qr_codes.forEach((backendQR: any) => {
-            const qrData = typeof backendQR === 'object' ? (backendQR.data || backendQR.text) : backendQR;
-            const isDuplicate = allQRCodes.some(qr => qr.data === qrData);
-            
-            if (!isDuplicate && qrData) {
-              allQRCodes.push({
-                data: qrData,
-                method: 'backend_ai',
-                parsed: qrDetectionService.parseQRContent(qrData)
-              });
-            }
-          });
-        }
-        
-        // Format the display
-        let displayText = '✅ AI Analysis Complete!\n\n';
-        displayText += '📝 Extracted Information:\n\n';
-        
-        if (structuredInfo.name) displayText += `👤 Name: ${structuredInfo.name}\n`;
-        if (structuredInfo.title) displayText += `💼 Title: ${structuredInfo.title}\n`;
-        if (structuredInfo.company) displayText += `🏢 Company: ${structuredInfo.company}\n`;
-        if (structuredInfo.email) displayText += `📧 Email: ${structuredInfo.email}\n`;
-        if (structuredInfo.phone) displayText += `📱 Phone: ${structuredInfo.phone}\n`;
-        if (structuredInfo.website) displayText += `🌐 Website: ${structuredInfo.website}\n`;
-        if (structuredInfo.address) displayText += `📍 Address: ${structuredInfo.address}\n`;
-        
-        // Enhanced QR code display
-        if (allQRCodes.length > 0) {
-          displayText += `\n📱 QR Codes Found: ${allQRCodes.length}\n`;
-          allQRCodes.forEach((qr: any, idx: number) => {
-            displayText += `\n  QR ${idx + 1}:\n`;
-            displayText += `    Data: ${qr.data}\n`;
-            displayText += `    Method: ${qr.method}\n`;
-            
-            if (qr.parsed && qr.parsed.title) {
-              displayText += `    Type: ${qr.parsed.title}\n`;
-              
-              if (qr.parsed.details && Object.keys(qr.parsed.details).length > 0) {
-                displayText += `    Details:\n`;
-                Object.entries(qr.parsed.details).forEach(([key, value]) => {
-                  displayText += `      ${key}: ${value}\n`;
+          // Merge frontend QR detection with backend QR detection
+          const allQRCodes = [...parsedQRCodes];
+          if (payload.qr_codes && Array.isArray(payload.qr_codes)) {
+            payload.qr_codes.forEach((backendQR: any) => {
+              const qrData = typeof backendQR === 'object' ? (backendQR.data || backendQR.text) : backendQR;
+              const isDuplicate = allQRCodes.some(qr => qr.data === qrData);
+              if (!isDuplicate && qrData) {
+                allQRCodes.push({
+                  data: qrData,
+                  method: 'backend_ai',
+                  parsed: qrDetectionService.parseQRContent(qrData)
                 });
               }
+            });
+          }
+
+          // Build display text
+          let displayText = '✅ AI Analysis Complete!\n\n';
+          displayText += '📝 Extracted Information:\n\n';
+          if (structuredInfo.name) displayText += `👤 Name: ${structuredInfo.name}\n`;
+          if (structuredInfo.title) displayText += `💼 Title: ${structuredInfo.title}\n`;
+          if (structuredInfo.company) displayText += `🏢 Company: ${structuredInfo.company}\n`;
+          if (structuredInfo.email) displayText += `📧 Email: ${structuredInfo.email}\n`;
+          if (structuredInfo.phone) displayText += `📱 Phone: ${structuredInfo.phone}\n`;
+          if (structuredInfo.website) displayText += `🌐 Website: ${structuredInfo.website}\n`;
+          if (structuredInfo.address) displayText += `📍 Address: ${structuredInfo.address}\n`;
+
+          if (allQRCodes.length > 0) {
+            displayText += `\n📱 QR Codes Found: ${allQRCodes.length}\n`;
+            allQRCodes.forEach((qr: any, idx: number) => {
+              displayText += `\n  QR ${idx + 1}:\n`;
+              displayText += `    Data: ${qr.data}\n`;
+              displayText += `    Method: ${qr.method}\n`;
+              if (qr.parsed && qr.parsed.title) {
+                displayText += `    Type: ${qr.parsed.title}\n`;
+                if (qr.parsed.details && Object.keys(qr.parsed.details).length > 0) {
+                  displayText += `    Details:\n`;
+                  Object.entries(qr.parsed.details).forEach(([key, value]) => {
+                    displayText += `      ${key}: ${value}\n`;
+                  });
+                }
+              }
+            });
+          } else {
+            displayText += `\n📱 No QR Codes Found\n`;
+          }
+
+          displayText += `\n🎯 Confidence: ${((payload.confidence || 0) * 100).toFixed(1)}%`;
+
+          // Indicate company research streaming
+          if (structuredInfo.company) {
+            displayText += `\n\n🚀 Company research in progress for ${structuredInfo.company}...`;
+          }
+          setStatus(displayText);
+
+          // Store initial results
+          setEnrichResults({
+            structured_data: structuredInfo,
+            qr_codes: allQRCodes,
+            qr_count: allQRCodes.length,
+            confidence: payload.confidence || 0,
+            company_info: {
+              name: structuredInfo.company,
+              website: structuredInfo.website
+            },
+            linkedin_profiles: [],
+            meta: {
+              elapsed_seconds: 0,
+              linkedin_profiles_found: 0
             }
           });
-        } else {
-          displayText += `\n📱 No QR Codes Found\n`;
-        }
-        
-        displayText += `\n🎯 Confidence: ${((result.confidence || 0) * 100).toFixed(1)}%`;
-        
-        setStatus(displayText);
-        
-        // Store enriched results for display
-        setEnrichResults({
-          structured_data: structuredInfo,
-          qr_codes: allQRCodes, // Use merged QR codes
-          qr_count: allQRCodes.length,
-          confidence: result.confidence || 0,
-          company_info: {
-            name: structuredInfo.company,
-            website: structuredInfo.website
-          },
-          linkedin_profiles: [],
-          meta: {
-            elapsed_seconds: 0,
-            linkedin_profiles_found: 0
+
+          setIsProcessing(false);
+        },
+        onStreamEvent: ({ event, data }) => {
+          if (event === 'company_research_start') {
+            setStatus(prev => (prev ? prev + '\n\n🚀 Company research started...' : '🚀 Company research started...'));
+          } else if (event === 'company_research_saved') {
+            setStatus(prev => (prev ? prev + '\n✅ Company research saved to database' : '✅ Company research saved to database'));
+          } else if (event === 'company_research_error') {
+            setStatus(prev => (prev ? prev + `\n❌ Company research error: ${data?.message || 'Unknown error'}` : `❌ Company research error: ${data?.message || 'Unknown error'}`));
           }
-        });
-        
-        setIsProcessing(false);
-      } else {
-        setStatus('❌ AI analysis failed: ' + (result.error || 'Unknown error'));
-        setIsProcessing(false);
-      }
-      
+        }
+      });
+
+      // Keep transaction id from wrapper too (redundant safety)
+      if (result?.transactionID) setTransactionID(result.transactionID);
     } catch (error) {
       console.error('AI Vision API error:', error);
       let errorMessage = 'AI Vision API failed';
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = 'Processing timed out. Please try with a smaller image.';
-        } else {
-          errorMessage = error.message;
-        }
+        errorMessage = error.name === 'AbortError' ? 'Processing timed out. Please try with a smaller image.' : error.message;
       }
       setStatus('❌ ' + errorMessage);
       setIsProcessing(false);
@@ -312,111 +304,71 @@ function ScanView({ activeView = 'scan', onNavClick }: ScanViewProps) {
     setStatus('Sending to AI Vision API...');
     
     try {
-      const formData = new FormData();
-      formData.append('file', blob, 'business_card.jpeg');
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-      
-      const response = await fetch('http://localhost:8000/ai-business-card', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      console.log('🔍 Backend response:', result);
-      
-      if (result.success) {
-        const structuredInfo = result.structured_data || result.structuredInfo || {};
-        
-        let displayText = '✅ AI Analysis Complete!\n\n';
-        displayText += '📝 Extracted Information:\n\n';
-        
-        if (structuredInfo.name) displayText += `👤 Name: ${structuredInfo.name}\n`;
-        if (structuredInfo.title) displayText += `💼 Title: ${structuredInfo.title}\n`;
-        if (structuredInfo.company) displayText += `🏢 Company: ${structuredInfo.company}\n`;
-        if (structuredInfo.email) displayText += `📧 Email: ${structuredInfo.email}\n`;
-        if (structuredInfo.phone) displayText += `📱 Phone: ${structuredInfo.phone}\n`;
-        if (structuredInfo.website) displayText += `🌐 Website: ${structuredInfo.website}\n`;
-        if (structuredInfo.address) displayText += `📍 Address: ${structuredInfo.address}\n`;
-        
-        if (result.qr_codes && Array.isArray(result.qr_codes) && result.qr_codes.length > 0) {
-          displayText += `\n📱 QR Codes Found: ${result.qr_count || result.qr_codes.length}\n`;
-          result.qr_codes.forEach((qr: any, idx: number) => {
-            const qrData = typeof qr === 'object' ? (qr.data || qr.text || 'No data') : qr;
-            displayText += `  ${idx + 1}. ${qrData}\n`;
-          });
-        } else {
-          displayText += `\n📱 No QR Codes Found\n`;
-        }
-        
-        displayText += `\n🎯 Confidence: ${((result.confidence || 0) * 100).toFixed(1)}%`;
-        
-        setStatus(displayText);
-        
-        setEnrichResults({
-          structured_data: structuredInfo,
-          qr_codes: result.qr_codes || [],
-          confidence: result.confidence || 0,
-          company_info: {
-            name: structuredInfo.company,
-            website: structuredInfo.website
-          },
-          linkedin_profiles: [],
-          meta: {
-            elapsed_seconds: 0,
-            linkedin_profiles_found: 0
+      const fileObj = new File([blob], 'business_card.jpeg', { type: 'image/jpeg' });
+      const result = await CardScannerAPI.uploadCard(fileObj, {
+        streamCompanyResearch: true,
+        onInitial: (payload) => {
+          setTransactionID(payload.record_id);
+          const structuredInfo = payload.structured_data || {};
+          let displayText = '✅ AI Analysis Complete!\n\n';
+          displayText += '📝 Extracted Information:\n\n';
+          if (structuredInfo.name) displayText += `👤 Name: ${structuredInfo.name}\n`;
+          if (structuredInfo.title) displayText += `💼 Title: ${structuredInfo.title}\n`;
+          if (structuredInfo.company) displayText += `🏢 Company: ${structuredInfo.company}\n`;
+          if (structuredInfo.email) displayText += `📧 Email: ${structuredInfo.email}\n`;
+          if (structuredInfo.phone) displayText += `📱 Phone: ${structuredInfo.phone}\n`;
+          if (structuredInfo.website) displayText += `🌐 Website: ${structuredInfo.website}\n`;
+          if (structuredInfo.address) displayText += `📍 Address: ${structuredInfo.address}\n`;
+          if (payload.qr_codes && Array.isArray(payload.qr_codes) && payload.qr_codes.length > 0) {
+            displayText += `\n📱 QR Codes Found: ${payload.qr_count || payload.qr_codes.length}\n`;
+            payload.qr_codes.forEach((qr: any, idx: number) => {
+              const qrData = typeof qr === 'object' ? (qr.data || qr.text || 'No data') : qr;
+              displayText += `  ${idx + 1}. ${qrData}\n`;
+            });
+          } else {
+            displayText += `\n📱 No QR Codes Found\n`;
           }
-        });
-        
-        setIsProcessing(false);
-      } else {
-        setStatus('❌ AI analysis failed: ' + (result.error || 'Unknown error'));
-        setIsProcessing(false);
-      }
-      
+          displayText += `\n🎯 Confidence: ${((payload.confidence || 0) * 100).toFixed(1)}%`;
+          if (structuredInfo.company) {
+            displayText += `\n\n🚀 Company research in progress for ${structuredInfo.company}...`;
+          }
+          setStatus(displayText);
+          setEnrichResults({
+            structured_data: structuredInfo,
+            qr_codes: payload.qr_codes || [],
+            confidence: payload.confidence || 0,
+            company_info: {
+              name: structuredInfo.company,
+              website: structuredInfo.website
+            },
+            linkedin_profiles: [],
+            meta: { elapsed_seconds: 0, linkedin_profiles_found: 0 }
+          });
+          setIsProcessing(false);
+        },
+        onStreamEvent: ({ event, data }) => {
+          if (event === 'company_research_start') {
+            setStatus(prev => (prev ? prev + '\n\n🚀 Company research started...' : '🚀 Company research started...'));
+          } else if (event === 'company_research_saved') {
+            setStatus(prev => (prev ? prev + '\n✅ Company research saved to database' : '✅ Company research saved to database'));
+          } else if (event === 'company_research_error') {
+            setStatus(prev => (prev ? prev + `\n❌ Company research error: ${data?.message || 'Unknown error'}` : `❌ Company research error: ${data?.message || 'Unknown error'}`));
+          }
+        }
+      });
+      if (result?.transactionID) setTransactionID(result.transactionID);
     } catch (error) {
       console.error('AI Vision API error:', error);
       let errorMessage = 'AI Vision API failed';
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = 'Processing timed out. Please try with a smaller image.';
-        } else {
-          errorMessage = error.message;
-        }
+        errorMessage = error.name === 'AbortError' ? 'Processing timed out. Please try with a smaller image.' : error.message;
       }
       setStatus('❌ ' + errorMessage);
       setIsProcessing(false);
     }
   };
 
-  const sendToWebhook = async (imageBlob: Blob, text: string) => {
-    const formData = new FormData();
-    formData.append('ocr_image', imageBlob, 'ocr_capture.jpeg');
-    formData.append('extracted_text', text);
-
-    try {
-      const res = await fetch(webhookUrl, { method: 'POST', body: formData });
-      if (res.ok) {
-        setStatus(`✅ Data sent successfully.`);
-        setIsProcessing(false);
-      } else {
-        setStatus(`❌ Webhook error: ${res.status}`);
-        setIsProcessing(false);
-      }
-    } catch (e) {
-      setStatus('Network error while posting data.');
-      setIsProcessing(false);
-    }
-  };
+  // Removed unused sendToWebhook helper (no webhookUrl defined) to eliminate lint errors
 
   const constructCompanyURL = (platform: string, company: string) => {
     const cleanCompany = company.toLowerCase().replace(/\s+/g, '');

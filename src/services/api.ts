@@ -1,4 +1,4 @@
-import type { UploadCardResponse, ScheduleMeetingResponse, EmailDraftResponse } from '../types/cardScanner';
+import type { UploadCardResponse, ScheduleMeetingResponse, EmailDraftResponse, ProcessedCardResult, BusinessCardStreamEvent } from '../types/cardScanner';
 
 const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL;
 
@@ -35,7 +35,16 @@ export class CardScannerAPI {
    * 5. Saves to database automatically
    * 6. Returns structured data immediately
    */
-  static async uploadCard(imageFile: File): Promise<UploadCardResponse> {
+  static async uploadCard(
+    imageFile: File,
+    options?: {
+      streamCompanyResearch?: boolean;
+      // Called for each SSE event chunk when streaming is enabled
+      onStreamEvent?: (evt: BusinessCardStreamEvent) => void;
+      // Called once with the initial parsed JSON (business card data) in streaming mode
+      onInitial?: (payload: UploadCardResponse) => void;
+    }
+  ): Promise<ProcessedCardResult> {
     // Validation
     if (!imageFile) {
       throw new Error('No file provided');
@@ -56,7 +65,9 @@ export class CardScannerAPI {
     
     console.log('📤 Uploading card image:', imageFile.name, imageFile.type, `${(imageFile.size / 1024).toFixed(2)}KB`);
 
-    const response = await fetch(`${API_BASE_URL}/ai-business-card`, {
+    const endpoint = `${API_BASE_URL}/ai-business-card${options?.streamCompanyResearch ? '?stream_company_research=true' : ''}`;
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       body: formData,
     });
@@ -73,19 +84,109 @@ export class CardScannerAPI {
       }
     }
     
-    const result = await response.json();
+    // If streaming requested, parse text/event-stream manually
+    const contentType = response.headers.get('content-type') || '';
+    if (options?.streamCompanyResearch && contentType.includes('text/event-stream')) {
+      // Stream reader setup
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      if (!reader) {
+        throw new Error('Streaming not supported by this browser (no reader)');
+      }
+
+      // We'll resolve the promise once we receive the initial JSON chunk
+      // Continue to stream events via callbacks
+      let resolved = false;
+      let initialPayload: UploadCardResponse | null = null;
+
+      const processBuffer = () => {
+        // Split SSE messages by double newline
+        const parts = buffer.split('\n\n');
+        // Keep last partial chunk in buffer
+        buffer = parts.pop() || '';
+        for (const part of parts) {
+          const lines = part.split('\n');
+          let event = 'message';
+          let data = '';
+          for (const line of lines) {
+            if (line.startsWith('event:')) {
+              event = line.slice(6).trim();
+            } else if (line.startsWith('data:')) {
+              data += line.slice(5).trim();
+            }
+          }
+          try {
+            const parsed = data ? JSON.parse(data) : null;
+            // The first SSE is the initial_response (full business card payload)
+            if (!resolved && parsed && parsed.method === 'ai_vision' && typeof parsed.success === 'boolean') {
+              initialPayload = parsed as UploadCardResponse;
+              options?.onInitial?.(initialPayload);
+              resolved = true;
+              // Return immediately while we continue streaming via callbacks
+              // Note: Returning a value here isn't possible in this context; we'll resolve below once we break the loop
+            }
+            options?.onStreamEvent?.({ event, data: parsed });
+          } catch (e) {
+            console.warn('Failed to parse SSE data chunk:', e);
+          }
+        }
+      };
+
+      // Read stream - continue in background even after returning initial payload
+      const continueStreamReading = async () => {
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            processBuffer();
+          }
+        } catch (error) {
+          console.error('Stream reading error:', error);
+        }
+      };
+
+      // Start reading stream
+      // Keep reading until we get initial payload, then continue in background
+      while (!resolved) {
+        const { value, done } = await reader.read();
+        if (done) {
+          throw new Error('Stream ended before receiving initial payload');
+        }
+        buffer += decoder.decode(value, { stream: true });
+        processBuffer();
+      }
+
+      // Initial payload received - continue stream reading in background
+      continueStreamReading(); // Don't await - let it run async
+
+      // Return initial response immediately
+      if (initialPayload) {
+        const payload = initialPayload as UploadCardResponse;
+        const transactionID = payload.record_id || `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return {
+          status: 200,
+          message: 'User Card Image is stored and being processed (streaming company research)',
+          transactionID,
+          aiResponse: payload,
+        };
+      }
+
+      // If stream ended without an initial payload, error out
+      throw new Error('Streaming ended before receiving initial payload');
+    }
+
+    // Non-streaming JSON path
+    const result: UploadCardResponse = await response.json();
     console.log('✅ Upload successful:', result);
-    
-    // Backend returns record_id - map it to transactionID for consistency
-    // If record_id is not available, generate a fallback transactionID
-    const transactionID = result.record_id || result.transactionID || `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Return in the expected format with full AI response for immediate data access
+    const transactionID = result.record_id || `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     return {
       status: 200,
-      message: "User Card Image is stored and being processed",
-      transactionID: transactionID, // Using transactionID universally (record_id from backend mapped here)
-      aiResponse: result, // Include full AI response with structured_data, confidence, etc.
+      message: 'User Card Image is stored and being processed',
+      transactionID,
+      aiResponse: result,
     };
   }
 
@@ -105,9 +206,9 @@ export class CardScannerAPI {
   static async getCardData(transactionID: string): Promise<any> {
     console.log('📥 Fetching card data for transaction:', transactionID);
 
-    // TODO: Update this endpoint to match your backend API
-    // Replace with your actual endpoint that returns card data by record_id
-    const endpoint = `${API_BASE_URL}/api/getCardData/${transactionID}`;
+  // Prefer a concrete endpoint that returns the record by id
+  // Update here if your backend exposes a different route
+  const endpoint = `${API_BASE_URL}/api/customer-scanned-data/${transactionID}`;
     
     const response = await fetch(endpoint, {
       method: 'GET',
@@ -117,7 +218,6 @@ export class CardScannerAPI {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ Fetch card data error:', response.status, errorText);
-      console.error('💡 Tip: Make sure your backend has an endpoint to fetch card data by record_id');
       throw new Error(`Failed to fetch card data: ${response.status}. Endpoint: ${endpoint}`);
     }
     
@@ -295,46 +395,7 @@ export class CardScannerAPI {
     return response.json();
   }
 
-  /**
-   * API 3: Generate Email Draft
-   * 
-   * Generates an AI-powered email draft based on:
-   * - Business card analysis (summarised_llm_response)
-   * - Company research (summarised_llm_company_response)
-   * - Optional notes and audio transcript
-   */
-  static async generateEmailDraft(recordId: string): Promise<{
-    success: boolean;
-    record_id: string;
-    email_draft: string;
-    email_subject: string;
-    email_body: string;
-    email_greeting: string;
-    email_summary: string;
-    context_used: {
-      business_card_summary: boolean;
-      company_summary: boolean;
-      notes: boolean;
-      audio_transcript: boolean;
-    };
-  }> {
-    console.log('📧 Generating email draft for record:', recordId);
-
-    const response = await fetch(`${API_BASE_URL}/api/generateEmailDraft/${recordId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Email draft generation error:', response.status, errorText);
-      throw new Error(`Failed to generate email draft: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    console.log('✅ Email draft generated:', result);
-    return result;
-  }
+  // Note: duplicate generateEmailDraft implementation removed; single method with optional options is kept above.
 
   // Add new method to save email draft
   static async saveEmailDraft(

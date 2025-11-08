@@ -1,17 +1,32 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, X } from "lucide-react";
 import avatarMascot from '../images/avatar-mascot.png';
+import { CardScannerAPI } from '../services/api';
 
 interface VoiceAssistantProps {
   isOpen: boolean;
   onClose: () => void;
+  transactionID?: string; // Add transactionID for backend transcription
 }
 
-export const VoiceAssistant = ({ isOpen, onClose }: VoiceAssistantProps) => {
+export const VoiceAssistant = ({ isOpen, onClose, transactionID }: VoiceAssistantProps) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const recognitionRef = useRef<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // MediaRecorder for backend transcription
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopListening();
+    };
+  }, []);
 
   const toggleListening = () => {
     if (isListening) {
@@ -21,60 +36,93 @@ export const VoiceAssistant = ({ isOpen, onClose }: VoiceAssistantProps) => {
     }
   };
 
-  const startListening = () => {
-    // Check for browser support
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      alert("Speech recognition not supported in this browser");
-      return;
-    }
+  const startListening = async () => {
+    try {
+      setError(null);
+      audioChunksRef.current = [];
+      
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
         }
-      }
+      };
 
-      setTranscript(finalTranscript || interimTranscript);
-    };
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
 
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      alert(`Error: ${event.error}`);
-      setIsListening(false);
-    };
+        // Upload and transcribe
+        await uploadAndTranscribe();
+      };
 
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+      mediaRecorder.start();
+      setIsListening(true);
+      setTranscript("Recording... Speak now!");
 
-    recognitionRef.current = recognition;
-    recognition.start();
+      console.log('🎤 Recording started');
+    } catch (error) {
+      console.error('❌ Failed to start recording:', error);
+      setError('Failed to access microphone. Please check permissions.');
+    }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsListening(false);
+      setTranscript("Processing...");
+      console.log('🛑 Recording stopped');
     }
-    setIsListening(false);
+  };
+
+  const uploadAndTranscribe = async () => {
+    if (audioChunksRef.current.length === 0) {
+      setError('No audio recorded');
+      return;
+    }
+
+    if (!transactionID) {
+      setError('Transaction ID required for transcription');
+      setTranscript("Please upload a business card first");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      setError(null);
+
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      console.log('📤 Uploading audio:', `${(audioBlob.size / 1024).toFixed(2)}KB`);
+
+      const result = await CardScannerAPI.recordAudioWithoutAvatar(transactionID, audioBlob);
+      
+      // Display transcript and analysis
+      const displayText = `
+📝 Transcript:
+${result.transcript}
+
+🔍 Analysis:
+${result.analysis.summary}
+`.trim();
+
+      setTranscript(displayText);
+      console.log('✅ Transcription successful');
+    } catch (error) {
+      console.error('❌ Transcription failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to transcribe audio';
+      setError(errorMessage);
+      setTranscript(`Error: ${errorMessage}`);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -132,16 +180,21 @@ export const VoiceAssistant = ({ isOpen, onClose }: VoiceAssistantProps) => {
 
             <div className="min-h-[80px] max-h-[120px] overflow-y-auto bg-white/70 backdrop-blur-sm border border-gray-200 rounded-lg p-3">
               {transcript ? (
-                <p className="text-xs sm:text-sm text-gray-800">{transcript}</p>
+                <p className="text-xs sm:text-sm text-gray-800 whitespace-pre-wrap">{transcript}</p>
               ) : (
                 <p className="text-xs sm:text-sm text-gray-600 text-center">
-                  {isListening ? "Listening..." : "Click the microphone to start"}
+                  {isListening ? "Recording... Speak now!" : isProcessing ? "Processing..." : transactionID ? "Click the microphone to start" : "Please upload a business card first"}
                 </p>
+              )}
+              {error && (
+                <p className="text-xs text-red-600 mt-2">⚠️ {error}</p>
               )}
             </div>
 
             <p className="text-xs text-gray-500 text-center leading-tight">
-              Speak naturally. Your voice will be transcribed in real-time.
+              {transactionID 
+                ? "Speak naturally. Recording will be transcribed and analyzed."
+                : "Upload a business card to enable voice recording"}
             </p>
           </div>
         </motion.div>

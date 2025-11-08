@@ -17,6 +17,20 @@ export interface UploadCardResponse {
   error?: string;
 }
 
+// Wrapper returned by services/api.ts uploadCard helper (maps record_id -> transactionID and includes original AI response)
+export interface ProcessedCardResult {
+  status: number;
+  message: string;
+  transactionID: string; // mapped from backend record_id
+  aiResponse: UploadCardResponse; // full original backend payload
+}
+
+// Streaming event interface for optional company research SSE
+export interface BusinessCardStreamEvent {
+  event: string; // e.g. 'company_research_start', 'company_research_saved', 'company_research_error'
+  data: any;     // parsed JSON from data: line
+}
+
 export interface ScheduleMeetingResponse {
   status: number;
   message: string;
@@ -74,6 +88,20 @@ export interface LLMResponse {
     address?: string;
     [key: string]: any;
   };
+  confidence_score?: number;
+}
+
+// App-level scan state used by CardScannerApp
+export interface CardScanState {
+  step: 'landing' | 'capture' | 'processing' | 'result' | 'avatar' | 'selfie' | 'emailDraft' | 'meetingScheduler' | 'confirmation';
+  transactionID: string | null;
+  capturedImage: File | null;
+  extractedData: UserInfo | null;
+  processingStatus: 'pending' | 'processing' | 'completed' | 'failed' | null;
+  isLoading: boolean;
+  error: string | null;
+  llmResponse: LLMResponse | null;
+  emailDraft: { to: string; subject: string; body: string } | null;
 }
 
 export class CardScannerAPI {

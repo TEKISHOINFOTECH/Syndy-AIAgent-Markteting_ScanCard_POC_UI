@@ -329,7 +329,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
         </motion.div>
 
         {/* Main Content */}
-        <div className="flex gap-6">
+        <div className="flex gap-6 flex-col justify-content-center">
           {/* Left Sidebar */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
@@ -343,7 +343,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
             style={{ maxWidth: leftPanelCollapsed ? '60px' : '400px' }}
           >
             {/* Collapse/Expand Button */}
-            <motion.button
+            {/* <motion.button
               onClick={() => setLeftPanelCollapsed(!leftPanelCollapsed)}
               className="w-full flex items-center justify-center p-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
               whileHover={{ scale: 1.02 }}
@@ -357,12 +357,12 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
               {!leftPanelCollapsed && (
                 <span className="ml-2 text-sm text-gray-600">Collapse Panel</span>
               )}
-            </motion.button>
+            </motion.button> */}
 
             {!leftPanelCollapsed && (
               <>
                 {/* Welcome Card */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                {/* <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                       <Sparkles className="w-6 h-6 text-white" />
@@ -379,10 +379,10 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
                     <Play className="w-4 h-4" />
                     <span>Click to start conversation</span>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Features List */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                {/* <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">What to Expect</h4>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
@@ -413,7 +413,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Session Status */}
                 <AnimatePresence>
@@ -474,9 +474,9 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 flex items-center justify-center"
           >
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 h-full">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 h-full w-full max-w-5xl">
               {/* Header */}
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
                 <div className="flex items-center justify-between">
