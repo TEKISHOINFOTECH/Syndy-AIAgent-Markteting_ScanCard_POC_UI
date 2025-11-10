@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { LandingScreen } from './screens/LandingScreen';
 import { CardCaptureScreen } from './screens/CardCaptureScreen';
+import { CardPreviewScreen } from './screens/CardPreviewScreen';
+import { CardRejectionScreen } from './screens/CardRejectionScreen';
 import { ProcessingScreen } from './screens/ProcessingScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { SelfieCaptureScreen } from './screens/SelfieCaptureScreen';
@@ -195,7 +197,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
   };
 
   const handleCapture = async (file: File) => {
-    // Move to processing step first
+    // Phase 1: Detection only (no confirmation yet)
     setState(prev => ({ 
       ...prev, 
       capturedImage: file,
@@ -205,15 +207,78 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     }));
 
     try {
-      console.log('📤 Uploading file (streaming):', file.name, file.type, `${(file.size / 1024).toFixed(2)}KB`);
-      let initializedFromStream = false;
+      console.log('� Phase 1: Detecting business card...', file.name);
 
-      const response = await CardScannerAPI.uploadCard(file, {
+      // Call Phase 1 detection (no confirmTempRecordId)
+      const response = await CardScannerAPI.uploadCard(file);
+      const data = response.aiResponse;
+
+      console.log('✅ Phase 1 detection result:', data);
+
+      // Check if it's a valid business card
+      if (data.is_business_card === false) {
+        // Invalid card - show rejection screen
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          step: 'rejection',
+          detectionResult: {
+            isBusinessCard: false,
+            validationReason: data.validation_reason || 'Not a valid business card',
+            suggestions: data.suggestions || ['Ensure good lighting', 'Capture the entire card', 'Avoid blur or glare'],
+          },
+        }));
+        setToast({ message: 'Card validation failed', type: 'error' });
+        return;
+      }
+
+      // Valid card - show preview screen
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        step: 'preview',
+        detectionResult: {
+          isBusinessCard: true,
+          croppedImagePreview: data.cropped_image_preview,
+          confidence: data.confidence || 0.85,
+          tempRecordId: response.transactionID,
+        },
+      }));
+      setToast({ message: 'Card detected successfully!', type: 'success' });
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Card detection failed';
+      console.error('❌ Phase 1 detection error:', err);
+      
+      setState(prev => ({ 
+        ...prev, 
+        error: errorMessage,
+        isLoading: false,
+        step: 'capture',
+      }));
+      setToast({ message: errorMessage, type: 'error' });
+    }
+  };
+
+  // Phase 2: Confirmation handler (user clicked "Confirm & Process" on preview screen)
+  const handleConfirmCard = async () => {
+    const tempRecordId = state.detectionResult?.tempRecordId;
+    if (!tempRecordId || !state.capturedImage) {
+      setToast({ message: 'Missing detection data', type: 'error' });
+      return;
+    }
+
+    setState(prev => ({ ...prev, isLoading: true, step: 'processing' }));
+
+    try {
+      console.log('🚀 Phase 2: Processing confirmed card with streaming...');
+
+      const response = await CardScannerAPI.uploadCard(state.capturedImage, {
+        confirmTempRecordId: tempRecordId,
         streamCompanyResearch: true,
         onInitial: (payload) => {
           // Mark streaming
           usedStreamingRef.current = true;
-          initializedFromStream = true;
 
           const structuredData = payload.structured_data || {};
           const extractedUserInfo: UserInfo = {
@@ -226,8 +291,8 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             created_at: new Date().toISOString(),
           };
 
-          const companyData = structuredData.company_data || (payload.additional_info?.company_data) || (payload.additional_info) || {};
-          const llmResponse: LLMResponse | null = payload ? {
+          const companyData = structuredData.company_data || payload.additional_info?.company_data || payload.additional_info || {};
+          const llmResponse: LLMResponse = {
             extracted_data: {
               ...structuredData,
               company_description: companyData.company_description || structuredData.company_description,
@@ -242,9 +307,9 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
               other_info_of_company: companyData.other_info_of_company || structuredData.other_info_of_company,
             },
             confidence_score: (payload as any).confidence || 0.85,
-          } : null;
+          };
 
-          // Immediately show result screen with initial data
+          // Show result screen with initial data
           setState(prev => ({
             ...prev,
             transactionID: payload.record_id,
@@ -255,159 +320,72 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             isLoading: false,
           }));
 
-          setToast({ message: 'Card processed! Company research in progress…', type: 'info' });
+          setToast({ message: 'Card processed! Enriching company data…', type: 'info' });
         },
-        onStreamEvent: async ({ event, data }) => {
-          try {
-            // Handle streaming text chunks (word-by-word company research)
-            if (event === 'message' && data?.chunk) {
-              const chunk = data.chunk;
-              console.log('📝 Streaming chunk:', chunk);
-              
-              // Append chunk to streaming summary in real-time
+        onStreamEvent: ({ event, data }) => {
+          console.log('📡 Received SSE event:', event, 'Data:', data);
+          
+          // Handle streaming text chunks
+          if (event === 'message' && data?.chunk) {
+            console.log('📝 Appending chunk:', data.chunk);
+            setState(prev => ({
+              ...prev,
+              llmResponse: {
+                extracted_data: {
+                  ...prev.llmResponse?.extracted_data,
+                  summarised_llm_company_response: (prev.llmResponse?.extracted_data?.summarised_llm_company_response || '') + data.chunk,
+                },
+                confidence_score: prev.llmResponse?.confidence_score || 0.85,
+              },
+            }));
+            return;
+          }
+
+          // Handle company_data_ready event
+          if (event === 'company_data_ready') {
+            console.log('📊 Company data ready event received:', data);
+            const inlineCompany = data?.company_structured_data;
+            if (inlineCompany) {
+              console.log('✅ Processing company structured data:', Object.keys(inlineCompany));
               setState(prev => ({
                 ...prev,
                 llmResponse: {
                   extracted_data: {
                     ...prev.llmResponse?.extracted_data,
-                    summarised_llm_company_response: (prev.llmResponse?.extracted_data?.summarised_llm_company_response || '') + chunk,
+                    company_description: inlineCompany["Description/tagline"] || prev.llmResponse?.extracted_data?.company_description,
+                    products: inlineCompany["Products/services"] || prev.llmResponse?.extracted_data?.products,
+                    location: inlineCompany["Location/headquarters"] || prev.llmResponse?.extracted_data?.location,
+                    industry: inlineCompany["Industry"] || prev.llmResponse?.extracted_data?.industry,
+                    num_of_employees: inlineCompany["Number of employees"] || prev.llmResponse?.extracted_data?.num_of_employees,
+                    revenue: inlineCompany["Revenue"] || prev.llmResponse?.extracted_data?.revenue,
+                    market_share: inlineCompany["Market Share"] || prev.llmResponse?.extracted_data?.market_share,
+                    investors: inlineCompany["Investors"] || prev.llmResponse?.extracted_data?.investors,
+                    summarised_llm_company_response: inlineCompany["Summarised LLM company response"] || prev.llmResponse?.extracted_data?.summarised_llm_company_response,
+                    other_info_of_company: inlineCompany["Other info of company"] || prev.llmResponse?.extracted_data?.other_info_of_company,
                   },
                   confidence_score: prev.llmResponse?.confidence_score || 0.85,
                 },
+                processingStatus: 'completed',
               }));
-              return;
+              setToast({ message: 'Company data enriched!', type: 'success' });
+            } else {
+              console.log('⏳ Company data ready but no structured data yet (intermediate event)');
             }
-            
-            // Handle company_data_ready event (structured data after streaming completes)
-            if (event === 'company_data_ready') {
-              const payloadData: any = data || undefined;
-              const inlineCompany = (payloadData && payloadData.company_structured_data) ? payloadData.company_structured_data : undefined;
+          }
 
-              if (inlineCompany) {
-                console.log('📊 Received enriched company data (before DB save):', inlineCompany);
-                setState(prev => ({
-                  ...prev,
-                  llmResponse: {
-                    extracted_data: {
-                      ...prev.llmResponse?.extracted_data,
-                      company_description: inlineCompany["Description/tagline"] || prev.llmResponse?.extracted_data?.company_description,
-                      products: inlineCompany["Products/services"] || prev.llmResponse?.extracted_data?.products,
-                      location: inlineCompany["Location/headquarters"] || prev.llmResponse?.extracted_data?.location,
-                      industry: inlineCompany["Industry"] || prev.llmResponse?.extracted_data?.industry,
-                      num_of_employees: inlineCompany["Number of employees"] || prev.llmResponse?.extracted_data?.num_of_employees,
-                      revenue: inlineCompany["Revenue"] || prev.llmResponse?.extracted_data?.revenue,
-                      market_share: inlineCompany["Market Share"] || prev.llmResponse?.extracted_data?.market_share,
-                      investors: inlineCompany["Investors"] || prev.llmResponse?.extracted_data?.investors,
-                      summarised_llm_company_response: inlineCompany["Summarised LLM company response"] || prev.llmResponse?.extracted_data?.summarised_llm_company_response,
-                      other_info_of_company: inlineCompany["Other info of company"] || prev.llmResponse?.extracted_data?.other_info_of_company,
-                    },
-                    confidence_score: prev.llmResponse?.confidence_score || 0.85,
-                  },
-                  processingStatus: 'completed',
-                }));
-                setToast({ message: 'Company data enriched!', type: 'success' });
-                return;
-              }
-            }
-            
-            // Handle company_research_saved event (confirmation that DB save completed)
-            if (event === 'company_research_saved') {
-              console.log('✅ Company data saved to database');
-              // Data already updated via company_data_ready, just log confirmation
-              setToast({ message: 'Company data saved to database', type: 'success' });
-              return;
-            }
-
-            // Legacy fallback: if company_research_saved comes with inline data (old flow)
-            if (event === 'company_research_saved') {
-              const payloadData: any = data || undefined;
-              const inlineCompany = (payloadData && payloadData.company_structured_data) ? payloadData.company_structured_data : undefined;
-
-              if (inlineCompany) {
-                setState(prev => ({
-                  ...prev,
-                  llmResponse: {
-                    extracted_data: {
-                      ...prev.llmResponse?.extracted_data,
-                      company_description: inlineCompany["Description/tagline"] || prev.llmResponse?.extracted_data?.company_description,
-                      products: inlineCompany["Products/services"] || prev.llmResponse?.extracted_data?.products,
-                      location: inlineCompany["Location/headquarters"] || prev.llmResponse?.extracted_data?.location,
-                      industry: inlineCompany["Industry"] || prev.llmResponse?.extracted_data?.industry,
-                      num_of_employees: inlineCompany["Number of employees"] || prev.llmResponse?.extracted_data?.num_of_employees,
-                      revenue: inlineCompany["Revenue"] || prev.llmResponse?.extracted_data?.revenue,
-                      market_share: inlineCompany["Market Share"] || prev.llmResponse?.extracted_data?.market_share,
-                      investors: inlineCompany["Investors"] || prev.llmResponse?.extracted_data?.investors,
-                      summarised_llm_company_response: inlineCompany["Summarised LLM company response"] || prev.llmResponse?.extracted_data?.summarised_llm_company_response,
-                      other_info_of_company: inlineCompany["Other info of company"] || prev.llmResponse?.extracted_data?.other_info_of_company,
-                    },
-                    confidence_score: prev.llmResponse?.confidence_score || 0.85,
-                  },
-                  processingStatus: 'completed',
-                }));
-                setToast({ message: 'Company data enriched!', type: 'success' });
-                return;
-              }
-
-              // Fallback: fetch latest data if inline payload not present
-              const txn = initializedFromStream ? state.transactionID || undefined : undefined;
-              const effectiveTxn = txn || (response?.transactionID) || undefined;
-              const recordId = effectiveTxn || state.transactionID;
-              if (!recordId) {
-                setState(prev => ({ ...prev, processingStatus: 'completed' }));
-                return;
-              }
-
-              try {
-                const updatedData = await CardScannerAPI.getCardData(recordId);
-                const rootData = updatedData || {};
-                const structuredData = rootData.structured_data || rootData.company_data || {};
-                const companyDataObj = rootData.company_data || 
-                                      rootData.structured_data?.company_data ||
-                                      rootData.additional_info?.company_data ||
-                                      rootData.additional_info || {};
-                const allCompanyData = { ...rootData, ...structuredData, ...companyDataObj };
-
-                setState(prev => ({
-                  ...prev,
-                  llmResponse: {
-                    extracted_data: {
-                      ...prev.llmResponse?.extracted_data,
-                      company_description: allCompanyData.company_description || structuredData.company_description || rootData.company_description,
-                      products: allCompanyData.products || structuredData.products || rootData.products,
-                      location: allCompanyData.location || structuredData.location || rootData.location || prev.llmResponse?.extracted_data?.location,
-                      industry: allCompanyData.industry || structuredData.industry || rootData.industry || prev.llmResponse?.extracted_data?.industry,
-                      num_of_employees: allCompanyData.num_of_employees || structuredData.num_of_employees || rootData.num_of_employees,
-                      revenue: allCompanyData.revenue || structuredData.revenue || rootData.revenue,
-                      market_share: allCompanyData.market_share || structuredData.market_share || rootData.market_share,
-                      investors: allCompanyData.investors || structuredData.investors || rootData.investors,
-                      summarised_llm_company_response: allCompanyData.summarised_llm_company_response || structuredData.summarised_llm_company_response || rootData.summarised_llm_company_response,
-                      other_info_of_company: allCompanyData.other_info_of_company || structuredData.other_info_of_company || rootData.other_info_of_company,
-                    },
-                    confidence_score: prev.llmResponse?.confidence_score || rootData.confidence || 0.85,
-                  },
-                  processingStatus: 'completed',
-                }));
-
-                setToast({ message: 'Company data enriched!', type: 'success' });
-              } catch (fetchErr) {
-                console.error('❌ Failed to fetch enriched data after save:', fetchErr);
-                // Even if fetch fails, mark as completed to remove the banner
-                setState(prev => ({ ...prev, processingStatus: 'completed' }));
-              }
-            } else if (event === 'company_research_error') {
-              setState(prev => ({ ...prev, processingStatus: 'completed' }));
-              setToast({ message: 'Company enrichment unavailable. Showing available data.', type: 'info' });
-            }
-          } catch (e) {
-            console.error('Error handling stream event:', e);
-            // Ensure UI doesn't stay stuck in processing on handler error
-            setState(prev => ({ ...prev, processingStatus: 'completed' }));
+          // Handle company_research_saved event
+          if (event === 'company_research_saved') {
+            console.log('✅ Company data saved to database');
+            setToast({ message: 'Company data saved!', type: 'success' });
           }
         },
       });
 
-      // If streaming not used (no onInitial call), fall back to non-streaming result
-      if (!initializedFromStream && response) {
+      console.log('✅ Phase 2 complete:', response);
+      
+      // Fallback: If streaming didn't trigger onInitial (non-SSE response), handle it here
+      if (!usedStreamingRef.current && response) {
+        console.log('⚠️ Streaming did not trigger, using fallback response handling');
         const structuredData = response.aiResponse?.structured_data || {};
         const extractedUserInfo: UserInfo = {
           transactionID: response.transactionID,
@@ -418,10 +396,9 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
           is_meeting_requested: false,
           created_at: new Date().toISOString(),
         };
-        const companyData = response.aiResponse?.structured_data?.company_data || 
-                           response.aiResponse?.additional_info?.company_data ||
-                           response.aiResponse?.additional_info || {};
-        const llmResponse: LLMResponse | null = response.aiResponse ? {
+        
+        const companyData = structuredData.company_data || response.aiResponse?.additional_info?.company_data || response.aiResponse?.additional_info || {};
+        const llmResponse: LLMResponse = {
           extracted_data: {
             ...structuredData,
             company_description: companyData.company_description || structuredData.company_description,
@@ -435,32 +412,42 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             summarised_llm_company_response: companyData.summarised_llm_company_response || structuredData.summarised_llm_company_response,
             other_info_of_company: companyData.other_info_of_company || structuredData.other_info_of_company,
           },
-          confidence_score: response.aiResponse.confidence || 0.85,
-        } : null;
+          confidence_score: response.aiResponse?.confidence || 0.85,
+        };
 
         setState(prev => ({
           ...prev,
           transactionID: response.transactionID,
           extractedData: extractedUserInfo,
-          processingStatus: 'processing',
+          processingStatus: 'completed',
           llmResponse: llmResponse,
+          step: 'result',
+          isLoading: false,
         }));
-
-        setTimeout(() => {
-          setState(prev => ({ ...prev, step: 'result', isLoading: false }));
-          setToast({ message: 'Card processed! Enriching company data...', type: 'info' });
-        }, 1500);
+        
+        setToast({ message: 'Card processed successfully!', type: 'success' });
       }
+      
     } catch (err) {
-      console.error('❌ Upload error:', err);
+      console.error('❌ Phase 2 error:', err);
       setState(prev => ({
         ...prev,
-        error: err instanceof Error ? err.message : 'Failed to upload card',
+        error: err instanceof Error ? err.message : 'Processing failed',
         isLoading: false,
-        step: 'capture', // Go back to capture on error
+        step: 'preview', // Return to preview on error
       }));
-      setToast({ message: 'Failed to upload card', type: 'error' });
+      setToast({ message: 'Processing failed', type: 'error' });
     }
+  };
+
+  const handleRetryCapture = () => {
+    setState(prev => ({
+      ...prev,
+      step: 'capture',
+      capturedImage: null,
+      detectionResult: undefined,
+      error: null,
+    }));
   };
 
   const handleSelfieCapture = async (selfieFile: File, _previewUrl: string) => {
@@ -702,6 +689,24 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             onNext={() => {
               // Auto-navigate to result - this is handled in handleCapture
             }}
+          />
+        )}
+
+        {state.step === 'preview' && state.detectionResult?.isBusinessCard && (
+          <CardPreviewScreen
+            croppedImagePreview={state.detectionResult.croppedImagePreview || ''}
+            confidence={state.detectionResult.confidence || 0}
+            detectionMessage="Card detected successfully!"
+            onConfirm={handleConfirmCard}
+            onRetry={handleRetryCapture}
+          />
+        )}
+
+        {state.step === 'rejection' && state.detectionResult && !state.detectionResult.isBusinessCard && (
+          <CardRejectionScreen
+            validationReason={state.detectionResult.validationReason || 'Not a valid business card'}
+            suggestions={state.detectionResult.suggestions || []}
+            onRetry={handleRetryCapture}
           />
         )}
 

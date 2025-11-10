@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "http://localhost:8000";
 
 export interface UploadCardResponse {
   success: boolean;
@@ -15,6 +15,15 @@ export interface UploadCardResponse {
   database_available: boolean;
   record_id: string;
   error?: string;
+  // Phase 1 detection fields (backend returns these)
+  detection_complete?: boolean;
+  is_business_card?: boolean;
+  cropped_image_preview?: string; // base64 with data:image/jpeg;base64, prefix
+  temp_record_id?: string;
+  validation_reason?: string;
+  suggestions?: string[];
+  message?: string;
+  requires_confirmation?: boolean;
 }
 
 // Wrapper returned by services/api.ts uploadCard helper (maps record_id -> transactionID and includes original AI response)
@@ -93,7 +102,7 @@ export interface LLMResponse {
 
 // App-level scan state used by CardScannerApp
 export interface CardScanState {
-  step: 'landing' | 'capture' | 'processing' | 'result' | 'avatar' | 'selfie' | 'emailDraft' | 'meetingScheduler' | 'confirmation';
+  step: 'landing' | 'capture' | 'processing' | 'preview' | 'rejection' | 'result' | 'avatar' | 'selfie' | 'emailDraft' | 'meetingScheduler' | 'confirmation';
   transactionID: string | null;
   capturedImage: File | null;
   extractedData: UserInfo | null;
@@ -102,6 +111,15 @@ export interface CardScanState {
   error: string | null;
   llmResponse: LLMResponse | null;
   emailDraft: { to: string; subject: string; body: string } | null;
+  // Phase 1 detection result
+  detectionResult?: {
+    isBusinessCard: boolean;
+    croppedImagePreview?: string; // base64
+    confidence?: number;
+    tempRecordId?: string;
+    validationReason?: string;
+    suggestions?: string[];
+  };
 }
 
 export class CardScannerAPI {

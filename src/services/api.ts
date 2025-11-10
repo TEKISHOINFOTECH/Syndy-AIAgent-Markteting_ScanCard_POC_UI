@@ -1,6 +1,6 @@
 import type { UploadCardResponse, ScheduleMeetingResponse, EmailDraftResponse, ProcessedCardResult, BusinessCardStreamEvent } from '../types/cardScanner';
 
-const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =   "http://localhost:8000";
 
 export class CardScannerAPI {
   /**
@@ -39,6 +39,7 @@ export class CardScannerAPI {
     imageFile: File,
     options?: {
       streamCompanyResearch?: boolean;
+      confirmTempRecordId?: string; // NEW: For Phase 2 confirmation
       // Called for each SSE event chunk when streaming is enabled
       onStreamEvent?: (evt: BusinessCardStreamEvent) => void;
       // Called once with the initial parsed JSON (business card data) in streaming mode
@@ -65,7 +66,24 @@ export class CardScannerAPI {
     
     console.log('📤 Uploading card image:', imageFile.name, imageFile.type, `${(imageFile.size / 1024).toFixed(2)}KB`);
 
-    const endpoint = `${API_BASE_URL}/ai-business-card${options?.streamCompanyResearch ? '?stream_company_research=true' : ''}`;
+    // Phase detection and parameter building
+    const params = new URLSearchParams();
+
+    if (options?.confirmTempRecordId) {
+      // Phase 2: Confirmation
+      params.append('confirm', 'true');  // ✅ Send as query param
+      params.append('temp_record_id', options.confirmTempRecordId);
+      
+      if (options?.streamCompanyResearch) {
+        params.append('stream_company_research', 'true');
+      }
+    } else {
+      // Phase 1: Detection
+      params.append('confirm', 'false');  // ✅ Send as query param
+    }
+
+    const endpoint = `${API_BASE_URL}/ai-business-card${params.toString() ? '?' + params.toString() : ''}`;
+    console.log('🚀 API endpoint:', endpoint, 'Phase:', options?.confirmTempRecordId ? '2 (Confirmation)' : '1 (Detection)');
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -84,9 +102,13 @@ export class CardScannerAPI {
       }
     }
     
-    // If streaming requested, parse text/event-stream manually
+    // If streaming requested AND confirmed, parse text/event-stream
     const contentType = response.headers.get('content-type') || '';
-    if (options?.streamCompanyResearch && contentType.includes('text/event-stream')) {
+    console.log('📦 Response Content-Type:', contentType);
+    console.log('🔍 Should use streaming?', options?.confirmTempRecordId && options?.streamCompanyResearch && contentType.includes('text/event-stream'));
+    
+    if (options?.confirmTempRecordId && options?.streamCompanyResearch && contentType.includes('text/event-stream')) {
+      console.log('✅ Using SSE streaming parser');
       // Stream reader setup
       const reader = response.body?.getReader();
       const decoder = new TextDecoder('utf-8');
@@ -106,6 +128,8 @@ export class CardScannerAPI {
         const parts = buffer.split('\n\n');
         // Keep last partial chunk in buffer
         buffer = parts.pop() || '';
+        console.log('📨 Processing', parts.length, 'SSE message(s)');
+        
         for (const part of parts) {
           const lines = part.split('\n');
           let event = 'message';
@@ -117,10 +141,16 @@ export class CardScannerAPI {
               data += line.slice(5).trim();
             }
           }
+          console.log('📬 SSE Event:', event, 'Data length:', data.length);
+          
           try {
             const parsed = data ? JSON.parse(data) : null;
+            console.log('✅ Parsed SSE data:', { event, parsed: parsed ? Object.keys(parsed) : null });
+            
             // The first SSE is the initial_response (full business card payload)
-            if (!resolved && parsed && parsed.method === 'ai_vision' && typeof parsed.success === 'boolean') {
+            // Backend can send method as 'ai_vision' or 'google_vision_opencv'
+            if (!resolved && parsed && typeof parsed.success === 'boolean' && parsed.record_id) {
+              console.log('🎯 Found initial payload with record_id!');
               initialPayload = parsed as UploadCardResponse;
               options?.onInitial?.(initialPayload);
               resolved = true;
@@ -129,7 +159,7 @@ export class CardScannerAPI {
             }
             options?.onStreamEvent?.({ event, data: parsed });
           } catch (e) {
-            console.warn('Failed to parse SSE data chunk:', e);
+            console.warn('⚠️ Failed to parse SSE data chunk:', e, 'Raw data:', data);
           }
         }
       };
@@ -150,12 +180,16 @@ export class CardScannerAPI {
 
       // Start reading stream
       // Keep reading until we get initial payload, then continue in background
+      console.log('🔄 Starting to read SSE stream...');
       while (!resolved) {
         const { value, done } = await reader.read();
         if (done) {
+          console.error('❌ Stream ended before receiving initial payload');
           throw new Error('Stream ended before receiving initial payload');
         }
-        buffer += decoder.decode(value, { stream: true });
+        const chunk = decoder.decode(value, { stream: true });
+        console.log('📥 Received chunk:', chunk.substring(0, 200) + (chunk.length > 200 ? '...' : ''));
+        buffer += chunk;
         processBuffer();
       }
 
@@ -178,9 +212,23 @@ export class CardScannerAPI {
       throw new Error('Streaming ended before receiving initial payload');
     }
 
-    // Non-streaming JSON path
+    // Phase 1: Detection (no confirmTempRecordId) - returns plain JSON
+    if (!options?.confirmTempRecordId) {
+      const detectionResult = await response.json();
+      console.log('✅ Phase 1 Detection result:', detectionResult);
+      
+      // Return with temp_record_id for Phase 2 confirmation
+      return {
+        status: 200,
+        message: detectionResult.is_business_card ? 'Card detected successfully' : 'Not a valid business card',
+        transactionID: detectionResult.temp_record_id || `temp_${Date.now()}`,
+        aiResponse: detectionResult,
+      };
+    }
+
+    // Phase 2: Non-streaming JSON path (confirm=true but stream_company_research=false)
     const result: UploadCardResponse = await response.json();
-    console.log('✅ Upload successful:', result);
+    console.log('✅ Phase 2 Non-streaming result:', result);
     const transactionID = result.record_id || `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     return {
       status: 200,
