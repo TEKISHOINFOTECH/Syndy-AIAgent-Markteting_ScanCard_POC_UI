@@ -1,0 +1,297 @@
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card } from '../ui/Card';
+
+type SelfieCaptureProps = {
+  transactionID: string;
+  onCapture: (file: File, previewUrl: string) => Promise<void> | void;
+  onSkip: () => void;
+  isLoading?: boolean;
+  onPrevious?: () => void;
+  onNext?: () => void;
+};
+
+export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({ 
+  transactionID, 
+  onCapture, 
+  onSkip, 
+  isLoading,
+  onPrevious,
+  onNext
+}) => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [streamError, setStreamError] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [selfieFile, setSelfieFile] = useState<File | null>(null);
+
+  // Memoize startCamera function so it can be called from multiple places
+  const startCamera = useCallback(async () => {
+    try {
+      // Stop existing stream if any
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' }, 
+        audio: false 
+      });
+      
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      setStreamError(null); // Clear any previous errors
+    } catch (err: any) {
+      console.error('Camera error:', err);
+      setStreamError(err?.message || 'Camera access denied or unavailable');
+    }
+  }, [stream]);
+
+  useEffect(() => {
+    let mounted = true;
+    
+    const initCamera = async () => {
+      if (!mounted) return;
+      await startCamera();
+    };
+
+    initCamera();
+
+    return () => {
+      mounted = false;
+      // Clean up stream when component unmounts
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []); // Only run on mount
+
+  // Clean up stream when component unmounts
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
+  const handleTakePhoto = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    setIsCapturing(true);
+    try {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      // Set canvas dimensions to match video
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || 480;
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context unavailable');
+      
+      // Draw the current frame from video to canvas
+      ctx.drawImage(video, 0, 0, width, height);
+      
+      // Convert canvas to blob and data URL for preview
+      const blob: Blob | null = await new Promise(resolve => 
+        canvas.toBlob(resolve, 'image/jpeg', 0.9)
+      );
+      
+      if (!blob) throw new Error('Failed to capture image');
+      
+      // Create file and preview
+      const file = new File([blob], `selfie_${transactionID}.jpg`, { type: 'image/jpeg' });
+      const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
+      
+      // Save for preview
+      setSelfieFile(file);
+      setCapturedImage(imageUrl);
+      
+      // Stop the video stream to save resources
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    } catch (err) {
+      console.error('Capture error:', err);
+      setStreamError('Failed to capture photo. Please try again.');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  const handleConfirmSelfie = async () => {
+    if (selfieFile && capturedImage) {
+      await onCapture(selfieFile, capturedImage);
+      if (onNext) {
+        onNext();
+      }
+    }
+  };
+
+  const handleRetakeSelfie = async () => {
+    setCapturedImage(null);
+    setSelfieFile(null);
+    setStreamError(null);
+    // Restart the camera
+    await startCamera();
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex flex-col items-center justify-center p-4 overflow-x-hidden max-h-screen overflow-y-auto pb-6">
+      {/* Navigation Buttons */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-md w-full my-4 mt-16"
+      >
+        <Card className="backdrop-blur-xl rounded-2xl border p-4 shadow-xl" style={{background: 'rgba(22, 35, 71, 0.8)', borderColor: 'rgba(14, 120, 74, 0.5)'}}>
+          <h2 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            Take a Selfie
+          </h2>
+          <p className="text-sm text-gray-600 text-center mb-4">
+            Please take a quick selfie to complete your profile
+          </p>
+          <p className="text-xs text-gray-500 text-center mb-6">
+            Transaction ID: <span className="font-mono text-green-600">{transactionID}</span>
+          </p>
+
+          {streamError ? (
+            <div className="mb-6">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-4">
+                <p className="text-red-400 text-sm">
+                  <strong>Camera Error:</strong> {streamError}
+                </p>
+                <p className="text-red-300 text-xs mt-2">
+                  Please check your browser permissions and ensure your camera is not being used by another application.
+                </p>
+              </div>
+              <button 
+                onClick={onSkip} 
+                className="w-full px-4 py-2 rounded-xl text-white font-medium transition-colors border shadow-sm"
+                style={{background: 'rgba(22, 35, 71, 0.8)', borderColor: 'rgba(59, 130, 246, 0.3)'}}
+              >
+                Continue Without Selfie
+              </button>
+            </div>
+          ) : capturedImage ? (
+            /* Selfie Preview */
+            <>
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-800 mb-3 text-center">Preview Your Selfie</h3>
+                <div className="relative bg-black rounded-xl overflow-hidden border border-gray-200 h-[200px]">
+                  <img 
+                    src={capturedImage} 
+                    alt="Captured selfie" 
+                    className="w-full h-full object-cover"
+                    style={{ transform: 'scaleX(-1)' }} // Mirror to match video preview
+                  />
+                  
+                  {isLoading && (
+                    <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center" style={{background: 'rgba(14, 26, 59, 0.8)'}}>
+                      <div className="text-white text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
+                        <p className="text-sm">Uploading...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={handleConfirmSelfie}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all duration-200 shadow-lg"
+                >
+                  {isLoading ? 'Uploading...' : 'Confirm & Upload'}
+                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRetakeSelfie}
+                    disabled={isLoading}
+                    className="flex-1 px-3 py-2 rounded-xl text-white font-medium transition-colors border text-sm shadow-sm"
+                    style={isLoading ? {background: 'rgba(22, 35, 71, 0.3)', borderColor: 'rgba(100, 116, 139, 0.3)', color: '#6B7280'} : {background: 'rgba(22, 35, 71, 0.8)', borderColor: 'rgba(59, 130, 246, 0.3)'}}
+                  >
+                    Retake
+                  </button>
+
+                  <button
+                    onClick={onSkip}
+                    disabled={isLoading}
+                    className="flex-1 px-3 py-2 rounded-xl text-white font-medium transition-colors border text-sm shadow-sm"
+                    style={isLoading ? {background: 'rgba(22, 35, 71, 0.3)', borderColor: 'rgba(100, 116, 139, 0.3)', color: '#6B7280'} : {background: 'rgba(22, 35, 71, 0.8)', borderColor: 'rgba(59, 130, 246, 0.3)'}}
+                  >
+                    Skip
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-4">
+                <div className="relative bg-black rounded-xl overflow-hidden border border-gray-200 h-[200px]">
+                  <video 
+                    ref={videoRef} 
+                    autoPlay 
+                    playsInline 
+                    className="w-full h-full object-cover"
+                    style={{ transform: 'scaleX(-1)' }} // Mirror effect for better UX
+                  />
+                  <canvas 
+                    ref={canvasRef} 
+                    className="hidden" 
+                  />
+                  
+                  {/* Loading overlay */}
+                  {(isCapturing || isLoading) && (
+                    <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center" style={{background: 'rgba(14, 26, 59, 0.8)'}}>
+                      <div className="text-white text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
+                        <p className="text-sm">
+                          {isCapturing ? 'Capturing...' : 'Uploading...'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={handleTakePhoto}
+                  disabled={isCapturing || isLoading}
+                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all duration-200 shadow-lg"
+                >
+                  {isCapturing || isLoading ? 'Processing...' : 'Capture Selfie'}
+                </button>
+
+                <button
+                  onClick={onSkip}
+                  disabled={isCapturing || isLoading}
+                  className="w-full px-4 py-3 rounded-xl text-white font-medium transition-colors border text-sm shadow-sm"
+                  style={(isCapturing || isLoading) ? {background: 'rgba(22, 35, 71, 0.3)', borderColor: 'rgba(100, 116, 139, 0.3)', color: '#6B7280'} : {background: 'rgba(22, 35, 71, 0.8)', borderColor: 'rgba(59, 130, 246, 0.3)'}}
+                >
+                  Skip Selfie
+                </button>
+              </div>
+            </>
+          )}
+
+          <p className="text-xs text-gray-500 text-center mt-4">
+            Your selfie helps us verify your identity and improve security.
+          </p>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
+
