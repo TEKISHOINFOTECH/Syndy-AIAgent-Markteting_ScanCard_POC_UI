@@ -1,4 +1,4 @@
-# Syndy-AIAgent-Markteting_ScanCard_POC
+# Syndy-AIAgent-Markteting_ScanCard_POC Shivani
 
 A powerful, modern web application that leverages AI to scan, extract, and analyze business card information using computer vision, OCR, and intelligent parsing. Features advanced QR code detection, voice assistant integration, and automated meeting scheduling.
 
