@@ -207,7 +207,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     }));
 
     try {
-      console.log('� Phase 1: Detecting business card...', file.name);
+      console.log('📸 Phase 1: Detecting business card...', file.name);
 
       // Call Phase 1 detection (no confirmTempRecordId)
       const response = await CardScannerAPI.uploadCard(file);
@@ -632,6 +632,10 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
       pollingIntervalRef.current = null;
     }
     
+    // Reset streaming ref
+    usedStreamingRef.current = false;
+    pollCountRef.current = 0;
+    
     setState({
       step: 'landing',
       transactionID: null,
@@ -643,6 +647,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
       llmResponse: null,
       emailDraft: null,
     });
+    setIncludeSelfie(false);
   };
 
   const handleDone = () => {
@@ -757,6 +762,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             onPrevious={() => setState(prev => ({ ...prev, step: 'selfie' }))}
             onNext={() => {
               // Navigate to confirmation after meeting is scheduled
+              console.log('✅ Navigating to confirmation screen');
               setState(prev => ({
                 ...prev,
                 step: 'confirmation',
@@ -769,13 +775,36 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
             onSaveDraft={handleSaveEmailDraft}
             onScheduleMeeting={async (emailDraft) => {
               // Pass includeSelfie and emailDraft when scheduling meeting
-              if (!state.transactionID) return;
+              console.log('📅 onScheduleMeeting called in CardScannerApp', {
+                transactionID: state.transactionID,
+                includeSelfie,
+                emailDraft: emailDraft ? {
+                  to: emailDraft.to,
+                  subject: emailDraft.subject,
+                  bodyLength: emailDraft.body.length
+                } : null
+              });
+              
+              if (!state.transactionID) {
+                const error = new Error('No transaction ID available');
+                console.error('❌', error.message);
+                throw error;
+              }
+              
               try {
-                await CardScannerAPI.scheduleMeeting(state.transactionID, includeSelfie, emailDraft);
+                setState(prev => ({ ...prev, isLoading: true }));
+                console.log('📤 Calling API to schedule meeting...');
+                const response = await CardScannerAPI.scheduleMeeting(state.transactionID, includeSelfie, emailDraft);
+                console.log('✅ API call successful:', response);
                 setToast({ message: 'Meeting requested!', type: 'success' });
+                setState(prev => ({ ...prev, isLoading: false }));
               } catch (err) {
-                console.error('❌ Meeting scheduling error:', err);
-                setToast({ message: 'Failed to schedule meeting', type: 'error' });
+                console.error('❌ Meeting scheduling error in CardScannerApp:', err);
+                setState(prev => ({ ...prev, isLoading: false }));
+                const errorMessage = err instanceof Error ? err.message : 'Failed to schedule meeting';
+                setToast({ message: errorMessage, type: 'error' });
+                // Re-throw the error so EmailDraftScreen can catch it and prevent navigation
+                throw err;
               }
             }}
             isLoading={state.isLoading}
@@ -795,7 +824,7 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
           <MeetingConfirmationScreen
             transactionID={state.transactionID}
             onDone={handleDone}
-            onPrevious={() => setState(prev => ({ ...prev, step: 'meetingScheduler' }))}
+            onPrevious={() => setState(prev => ({ ...prev, step: 'emailDraft' }))}
             onNext={() => setState(prev => ({ ...prev, step: 'landing' }))}
           />
         )}

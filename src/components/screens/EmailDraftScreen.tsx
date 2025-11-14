@@ -86,17 +86,22 @@ Best regards`;
   }, [propEmailDraft, userInfo]);
 
   const handleSchedule = async () => {
+    console.log('🔘 Continue to Schedule button clicked');
+    
     if (!transactionID) {
       setError('No transaction ID available');
+      console.error('❌ No transaction ID');
       return;
     }
 
     if (!to.trim() || !subject.trim() || !body.trim()) {
       setError('Please fill in all email fields');
+      console.error('❌ Missing email fields:', { to: !!to.trim(), subject: !!subject.trim(), body: !!body.trim() });
       return;
     }
 
-    const draft = { to, subject, body };
+    const draft = { to: to.trim(), subject: subject.trim(), body: body.trim() };
+    console.log('📝 Email draft prepared:', { to: draft.to, subject: draft.subject, bodyLength: draft.body.length });
 
     try {
       setIsLoading(true);
@@ -116,18 +121,31 @@ Best regards`;
       // Step 2: Save draft to parent component state
       if (onSaveDraft) {
         onSaveDraft(draft);
+        console.log('✅ Draft saved to parent state');
       }
 
       // Step 3: Call the meeting scheduler with email draft
       console.log('📅 Scheduling meeting with email draft...');
-      if (onScheduleMeeting) {
-        await onScheduleMeeting(draft);
+      console.log('📅 onScheduleMeeting available:', !!onScheduleMeeting);
+      
+      if (!onScheduleMeeting) {
+        console.error('❌ onScheduleMeeting is not provided!');
+        throw new Error('Meeting scheduler not available. Please try again.');
       }
 
-      // Step 4: Navigate to next step
-      console.log('✅ Meeting scheduled successfully');
+      await onScheduleMeeting(draft);
+      console.log('✅ onScheduleMeeting completed successfully');
+
+      // Step 4: Reset loading state before navigation
+      setIsLoading(false);
+      
+      // Step 5: Navigate to next step
+      console.log('✅ Meeting scheduled successfully, navigating to confirmation...');
       if (onNext) {
         onNext();
+      } else {
+        console.error('❌ onNext is not provided!');
+        setError('Navigation error. Please refresh the page.');
       }
     } catch (err) {
       console.error('❌ Meeting scheduling error:', err);
@@ -344,7 +362,19 @@ Best regards`;
                     <span>Edit the email fields above</span>
                   </div>
                   <button
-                    onClick={handleSchedule}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🔘 Continue to Schedule button clicked', {
+                        transactionID: !!transactionID,
+                        to: to.trim(),
+                        subject: subject.trim(),
+                        body: body.trim(),
+                        loadingState,
+                        onScheduleMeeting: !!onScheduleMeeting
+                      });
+                      handleSchedule();
+                    }}
                     disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
                     className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                   >
