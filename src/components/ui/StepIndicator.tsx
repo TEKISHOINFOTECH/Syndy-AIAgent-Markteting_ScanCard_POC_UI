@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, Circle, Camera, FileText, Calendar, User, Clock, Loader2, Mail } from 'lucide-react';
-import type { CardScanStep } from '../../types/cardScanner';
+// Local step type for the indicator (keeps this component self-contained)
+type CardScanStep = 'landing' | 'capture' | 'processing' | 'result' | 'avatar' | 'selfie' | 'emailDraft' | 'meetingScheduler' | 'confirmation';
 
 interface StepIndicatorProps {
   currentStep: CardScanStep;
@@ -28,24 +29,28 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
   };
 
   return (
-    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-green-200/50 px-2 pt-2 pb-2 sm:px-3 sm:pt-3 sm:pb-3 md:px-4 md:pt-4 md:pb-4 shadow-sm">
+    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-purple-200/50 px-2 pt-2 pb-2 sm:px-3 sm:pt-3 sm:pb-3 md:px-4 md:pt-4 md:pb-4 shadow-sm">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4 gap-1">
-          {steps.map((step, index) => {
-            const status = getStatus(index);
-            return (
-              <div
-                key={step.key}
-                className={`h-1 flex-1 rounded-full transition-all duration-500 ${
-                  status === 'completed'
-                    ? 'bg-gradient-to-r from-green-400 to-green-600'
-                    : status === 'current'
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                    : 'bg-gray-200'
-                }`}
-              />
-            );
-          })}
+          <div className="flex-1 flex items-center gap-2">
+            {steps.map((step, index) => {
+              const status = getStatus(index);
+              return (
+                <div
+                  key={step.key}
+                  className={`h-1 flex-1 rounded-full transition-all duration-500 ${
+                    status === 'completed'
+                      ? 'bg-gradient-to-r from-purple-400 to-purple-600'
+                      : status === 'current'
+                      ? 'bg-gradient-to-r from-purple-500 to-violet-500'
+                      : 'bg-gray-200'
+                  }`}
+                />
+              );
+            })}
+          </div>
+
+          {/* Buttons moved into individual screens per design — StepIndicator remains purely visual */}
         </div>
 
         <div className="flex items-center justify-between gap-1">
@@ -57,9 +62,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                 <div
                   className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full mb-1.5 sm:mb-2 md:mb-2.5 transition-all duration-300 ${
                     status === 'completed'
-                      ? 'bg-green-100 text-green-600'
+                      ? 'bg-purple-100 text-purple-600'
                       : status === 'current'
-                      ? 'bg-green-50 text-green-700 ring-2 ring-green-200'
+                      ? 'bg-purple-50 text-purple-700 ring-2 ring-purple-200'
                       : 'text-gray-400'
                   }`}
                 >
@@ -68,9 +73,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                 <p
                   className={`text-xs font-medium text-center leading-tight ${
                     status === 'completed'
-                      ? 'text-green-600'
+                      ? 'text-purple-600'
                       : status === 'current'
-                      ? 'text-green-700 underline decoration-green-600 decoration-2'
+                      ? 'text-purple-700 underline decoration-purple-600 decoration-2'
                       : 'text-gray-500'
                   }`}
                 >

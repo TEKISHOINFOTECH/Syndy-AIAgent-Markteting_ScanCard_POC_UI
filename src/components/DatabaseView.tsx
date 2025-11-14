@@ -93,7 +93,7 @@ function DatabaseView({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 text-gray-800">
+  <div className="flex flex-col sm:flex-row h-full bg-gradient-to-br from-purple-50 via-white to-purple-100 text-gray-800">
       {loading ? (
         <div className="flex items-center justify-center w-full h-full">
           <p className="text-gray-600 text-base sm:text-lg">Loading data...</p>
@@ -107,7 +107,7 @@ function DatabaseView({
                 <div className="relative flex-1">
                   <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <input
-                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white rounded-2xl border border-gray-300 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 text-sm sm:text-base"
+                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white rounded-2xl border border-gray-300 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm sm:text-base"
                     placeholder="Search customers..."
                     value={searchQuery}
                     onChange={(e) => {
@@ -120,27 +120,27 @@ function DatabaseView({
                 <div className="flex gap-2">
                   <button
                     onClick={() => setFilterType('all')}
-                    className={`px-3 sm:px-4 py-2 rounded-2xl font-medium text-xs sm:text-sm border flex-1 sm:flex-none ${filterType === 'all' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                    className={`px-3 sm:px-4 py-2 rounded-2xl font-medium text-xs sm:text-sm border flex-1 sm:flex-none ${filterType === 'all' ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
                   >
                     All
                   </button>
                   <button
                     onClick={() => setFilterType('active')}
-                    className={`px-3 sm:px-4 py-2 rounded-2xl font-medium text-xs sm:text-sm border flex-1 sm:flex-none ${filterType === 'active' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                    className={`px-3 sm:px-4 py-2 rounded-2xl font-medium text-xs sm:text-sm border flex-1 sm:flex-none ${filterType === 'active' ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
                   >
                     Active
                   </button>
                   <button
                     onClick={() => setFilterType('inactive')}
-                    className={`px-3 sm:px-4 py-2 rounded-2xl font-medium text-xs sm:text-sm border flex-1 sm:flex-none ${filterType === 'inactive' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                    className={`px-3 sm:px-4 py-2 rounded-2xl font-medium text-xs sm:text-sm border flex-1 sm:flex-none ${filterType === 'inactive' ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
                   >
                     Inactive
                   </button>
                 </div>
               </div>
 
-              <div className="ml-0 sm:ml-4 self-stretch sm:self-auto">
-                <button className="w-full sm:w-auto px-4 py-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow hover:opacity-95 text-sm sm:text-base">+</button>
+                <div className="ml-0 sm:ml-4 self-stretch sm:self-auto">
+                <button className="w-full sm:w-auto px-4 py-2 rounded-2xl bg-gradient-to-r from-purple-500 to-violet-500 text-white font-semibold shadow hover:opacity-95 text-sm sm:text-base">+</button>
               </div>
             </div>
 
@@ -169,7 +169,7 @@ function DatabaseView({
                         <tr
                           key={c.id}
                           onClick={() => handleRowClick(c)}
-                          className="cursor-pointer hover:bg-green-50 transition-colors border-b border-gray-100"
+                          className="cursor-pointer hover:bg-purple-50 transition-colors border-b border-gray-100"
                         >
                           <td className="py-3 sm:py-4 px-4 sm:px-6 text-sm sm:text-base text-gray-800">{c.name}</td>
                           <td className="py-3 sm:py-4 px-4 sm:px-6 text-sm sm:text-base text-gray-800">{c.company}</td>
@@ -197,10 +197,10 @@ function DatabaseView({
                   ‹
                 </button>
                 {pages.map((p) => (
-                  <button
+                    <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md text-xs sm:text-sm ${p === page ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md text-xs sm:text-sm ${p === page ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                   >
                     {p}
                   </button>
@@ -280,7 +280,7 @@ function DatabaseView({
           {/* Edit Button */}
           <button
             onClick={() => console.log('Edit user')}
-            className="w-full px-4 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium hover:from-green-600 hover:to-emerald-600 text-sm sm:text-base"
+            className="w-full px-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-500 to-violet-500 text-white font-medium hover:from-purple-600 hover:to-violet-600 text-sm sm:text-base"
           >
             Edit User
           </button>

@@ -25,9 +25,9 @@ export function Toast({ message, type = 'info', isVisible, onClose, duration = 5
   };
 
   const colors = {
-    success: 'bg-green-500/90 border-green-400/30 text-white',
-    error: 'bg-red-500/90 border-red-400/30 text-white',
-    info: 'bg-blue-500/90 border-blue-400/30 text-white'
+  success: 'bg-gradient-to-r from-purple-600 to-violet-600 text-white border border-white/10',
+    error: 'bg-gradient-to-r from-red-500 to-rose-500 text-white border border-white/10',
+    info: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border border-white/10'
   };
 
   return (
@@ -39,7 +39,7 @@ export function Toast({ message, type = 'info', isVisible, onClose, duration = 5
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -50, scale: 0.9 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className={`fixed top-36 sm:top-40 md:top-44 right-4 z-[9999] ${colors[type]} backdrop-blur-xl px-4 py-2.5 rounded-xl shadow-lg border flex items-center gap-2 max-w-xs text-sm pointer-events-auto`}
+          className={`fixed top-36 sm:top-40 md:top-44 right-4 z-[9999] ${colors[type]} backdrop-blur-md px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 max-w-xs text-sm pointer-events-auto`}
           style={{ isolation: 'isolate' }}
         >
           {icons[type]}

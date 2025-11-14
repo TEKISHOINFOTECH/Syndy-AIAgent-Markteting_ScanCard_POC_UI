@@ -25,9 +25,9 @@ export function Button({
   const baseClasses = 'rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2';
   
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-600'
+    primary: 'bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white shadow-lg backdrop-blur-sm border border-white/10',
+    secondary: 'bg-white/10 backdrop-blur-sm border border-white/20 text-purple-600 hover:bg-white/20',
+    ghost: 'bg-transparent hover:bg-white/5 text-purple-600'
   } as const;
   
   const sizeClasses = {
@@ -42,12 +42,12 @@ export function Button({
       whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className} ${
         (disabled || isLoading) ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
+      } focus:outline-none focus:ring-2 focus:ring-purple-200`}
       disabled={disabled || isLoading}
       onClick={onClick}
       type={type}
     >
-      {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+      {isLoading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
       {children}
     </motion.button>
   );

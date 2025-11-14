@@ -1,17 +1,18 @@
 import { motion } from 'framer-motion';
-import { CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 interface ProcessingScreenProps {
   transactionID?: string | null;
-  onPrevious?: () => void;
-  onNext?: () => void;
+  onPrevious?: () => void;  // Not used - kept for compatibility
+  onNext?: () => void;  // Not used - kept for compatibility
 }
 
-export function ProcessingScreen({ transactionID, onPrevious, onNext }: ProcessingScreenProps) {
+export function ProcessingScreen({ transactionID }: ProcessingScreenProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex flex-col items-center justify-center pt-1 px-4 sm:px-6 overflow-y-auto pb-6 relative">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 sm:px-6 overflow-y-auto pb-6 relative">
+      {/* No navigation buttons - automatic processing */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -21,17 +22,17 @@ export function ProcessingScreen({ transactionID, onPrevious, onNext }: Processi
           {/* Animated Card Icon */}
           <motion.div
             animate={{ 
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
+              scale: [1, 1.05, 1],
+              rotate: [0, 3, -3, 0]
             }}
             transition={{ 
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 mb-4"
+            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-purple-200/30 to-violet-200/30 mb-4"
           >
-            <CreditCard className="w-10 h-10 text-green-600" />
+            <CreditCard className="w-10 h-10 text-purple-600" />
           </motion.div>
 
           <div className="space-y-2">
@@ -48,14 +49,14 @@ export function ProcessingScreen({ transactionID, onPrevious, onNext }: Processi
           {transactionID && (
             <div className="bg-white/70 backdrop-blur-sm rounded-xl p-3 border border-gray-200">
               <p className="text-xs text-gray-500 mb-1">Transaction ID</p>
-              <p className="text-xs text-green-600 font-mono break-all">{transactionID}</p>
+              <p className="text-xs text-purple-600 font-mono break-all">{transactionID}</p>
             </div>
           )}
 
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
+              className="h-full bg-gradient-to-r from-purple-500 to-violet-500"
               initial={{ width: '0%' }}
               animate={{ width: '100%' }}
               transition={{ duration: 3, ease: 'easeInOut', repeat: Infinity }}

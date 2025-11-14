@@ -47,7 +47,7 @@ function RobotAvatar() {
       />
       
       {/* Status Indicator */}
-      <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full animate-pulse flex items-center justify-center">
+      <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-400 rounded-full animate-pulse flex items-center justify-center">
         <div className="w-2 h-2 bg-white rounded-full"></div>
       </div>
       

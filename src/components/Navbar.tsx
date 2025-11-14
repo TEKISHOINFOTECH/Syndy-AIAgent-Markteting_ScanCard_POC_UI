@@ -1,12 +1,4 @@
-import {
-  MessageSquare,
-  Home,
-  Camera,
-  Upload,
-  BarChart3,
-  Settings,
-  CreditCard,
-} from 'lucide-react';
+import { Home, BarChart3, CreditCard } from 'lucide-react';
 import tekishoLogo from '../resources/Logo_Tekisho.png';
 
 interface NavbarProps {
@@ -20,17 +12,16 @@ interface NavButtonProps {
   label: string;
   icon: React.ReactNode;
   active: boolean;
-  collapsed: boolean;
   onClick: () => void;
 }
 
-function NavButton({ label, icon, active, collapsed, onClick }: NavButtonProps) {
+function NavButton({ label, icon, active, onClick }: NavButtonProps) {
   return (
     <button
       onClick={onClick}
       aria-label={label}
       className={`flex items-center gap-1 sm:gap-1.5 md:gap-2 px-2 sm:px-2.5 md:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl transition-all duration-200 ease-in-out text-xs sm:text-sm font-medium flex-shrink-0 ${
-        active ? 'bg-green-500/10 text-green-600 ring-1 ring-green-200' : 'text-gray-600 hover:bg-white/60'
+        active ? 'bg-purple-500/10 text-purple-600 ring-1 ring-purple-200' : 'text-gray-600 hover:bg-white/60'
       }`}
     >
       <div className="flex items-center justify-center w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-current shrink-0">{icon}</div>
@@ -40,12 +31,11 @@ function NavButton({ label, icon, active, collapsed, onClick }: NavButtonProps) 
 }
 
 function Navbar({ activeView, onNavClick }: NavbarProps) {
-  const navItems: Array<{ label: string; icon: React.ReactNode; view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner' }> = [
-    { label: 'Card Scanner', icon: <CreditCard className="w-5 h-5" />, view: 'cardscanner' },
+  // Keep only the primary navigation items — chatterbox/scanner/upload are now accessible within Card Scanner flow
+  // Order: Home -> Card Scanner -> Analysis
+  const navItems: Array<{ label: string; icon: React.ReactNode; view: 'home' | 'analysis' | 'cardscanner' }> = [
     { label: 'Home', icon: <Home className="w-5 h-5" />, view: 'home' },
-    { label: 'Chatterbox', icon: <MessageSquare className="w-5 h-5" />, view: 'chat' },
-    { label: 'Scanner', icon: <Camera className="w-5 h-5" />, view: 'scan' },
-    { label: 'Upload Files', icon: <Upload className="w-5 h-5" />, view: 'upload' },
+    { label: 'Card Scanner', icon: <CreditCard className="w-5 h-5" />, view: 'cardscanner' },
     { label: 'Analysis', icon: <BarChart3 className="w-5 h-5" />, view: 'analysis' },
   ];
 
@@ -75,23 +65,12 @@ function Navbar({ activeView, onNavClick }: NavbarProps) {
                   label={item.label}
                   icon={item.icon}
                   active={activeView === item.view}
-                  collapsed={false}
                   onClick={() => onNavClick(item.view)}
                 />
               ))}
             </div>
           </div>
-
-          {/* Settings Button - Always on right */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <button
-              onClick={() => console.log('Open settings')}
-              className="px-2 sm:px-2.5 md:px-3 py-2 sm:py-2 rounded-lg bg-white/60 text-gray-700 border border-gray-100 shadow-sm hover:bg-white/80 transition-colors"
-              aria-label="Settings"
-            >
-              <Settings className="w-4 h-4 sm:w-4 md:w-4" />
-            </button>
-          </div>
+          {/* Removed Settings button per design request */}
         </nav>
       </div>
     </header>

@@ -27,7 +27,7 @@ export function NavTabs({ activeView = 'home', onNavClick, className = '', compa
           onClick={() => onNavClick(item.view)}
           className={`flex items-center justify-start sm:justify-center gap-2 sm:gap-2 px-3.5 sm:px-4 md:px-5 py-3 sm:py-2.5 md:py-3 rounded-xl sm:rounded-xl text-xs sm:text-sm font-medium transition-colors w-full sm:w-auto sm:flex-shrink-0 ${
             activeView === item.view
-              ? 'bg-green-500/10 text-green-600 ring-1 ring-green-200'
+              ? 'bg-purple-500/10 text-purple-600 ring-1 ring-purple-200'
               : 'text-gray-600 hover:bg-white/60'
           }`}
         >

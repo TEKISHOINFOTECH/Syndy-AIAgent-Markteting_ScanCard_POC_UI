@@ -1,18 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Upload, X, Check, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Upload, X, Check, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { BackButton } from '../ui/BackButton';
 
 interface CardCaptureScreenProps {
   onCapture: (file: File) => void;
   onCancel: () => void;
-  onPrevious?: () => void;
-  onNext?: () => void;
+  onPrevious?: () => void;  // Not used - kept for compatibility
+  onNext?: () => void;  // Not used - kept for compatibility
 }
 
-export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: CardCaptureScreenProps) {
+export function CardCaptureScreen({ onCapture, onCancel }: CardCaptureScreenProps) {
   const [captureMode, setCaptureMode] = useState<'camera' | 'upload'>('upload');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
@@ -165,10 +164,7 @@ export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: C
   const handleProcess = () => {
     if (capturedFile) {
       onCapture(capturedFile);
-      // If onNext is provided, navigate to next step after capture
-      if (onNext) {
-        onNext();
-      }
+      // No navigation buttons - automatic processing after capture
     }
   };
 
@@ -193,7 +189,7 @@ export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: C
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-start justify-center pt-1 px-3 sm:px-4 md:px-6 overflow-y-auto pb-6">
+    <div className="min-h-screen bg-white flex items-start justify-center pt-1 px-3 sm:px-4 md:px-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -246,14 +242,14 @@ export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: C
             )}
 
             {/* Capture Area */}
-            <div className="relative bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[350px] md:min-h-[400px] flex items-center justify-center mt-2">
+            <div className="relative bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[350px] md:min-h-[400px] flex items-center justify-center mt-2 border border-white/10" style={{ WebkitBackdropFilter: 'blur(8px) saturate(120%)', backdropFilter: 'blur(8px) saturate(120%)' }}>
               {/* Upload Mode */}
               {!previewUrl && captureMode === 'upload' && !isValidating && (
                 <div
                   onDrop={handleDrop}
                   onDragOver={(e) => e.preventDefault()}
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-green-400 transition-colors cursor-pointer p-6 sm:p-8"
+                  className="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-purple-400 transition-colors cursor-pointer p-6 sm:p-8"
                 >
                   <Upload className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mb-3 sm:mb-4" />
                   <p className="text-gray-600 text-center text-sm sm:text-base">
@@ -277,7 +273,7 @@ export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: C
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Camera className="w-12 h-12 sm:w-16 sm:h-16 text-green-500" />
+                    <Camera className="w-12 h-12 sm:w-16 sm:h-16 text-purple-500" />
                   </motion.div>
                   <p className="text-gray-600">Starting camera...</p>
                 </div>
@@ -296,14 +292,14 @@ export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: C
                   {/* Camera Overlay Guides */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* Corner guides */}
-                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 border-l-[3px] sm:border-l-4 border-t-[3px] sm:border-t-4 border-green-500"></div>
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 border-r-[3px] sm:border-r-4 border-t-[3px] sm:border-t-4 border-green-500"></div>
-                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 border-l-[3px] sm:border-l-4 border-b-[3px] sm:border-b-4 border-green-500"></div>
-                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 border-r-[3px] sm:border-r-4 border-b-[3px] sm:border-b-4 border-green-500"></div>
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 border-l-[3px] sm:border-l-4 border-t-[3px] sm:border-t-4 border-purple-500"></div>
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 border-r-[3px] sm:border-r-4 border-t-[3px] sm:border-t-4 border-purple-500"></div>
+                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 border-l-[3px] sm:border-l-4 border-b-[3px] sm:border-b-4 border-purple-500"></div>
+                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 border-r-[3px] sm:border-r-4 border-b-[3px] sm:border-b-4 border-purple-500"></div>
                     
                     {/* Center frame */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-[85%] sm:w-[80%] h-[55%] sm:h-[60%] border-2 border-green-500/50 rounded-xl sm:rounded-2xl"></div>
+                      <div className="w-[85%] sm:w-[80%] h-[55%] sm:h-[60%] border-2 border-purple-500/50 rounded-xl sm:rounded-2xl"></div>
                     </div>
                     
                     {/* Instruction text */}
@@ -345,7 +341,7 @@ export function CardCaptureScreen({ onCapture, onCancel, onPrevious, onNext }: C
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-3"
+                      className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-3"
                     />
                     <p className="text-gray-700">Validating...</p>
                   </div>

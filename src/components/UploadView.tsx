@@ -354,20 +354,20 @@ const uploadAllFilesBatch = async () => {
   const errorCount = uploadedFiles.filter(f => f.status === 'error').length;
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 relative overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-hidden">
       {/* Back Button */}
       {onNavClick && <BackButton onClick={() => onNavClick('cardscanner')} />}
       
       {/* Light glassmorphism background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-40 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+  <div className="absolute top-20 left-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+  <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
+  <div className="absolute bottom-20 left-40 w-72 h-72 bg-violet-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
       </div>
 
       {/* Header */}
       <div className="relative z-10 bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
-        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Upload Files</h2>
+  <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">Upload Files</h2>
         <p className="text-gray-600 mt-1 text-sm sm:text-base">Upload images for OCR processing</p>
       </div>
 
@@ -378,7 +378,7 @@ const uploadAllFilesBatch = async () => {
           <div
             className={`backdrop-blur-2xl rounded-3xl p-6 sm:p-12 text-center transition-all border border-gray-200 shadow-xl ${
               isDragOver 
-                ? 'bg-white/80 ring-2 ring-green-400/50' 
+                ? 'bg-white/80 ring-2 ring-purple-400/50' 
                 : 'bg-white/70 hover:bg-white/80'
             }`}
             onDragOver={handleDragOver}
@@ -388,8 +388,8 @@ const uploadAllFilesBatch = async () => {
             {uploadedFiles.length === 0 ? (
               // Empty state
               <div className="flex flex-col items-center gap-4">
-                <div className="p-6 bg-gradient-to-br from-green-100 to-emerald-100 rounded-3xl group-hover:scale-110 transition-all duration-300 shadow-lg backdrop-blur-sm border border-green-200">
-                  <Upload className="w-12 h-12 text-green-500 drop-shadow-sm" />
+                <div className="p-6 bg-gradient-to-br from-purple-100 to-violet-100 rounded-3xl group-hover:scale-110 transition-all duration-300 shadow-lg backdrop-blur-sm border border-purple-200">
+                  <Upload className="w-12 h-12 text-purple-500 drop-shadow-sm" />
                 </div>
                 <div>
                   <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
@@ -397,7 +397,7 @@ const uploadAllFilesBatch = async () => {
                   </h3>
                   <p className="text-gray-600 mb-4 text-sm sm:text-base">or click to browse</p>
                 </div>
-                <label className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold cursor-pointer text-sm sm:text-base">
+                <label className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-2xl hover:from-purple-600 hover:to-violet-600 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold cursor-pointer text-sm sm:text-base">
                   Choose Files
                   <input
                     ref={fileInputRef}
@@ -420,7 +420,7 @@ const uploadAllFilesBatch = async () => {
                   <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm font-semibold flex-1 sm:flex-none"
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-xl hover:from-purple-600 hover:to-violet-600 shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm font-semibold flex-1 sm:flex-none"
                     >
                       Add More
                     </button>
@@ -435,8 +435,8 @@ const uploadAllFilesBatch = async () => {
 
                 {/* Files uploaded message */}
                 <div className="text-center">
-                  <div className="p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl backdrop-blur-sm border border-green-200 inline-block">
-                    <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mx-auto mb-2" />
+                  <div className="p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl backdrop-blur-sm border border-purple-200 inline-block">
+                    <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-2" />
                     <p className="text-gray-800 font-medium text-sm sm:text-base">
                       {uploadedFiles.length} files uploaded
                     </p>
@@ -463,7 +463,7 @@ const uploadAllFilesBatch = async () => {
           {/* Uploaded Files List */}
           {uploadedFiles.length > 0 && (
             <div className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+              <div className="bg-gradient-to-r from-purple-500 to-violet-500 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-white" />
                   <h3 className="text-base sm:text-lg font-semibold text-white">
@@ -493,8 +493,8 @@ const uploadAllFilesBatch = async () => {
                   >
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                       <div className="flex items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
-                        <div className="p-2 sm:p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl backdrop-blur-sm border border-green-200">
-                          <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                        <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-100 to-violet-100 rounded-2xl backdrop-blur-sm border border-purple-200">
+                          <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="font-semibold text-gray-800 truncate text-sm sm:text-base">
@@ -520,7 +520,7 @@ const uploadAllFilesBatch = async () => {
                                 </span>
                               )}
                               {file.status === 'completed' && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400 border border-green-400/30">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-500/20 text-purple-400 border border-purple-400/30">
                                   ✅ Completed
                                 </span>
                               )}
@@ -541,13 +541,13 @@ const uploadAllFilesBatch = async () => {
                           
                           {/* Result Preview for completed files */}
                           {file.status === 'completed' && file.result && (
-                            <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
-                              <p className="text-green-600 font-medium text-xs mb-1">OCR Result:</p>
+                            <div className="mt-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
+                              <p className="text-purple-600 font-medium text-xs mb-1">OCR Result:</p>
                               <p className="text-gray-700 text-xs truncate">
                                 {file.result.text?.substring(0, 80)}...
                               </p>
                               {file.result.qr_codes && file.result.qr_codes.length > 0 && (
-                                <p className="text-green-600 text-xs mt-1">
+                                <p className="text-purple-600 text-xs mt-1">
                                   📱 {file.result.qr_codes.length} QR codes found
                                 </p>
                               )}
@@ -558,10 +558,10 @@ const uploadAllFilesBatch = async () => {
                       
                       <div className="flex items-center gap-2 self-start sm:self-center">
                         {/* View Results Button */}
-                        {file.status === 'completed' && file.result && (
+                          {file.status === 'completed' && file.result && (
                           <button
                             onClick={() => showFileResults(file)}
-                            className="px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-600 rounded-xl hover:from-green-500/30 hover:to-emerald-500/30 transition-colors text-xs border border-green-400/30 font-semibold"
+                            className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-violet-500/20 text-purple-600 rounded-xl hover:from-purple-500/30 hover:to-violet-500/30 transition-colors text-xs border border-purple-400/30 font-semibold"
                           >
                             View Results
                           </button>
@@ -588,7 +588,7 @@ const uploadAllFilesBatch = async () => {
                     <button
                       onClick={uploadAllFilesBatch}
                       disabled={isUploading}
-                      className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl hover:from-green-600 hover:to-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-3 font-semibold text-sm sm:text-lg"
+                      className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-2xl hover:from-purple-600 hover:to-violet-600 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 sm:gap-3 font-semibold text-sm sm:text-lg"
                     >
                       {isUploading ? (
                         <>
@@ -622,7 +622,7 @@ const uploadAllFilesBatch = async () => {
                 <span className="text-yellow-600">⏳ {pendingCount} pending</span>
               )}
               {completedCount > 0 && (
-                <span className="text-green-600">✅ {completedCount} completed</span>
+                <span className="text-purple-600">✅ {completedCount} completed</span>
               )}
               {errorCount > 0 && (
                 <span className="text-red-600">❌ {errorCount} errors</span>
@@ -637,7 +637,7 @@ const uploadAllFilesBatch = async () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-purple-500 to-violet-500 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
               <h3 className="text-lg sm:text-xl font-semibold text-white">OCR Results</h3>
               <button
                 onClick={closeResults}
@@ -670,14 +670,14 @@ const uploadAllFilesBatch = async () => {
                   <h4 className="text-lg font-semibold text-gray-800 mb-3">Extracted Information</h4>
                   
                   {/* Processing Info */}
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4 mb-4">
                     <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-green-800 font-medium">Processing Engine:</span>
-                      <span className="text-green-600">{selectedFile.result.engine || 'Unknown'}</span>
+                      <span className="text-purple-800 font-medium">Processing Engine:</span>
+                      <span className="text-purple-600">{selectedFile.result.engine || 'Unknown'}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs sm:text-sm mt-1">
-                      <span className="text-green-800 font-medium">Confidence:</span>
-                      <span className="text-green-600">{Math.round((selectedFile.result.confidence || 0) * 100)}%</span>
+                      <span className="text-purple-800 font-medium">Confidence:</span>
+                      <span className="text-purple-600">{Math.round((selectedFile.result.confidence || 0) * 100)}%</span>
                     </div>
                   </div>
 
@@ -697,17 +697,17 @@ const uploadAllFilesBatch = async () => {
                   {selectedFile.result.qr_codes && selectedFile.result.qr_codes.length > 0 && (
                     <div className="mb-4">
                       <h5 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span className="text-green-600">📱</span>
+                        <span className="text-purple-600">📱</span>
                         QR Codes Found ({selectedFile.result.qr_codes.length})
                       </h5>
                       <div className="space-y-3">
                         {selectedFile.result.qr_codes.map((qr: any, index: number) => (
-                          <div key={index} className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                          <div key={index} className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
                             {/* QR Code Header */}
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="text-green-600 font-bold text-lg">QR {index + 1}</span>
+                              <span className="text-purple-600 font-bold text-sm">QR {index + 1}</span>
                               {qr.parsed_info && (
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
                                   {qr.parsed_info.title}
                                 </span>
                               )}
@@ -728,10 +728,10 @@ const uploadAllFilesBatch = async () => {
                                 <div className="mt-1 space-y-1">
                                   {Object.entries(qr.parsed_info.details).map(([key, value]: [string, any]) => (
                                     <div key={key} className="flex items-start gap-2 text-sm">
-                                      <span className="font-medium text-green-700 capitalize min-w-20">
+                                      <span className="font-medium text-purple-700 capitalize min-w-20">
                                         {key.replace('_', ' ')}:
                                       </span>
-                                      <span className="text-green-800 break-all">
+                                      <span className="text-purple-800 break-all">
                                         {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                                       </span>
                                     </div>
@@ -747,7 +747,7 @@ const uploadAllFilesBatch = async () => {
                                   navigator.clipboard.writeText(qr.data);
                                   alert('QR code data copied to clipboard!');
                                 }}
-                                className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                                className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700"
                               >
                                 Copy Data
                               </button>

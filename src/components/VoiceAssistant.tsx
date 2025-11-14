@@ -135,7 +135,7 @@ ${result.analysis.summary}
           transition={{ type: "spring", duration: 0.5, bounce: 0.4 }}
           className="fixed bottom-20 right-4 sm:right-6 md:right-8 w-[320px] sm:w-[360px] bg-white/90 backdrop-blur-2xl border border-gray-200/50 rounded-2xl shadow-2xl overflow-hidden z-50"
         >
-          <div className="bg-gradient-to-r from-green-500/90 to-emerald-500/90 backdrop-blur-xl p-2.5 sm:p-3 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-purple-500/90 to-violet-500/90 backdrop-blur-xl p-2.5 sm:p-3 flex items-center justify-between">
             <h3 className="text-white font-semibold text-sm sm:text-base">Voice Assistant</h3>
             <button
               onClick={onClose}
@@ -145,10 +145,10 @@ ${result.analysis.summary}
             </button>
           </div>
 
-          <div className="p-4 sm:p-5 space-y-3 bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50">
+          <div className="p-4 sm:p-5 space-y-3 bg-gradient-to-br from-purple-50/50 via-white to-purple-100/50">
             {/* Voice Assistant Avatar */}
             <div className="flex justify-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-green-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-violet-500 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-purple-100">
                 <img 
                   src={avatarMascot} 
                   alt="Voice Assistant Mascot" 
@@ -163,7 +163,7 @@ ${result.analysis.summary}
                 className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all shadow-lg ${
                   isListening
                     ? "bg-red-500 hover:bg-red-600 shadow-red-500/25"
-                    : "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    : "bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600"
                 }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

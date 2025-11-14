@@ -55,7 +55,7 @@
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent;
   }
 
   .glow-effect {

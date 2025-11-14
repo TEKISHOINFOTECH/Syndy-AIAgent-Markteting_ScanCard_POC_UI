@@ -140,8 +140,54 @@ Best regards`;
   const loadingState = isLoading || externalLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 pt-20 pb-6 px-4 sm:px-6 overflow-y-auto">
+    <div className="min-h-screen bg-white pt-20 pb-6 px-4 sm:px-6 overflow-y-auto">
       <div className="max-w-4xl mx-auto">
+        {/* Navigation Buttons - Top */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-6"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onPrevious}
+            disabled={!onPrevious}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
+              onPrevious
+                ? 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 border-2 border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
+            }`}
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Previous</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: loadingState || !to.trim() || !subject.trim() || !body.trim() ? 1 : 1.05 }}
+            whileTap={{ scale: loadingState || !to.trim() || !subject.trim() || !body.trim() ? 1 : 0.95 }}
+            onClick={handleSchedule}
+            disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
+              !loadingState && to.trim() && subject.trim() && body.trim()
+                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 shadow-lg hover:shadow-xl'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {loadingState ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="hidden sm:inline">Scheduling...</span>
+              </>
+            ) : (
+              <>
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-5 h-5" />
+              </>
+            )}
+          </motion.button>
+        </motion.div>
+
         {/* Email Draft Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -161,7 +207,7 @@ Best regards`;
                   </p>
                 </div>
                 {isGeneratedDraft && (
-                  <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                  <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
                     AI Generated
                   </span>
                 )}
@@ -170,7 +216,7 @@ Best regards`;
               {/* Loading State */}
               {isGenerating && (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+                  <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
                   <p className="text-gray-600 text-center">
                     Generating personalized email draft using AI...
                   </p>
@@ -195,7 +241,7 @@ Best regards`;
                       onChange={(e) => setTo(e.target.value)}
                       placeholder="recipient@example.com"
                       disabled={loadingState}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -211,7 +257,7 @@ Best regards`;
                       onChange={(e) => setSubject(e.target.value)}
                       placeholder="Email subject"
                       disabled={loadingState}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -227,7 +273,7 @@ Best regards`;
                       placeholder="Write your email message here..."
                       rows={12}
                       disabled={loadingState}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-y text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y text-gray-800 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -255,8 +301,8 @@ Best regards`;
                         aria-checked={includeSelfie}
                         onClick={() => onIncludeSelfieChange(!includeSelfie)}
                         disabled={loadingState}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                          includeSelfie ? 'bg-green-600' : 'bg-gray-300'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                          includeSelfie ? 'bg-purple-600' : 'bg-gray-300'
                         } ${loadingState ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <span
@@ -272,7 +318,7 @@ Best regards`;
                   {transactionID && (
                     <div className="pt-4 border-t border-gray-200">
                       <p className="text-xs text-gray-500">
-                        Transaction ID: <span className="font-mono text-green-600">{transactionID}</span>
+                        Transaction ID: <span className="font-mono text-purple-600">{transactionID}</span>
                       </p>
                     </div>
                   )}
@@ -292,28 +338,11 @@ Best regards`;
 
               {/* Action Info */}
               {!isGenerating && (
-                <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-center mt-6 pt-6 border-t border-gray-200">
                   <div className="text-sm text-gray-600 flex items-center gap-2">
                     <Edit2 className="w-4 h-4" />
-                    <span>Edit the email fields above</span>
+                    <span>Edit the email fields above and click Next to continue</span>
                   </div>
-                  <button
-                    onClick={handleSchedule}
-                    disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
-                    className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
-                  >
-                    {loadingState ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Saving & Scheduling...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Continue to Schedule</span>
-                      </>
-                    )}
-                  </button>
                 </div>
               )}
             </div>

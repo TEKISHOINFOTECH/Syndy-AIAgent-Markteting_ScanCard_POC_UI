@@ -21,7 +21,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  
+
   // MediaRecorder refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -122,7 +122,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
           >
             ←
           </button>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Upload Files</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">Upload Files</h2>
         </div>
         <UploadView />
       </div>
@@ -139,7 +139,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
           >
             ←
           </button>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Scanner</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">Scanner</h2>
         </div>
         <ScanView />
       </div>
@@ -150,12 +150,12 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
     // Handle analysis subsections
     if (analysisSubsection === 'database') {
       return (
-        <div className="flex flex-col h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 relative overflow-hidden">
+        <div className="flex flex-col h-full bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-hidden">
           {/* Light glassmorphism background elements */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-            <div className="absolute top-40 right-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
-            <div className="absolute bottom-20 left-40 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+            <div className="absolute top-20 left-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+            <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
+            <div className="absolute bottom-20 left-40 w-72 h-72 bg-violet-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
           </div>
 
           {/* Header */}
@@ -166,7 +166,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
             >
               ←
             </button>
-            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Database</h2>
+            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">Database</h2>
           </div>
 
           {/* Database Content */}
@@ -179,12 +179,12 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
 
     // Default analysis overview with stats
     return (
-      <div className="flex flex-col h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 relative overflow-hidden">
+      <div className="flex flex-col h-full bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-hidden">
         {/* Light glassmorphism background elements */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
-          <div className="absolute bottom-20 left-40 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
+          <div className="absolute bottom-20 left-40 w-72 h-72 bg-violet-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
         </div>
 
         <div className="relative z-10 bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 shadow-sm flex items-center gap-3 sm:gap-4">
@@ -194,7 +194,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
           >
             ←
           </button>
-          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Analysis Overview</h2>
+          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">Analysis Overview</h2>
         </div>
         <div className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
@@ -204,21 +204,21 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-2xl backdrop-blur-sm border border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl backdrop-blur-sm border border-green-200">
-                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                    <div className="p-2 bg-gradient-to-br from-purple-100 to-violet-100 rounded-xl backdrop-blur-sm border border-purple-200">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                     </div>
                     <span className="text-gray-700 font-medium text-sm sm:text-base">Total Contacts:</span>
                   </div>
-                  <span className="text-green-600 font-bold text-lg sm:text-xl">2</span>
+                  <span className="text-purple-600 font-bold text-lg sm:text-xl">2</span>
                 </div>
                 <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-2xl backdrop-blur-sm border border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl backdrop-blur-sm border border-emerald-200">
-                      <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                    <div className="p-2 bg-gradient-to-br from-purple-100 to-violet-100 rounded-xl backdrop-blur-sm border border-purple-200">
+                      <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                     </div>
                     <span className="text-gray-700 font-medium text-sm sm:text-base">Active View:</span>
                   </div>
-                  <span className="text-emerald-600 font-bold text-lg sm:text-xl">analysis</span>
+                  <span className="text-purple-600 font-bold text-lg sm:text-xl">analysis</span>
                 </div>
               </div>
             </div>
@@ -230,20 +230,20 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
 
   // Default chat view
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-emerald-50 via-white to-green-50 relative overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-hidden">
       {/* Back Button */}
       {onNavClick && <BackButton onClick={() => onNavClick('cardscanner')} />}
       
       {/* Light glassmorphism background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-40 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-40 w-72 h-72 bg-violet-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
       </div>
 
       {/* Header */}
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-gray-200 bg-white/70 backdrop-blur-xl">
-        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Chatterbox</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">Chatterbox</h2>
         <p className="text-gray-600 mt-2 text-sm sm:text-base">Chat with your AI assistant to manage contacts.</p>
       </div>
 
@@ -259,7 +259,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
           {/* Chat Messages */}
           <div className="space-y-4">
             <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-violet-500 rounded-full flex items-center justify-center flex-shrink-0">
                 <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-3 sm:p-4 max-w-2xl border border-gray-200 shadow-sm">
@@ -283,7 +283,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-14 sm:pr-16 rounded-2xl bg-white border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none resize-none transition-all text-gray-800 placeholder-gray-400 text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-14 sm:pr-16 rounded-2xl bg-white border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none resize-none transition-all text-gray-800 placeholder-gray-400 text-sm sm:text-base"
                 rows={1}
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
@@ -309,7 +309,7 @@ function ChatView({ activeView, analysisSubsection, setAnalysisSubsection, setAc
                 <button
                   onClick={handleSend}
                   disabled={!message.trim() || isProcessing}
-                  className="p-1.5 sm:p-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                  className="p-1.5 sm:p-2 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-lg hover:from-purple-600 hover:to-violet-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                   title="Send message"
                 >
                   <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

@@ -145,22 +145,58 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex flex-col items-center justify-center p-4 overflow-x-hidden max-h-screen overflow-y-auto pb-6">
-      {/* Navigation Buttons */}
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 overflow-x-hidden max-h-screen overflow-y-auto pb-6">
+      {/* Navigation Buttons - Top */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-4xl mx-auto flex items-center justify-between mb-4 pt-20 px-2 sm:px-0"
+      >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onPrevious}
+          disabled={!onPrevious}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
+            onPrevious
+              ? 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 border-2 border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
+          }`}
+        >
+          <ChevronLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Previous</span>
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onNext}
+          disabled={!onNext}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
+            onNext
+              ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 shadow-lg hover:shadow-xl'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          <span className="hidden sm:inline">Next</span>
+          <ChevronRight className="w-5 h-5" />
+        </motion.button>
+      </motion.div>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full my-4 mt-16"
       >
-        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl border border-green-200/50 p-4 shadow-xl">
-          <h2 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl border border-purple-200/50 p-4 shadow-xl">
+          <h2 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
             Take a Selfie
           </h2>
           <p className="text-sm text-gray-600 text-center mb-4">
             Please take a quick selfie to complete your profile
           </p>
           <p className="text-xs text-gray-500 text-center mb-6">
-            Transaction ID: <span className="font-mono text-green-600">{transactionID}</span>
+            Transaction ID: <span className="font-mono text-purple-600">{transactionID}</span>
           </p>
 
           {streamError ? (
@@ -196,7 +232,7 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
                   {isLoading && (
                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
                       <div className="text-gray-800 text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
                         <p className="text-sm">Uploading...</p>
                       </div>
                     </div>
@@ -208,7 +244,7 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
                 <button
                   onClick={handleConfirmSelfie}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all duration-200 shadow-lg"
+                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all duration-200 shadow-lg"
                 >
                   {isLoading ? 'Uploading...' : 'Confirm & Upload'}
                 </button>
@@ -252,7 +288,7 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
                   {(isCapturing || isLoading) && (
                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
                       <div className="text-gray-800 text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
                         <p className="text-sm">
                           {isCapturing ? 'Capturing...' : 'Uploading...'}
                         </p>
@@ -266,7 +302,7 @@ export const SelfieCaptureScreen: React.FC<SelfieCaptureProps> = ({
                 <button
                   onClick={handleTakePhoto}
                   disabled={isCapturing || isLoading}
-                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all duration-200 shadow-lg"
+                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all duration-200 shadow-lg"
                 >
                   {isCapturing || isLoading ? 'Processing...' : 'Capture Selfie'}
                 </button>

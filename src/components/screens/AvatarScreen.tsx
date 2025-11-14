@@ -190,7 +190,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-8"
+      className="h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 p-8"
     >
       <div className="text-center max-w-md">
         <motion.div
@@ -198,7 +198,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2 }}
         >
-          <CheckCircle className={`text-green-500 mx-auto ${isFullscreenMode ? 'w-24 h-24 mb-6' : 'w-20 h-20 mb-4'}`} />
+          <CheckCircle className={`text-purple-600 mx-auto ${isFullscreenMode ? 'w-24 h-24 mb-6' : 'w-20 h-20 mb-4'}`} />
         </motion.div>
         <h3 className={`font-bold text-gray-900 ${isFullscreenMode ? 'text-3xl mb-4' : 'text-2xl mb-2'}`}>
           Great Conversation!
@@ -210,7 +210,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleContinueToSelfie}
-          className={`bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg ${
+          className={`bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-violet-700 transition-colors shadow-lg ${
             isFullscreenMode ? 'px-8 py-4 text-lg' : 'px-6 py-3'
           }`}
         >
@@ -245,7 +245,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
       className="fixed inset-0 z-40 bg-black"
     >
       {/* Fullscreen Header */}
-      <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+      <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-600 to-violet-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
@@ -263,9 +263,9 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${
-                isLoading ? 'bg-yellow-300 animate-pulse' :
-                sessionEnded ? 'bg-green-300' :
-                sessionStarted ? 'bg-green-400 animate-pulse' : 'bg-blue-300'
+                isLoading ? 'bg-violet-300 animate-pulse' :
+                sessionEnded ? 'bg-purple-300' :
+                sessionStarted ? 'bg-purple-400 animate-pulse' : 'bg-blue-300'
               }`}></div>
               <span className="text-white text-sm font-medium">
                 {isLoading ? 'Loading' : 
@@ -294,7 +294,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 pt-20 pb-6 px-4 sm:px-6">
+    <div className="min-h-screen bg-white pt-20 pb-6 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Navigation Bar */}
         <motion.div 
@@ -302,30 +302,25 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-between items-center mb-8"
         >
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onGoBack}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg font-medium hover:bg-green-50 hover:text-green-700 transition-all border border-gray-300 hover:border-green-300 shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 border-2 border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" />
             <span className="hidden sm:inline">Previous</span>
-          </button>
+          </motion.button>
 
-          <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-600">Step 3 of 6</span>
-            </div>
-            <div className="w-px h-4 bg-gray-300"></div>
-            <span className="text-sm font-medium text-gray-800">AI Avatar Chat</span>
-          </div>
-
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleContinueToSelfie}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all shadow-md bg-green-600 text-white hover:bg-green-700 hover:shadow-lg"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 shadow-lg hover:shadow-xl"
           >
             <span className="hidden sm:inline">Next</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
+            <ChevronRight className="w-5 h-5" />
+          </motion.button>
         </motion.div>
 
         {/* Main Content */}

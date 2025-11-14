@@ -1,141 +1,180 @@
 import { motion } from "framer-motion";
-import { Mic, Users, Zap, Search } from "lucide-react";
-import { TekishoCard } from "./TekishoCard";
-import { NavTabs } from "./ui/NavTabs";
-import { BackButton } from "./ui/BackButton";
+import { Scan, Sparkles, Database, Zap, Home, BarChart3, CreditCard } from "lucide-react";
 
 interface HomePageProps {
-  onOpenVoiceAssistant: () => void;
+  onOpenVoiceAssistant?: () => void;
   activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
   onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-export const HomePage = ({ onOpenVoiceAssistant, activeView, onNavClick }: HomePageProps) => {
-  const features = [
-    { icon: <Users className="w-6 h-6" />, title: 'Enterprise Solutions', description: 'Connect with professionals instantly' },
-    { icon: <Zap className="w-6 h-6" />, title: 'AI-Powered Innovation', description: 'Advanced AI for business transformation' },
-    { icon: <Search className="w-6 h-6" />, title: 'Smart Analytics', description: 'Data-driven insights for better decisions' },
-    { icon: <Mic className="w-6 h-6" />, title: 'Voice Assistant', description: 'Interact with AI using voice commands', onClick: onOpenVoiceAssistant }
+export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
+  const handleStartScanning = () => {
+    if (onNavClick) {
+      onNavClick('cardscanner');
+    }
+  };
+
+  const navItems = [
+    { label: 'Home', icon: Home, view: 'home' as const },
+    { label: 'Card Scanner', icon: CreditCard, view: 'cardscanner' as const },
+    { label: 'Analysis', icon: BarChart3, view: 'analysis' as const },
   ];
 
   return (
-    <div className="min-h-screen bg-white relative">
-      {onNavClick && <BackButton onClick={() => onNavClick('cardscanner')} />}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 md:py-6 lg:py-10">
-        <div className="text-center mb-6 sm:mb-10">
-          {/* Welcome Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4 sm:space-y-6"
-          >
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-              <span className="text-gray-800">Tekisho - </span>
-              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                The Right Place for Innovative AI Solutions
-              </span>
-            </h1>
-          </motion.div>
-        </div>
+    <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 relative overflow-hidden">
+      {/* Main Card Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative w-full max-w-7xl"
+      >
+        {/* Glowing Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-violet-700 to-purple-900 rounded-3xl opacity-90 blur-3xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-violet-500 via-purple-600 to-indigo-700 rounded-3xl animate-pulse"></div>
+        
+        {/* Main Card */}
+        <div className="relative bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-gray-900/95 backdrop-blur-2xl border border-purple-500/30 rounded-3xl shadow-2xl overflow-hidden">
+          {/* Animated Grid Pattern Overlay */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: 'linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)',
+              backgroundSize: '50px 50px'
+            }}></div>
+          </div>
 
-        {/* Main Content Grid */}
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 items-center mb-12 sm:mb-16">
-          {/* Left Side - Features Container */}
-          <div className="space-y-8 w-full lg:order-2">
+          {/* Glowing Orbs */}
+          <div className="absolute top-20 left-20 w-64 h-64 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-64 h-64 bg-violet-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+
+          {/* Card Content */}
+          <div className="relative z-10 px-8 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+            {/* Navigation inside card - Top Center */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex justify-center mb-12"
+            >
+              <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeView === item.view;
+                  return (
+                    <motion.button
+                      key={item.view}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => onNavClick && onNavClick(item.view)}
+                      className={`
+                        flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all duration-200
+                        ${isActive 
+                          ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/30' 
+                          : 'text-purple-200 hover:bg-white/10 hover:text-white'
+                        }
+                      `}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+            {/* Main Heading with LeadQ.AI Branding */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="text-center mb-12"
             >
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-5 block sm:hidden">Smart Features</h2>
-              
-              {/* Navigation Tabs - Right under Smart Features - Mobile Only */}
-              {onNavClick && (
-                <div className="mb-6 sm:mb-8 block sm:hidden">
-                  <NavTabs activeView={activeView || 'home'} onNavClick={onNavClick} />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4">
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                    LeadQ.AI
+                  </span>
+                </h1>
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  <div className="h-1 w-20 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
+                  <Sparkles className="w-5 h-5 text-cyan-400" />
+                  <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
                 </div>
-              )}
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-purple-200">
+                  AI Lead Intelligence Suite
+                </h2>
+              </motion.div>
+            </motion.div>
 
-              {/* Card Display - Mobile Only, between navigation and features */}
-              <div className="flex justify-center mb-6 sm:mb-8 block lg:hidden">
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.45 }}
-                  className="relative"
-                >
-                  <TekishoCard 
-                    name="John Doe"
-                    designation="Senior Engineer" 
-                    email="john@tekisho.com"
-                    phone="+1 (555) 123-4567"
-                    company="Tekisho Technologies"
-                    animated={true}
-                  />
-                  <div className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Preview
-                  </div>
-                </motion.div>
+            {/* Features Grid */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto"
+            >
+              <div className="flex flex-col items-center text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-purple-500/20 hover:border-purple-500/40 transition-all">
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center mb-4">
+                  <Scan className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="text-white font-semibold text-lg mb-2">Smart Scanning</h3>
+                <p className="text-gray-400 text-sm">AI-powered card detection and text extraction</p>
               </div>
 
-              <div className="space-y-4 sm:space-y-6">
-                {features.map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                    className={`flex items-center space-x-4 p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-gray-200 hover:border-green-300 transition-colors shadow-sm ${feature.onClick ? 'cursor-pointer' : ''}`}
-                    onClick={feature.onClick}
-                  >
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-white">
-                      {feature.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">{feature.title}</h3>
-                      <p className="text-gray-600 text-sm">{feature.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
+              <div className="flex flex-col items-center text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-purple-500/20 hover:border-purple-500/40 transition-all">
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center mb-4">
+                  <Zap className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="text-white font-semibold text-lg mb-2">Instant Processing</h3>
+                <p className="text-gray-400 text-sm">Real-time analysis and data organization</p>
+              </div>
+
+              <div className="flex flex-col items-center text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-purple-500/20 hover:border-purple-500/40 transition-all">
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center mb-4">
+                  <Database className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="text-white font-semibold text-lg mb-2">Secure Storage</h3>
+                <p className="text-gray-400 text-sm">Cloud-based contact management system</p>
               </div>
             </motion.div>
-          </div>
 
-          {/* Right Side - Card Display - Desktop Only */}
-          <div className="flex justify-center w-full lg:order-1 hidden lg:flex">
+            {/* CTA Button */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="flex justify-center"
             >
-              <TekishoCard 
-                name="John Doe"
-                designation="Senior Engineer" 
-                email="john@tekisho.com"
-                phone="+1 (555) 123-4567"
-                company="Tekisho Technologies"
-                animated={true}
-              />
-              <div className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                Preview
-              </div>
+              <button
+                onClick={handleStartScanning}
+                className="group relative px-12 py-5 bg-gradient-to-r from-purple-500 to-violet-600 text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105"
+              >
+                <span className="relative z-10 flex items-center gap-3">
+                  Start Scanning
+                  <Scan className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-violet-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </button>
             </motion.div>
           </div>
         </div>
 
-        {/* Call to Action */}
+        {/* Floating Elements */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="text-center"
-        >
-          <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl text-base sm:text-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl">
-            Start Networking Today
-          </button>
-        </motion.div>
-      </div>
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          className="absolute -top-4 -left-4 w-24 h-24 bg-purple-500/30 rounded-full blur-xl"
+        ></motion.div>
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
+          className="absolute -bottom-4 -right-4 w-32 h-32 bg-violet-500/30 rounded-full blur-xl"
+        ></motion.div>
+      </motion.div>
+
     </div>
   );
 };
