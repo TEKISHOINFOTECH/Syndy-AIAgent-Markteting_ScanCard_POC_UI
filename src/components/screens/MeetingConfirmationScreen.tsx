@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { PartyPopper, CheckCircle2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PartyPopper, CheckCircle2, Calendar, ChevronLeft } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { BackButton } from '../ui/BackButton';
@@ -18,7 +18,7 @@ export function MeetingConfirmationScreen({ transactionID, onDone, onPrevious, o
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md flex items-center justify-between mb-4 pt-20"
+        className="w-full max-w-md flex items-center justify-start mb-4 pt-20"
       >
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -33,21 +33,6 @@ export function MeetingConfirmationScreen({ transactionID, onDone, onPrevious, o
         >
           <ChevronLeft className="w-5 h-5" />
           <span className="hidden sm:inline">Previous</span>
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onNext}
-          disabled={!onNext}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
-            onNext
-              ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 shadow-lg hover:shadow-xl'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          <span className="hidden sm:inline">Next</span>
-          <ChevronRight className="w-5 h-5" />
         </motion.button>
       </motion.div>
 

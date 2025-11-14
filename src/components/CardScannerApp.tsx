@@ -767,11 +767,11 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
               }));
             }}
             onSaveDraft={handleSaveEmailDraft}
-            onScheduleMeeting={async () => {
-              // Pass includeSelfie when scheduling meeting
+            onScheduleMeeting={async (emailDraft) => {
+              // Pass includeSelfie and emailDraft when scheduling meeting
               if (!state.transactionID) return;
               try {
-                await CardScannerAPI.scheduleMeeting(state.transactionID, includeSelfie);
+                await CardScannerAPI.scheduleMeeting(state.transactionID, includeSelfie, emailDraft);
                 setToast({ message: 'Meeting requested!', type: 'success' });
               } catch (err) {
                 console.error('❌ Meeting scheduling error:', err);
