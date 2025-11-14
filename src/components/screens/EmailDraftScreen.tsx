@@ -338,11 +338,28 @@ Best regards`;
 
               {/* Action Info */}
               {!isGenerating && (
-                <div className="flex items-center justify-center mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
                   <div className="text-sm text-gray-600 flex items-center gap-2">
                     <Edit2 className="w-4 h-4" />
-                    <span>Edit the email fields above and click Next to continue</span>
+                    <span>Edit the email fields above</span>
                   </div>
+                  <button
+                    onClick={handleSchedule}
+                    disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
+                    className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                  >
+                    {loadingState ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Saving & Scheduling...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Continue to Schedule</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               )}
             </div>
@@ -393,4 +410,3 @@ Best regards`;
     </div>
   );
 }
-
