@@ -36,7 +36,6 @@ function Navbar({ activeView, onNavClick }: NavbarProps) {
   const navItems: Array<{ label: string; icon: React.ReactNode; view: 'home' | 'analysis' | 'cardscanner' }> = [
     { label: 'Home', icon: <Home className="w-5 h-5" />, view: 'home' },
     { label: 'Card Scanner', icon: <CreditCard className="w-5 h-5" />, view: 'cardscanner' },
-    { label: 'Analysis', icon: <BarChart3 className="w-5 h-5" />, view: 'analysis' },
   ];
 
   return (

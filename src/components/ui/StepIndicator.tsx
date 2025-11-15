@@ -16,7 +16,6 @@ const steps: Array<{ key: CardScanStep; label: string; icon: React.ComponentType
   { key: 'selfie', label: 'Selfie', icon: User },
   { key: 'emailDraft', label: 'Email', icon: Mail },
   { key: 'meetingScheduler', label: 'Schedule', icon: Calendar },
-  { key: 'confirmation', label: 'Done', icon: Clock },
 ];
 
 export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {

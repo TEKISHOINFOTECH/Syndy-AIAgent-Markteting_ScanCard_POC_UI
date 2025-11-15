@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
-import { PartyPopper, CheckCircle2, Calendar, ChevronLeft } from 'lucide-react';
+import { PartyPopper, CheckCircle2, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { BackButton } from '../ui/BackButton';
 
 interface MeetingConfirmationScreenProps {
   transactionID: string;
@@ -11,31 +10,9 @@ interface MeetingConfirmationScreenProps {
   onNext?: () => void;
 }
 
-export function MeetingConfirmationScreen({ transactionID, onDone, onPrevious, onNext }: MeetingConfirmationScreenProps) {
+export function MeetingConfirmationScreen({ transactionID, onDone, onPrevious: _onPrevious, onNext: _onNext }: MeetingConfirmationScreenProps) {
   return (
-  <div className="min-h-screen bg-white flex flex-col items-center pt-1 px-4 sm:px-6 overflow-y-auto pb-6">
-      {/* Navigation Buttons - Top */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md flex items-center justify-start mb-4 pt-20"
-      >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onPrevious}
-          disabled={!onPrevious}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
-            onPrevious
-              ? 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 border-2 border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-          }`}
-        >
-          <ChevronLeft className="w-5 h-5" />
-          <span className="hidden sm:inline">Previous</span>
-        </motion.button>
-      </motion.div>
-
+  <div className="min-h-screen bg-white flex flex-col items-center pt-20 px-4 sm:px-6 overflow-y-auto pb-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

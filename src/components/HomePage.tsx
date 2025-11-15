@@ -3,8 +3,8 @@ import { Scan, Sparkles, Database, Zap, Home, BarChart3, CreditCard } from "luci
 
 interface HomePageProps {
   onOpenVoiceAssistant?: () => void;
-  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
-  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
+  activeView?: 'home' |'cardscanner';
+  onNavClick?: (view: 'home' | 'cardscanner') => void;
 }
 
 export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
@@ -17,7 +17,6 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
   const navItems = [
     { label: 'Home', icon: Home, view: 'home' as const },
     { label: 'Card Scanner', icon: CreditCard, view: 'cardscanner' as const },
-    { label: 'Analysis', icon: BarChart3, view: 'analysis' as const },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, User, Building2, Globe, ExternalLink, ChevronLeft, ChevronRight, Sparkles, TrendingUp, Users, DollarSign, Package, Target, FileText, Info } from 'lucide-react';
+import { CheckCircle2, User, Building2, Globe, ExternalLink, ChevronRight, Sparkles, TrendingUp, Users, DollarSign, Package, Target, FileText, Info } from 'lucide-react';
 import { Card } from '../ui/Card';
 import type { UserInfo, LLMResponse } from '../../types/cardScanner';
 
@@ -18,7 +18,7 @@ export function ResultScreen({
   llmResponse,
   processingStatus,
   onScheduleMeeting: _onScheduleMeeting,
-  onPrevious,
+  onPrevious: _onPrevious,
   onNext
 }: ResultScreenProps) {
 
@@ -112,23 +112,8 @@ export function ResultScreen({
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          className="flex items-center justify-end mb-8"
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onPrevious}
-            disabled={!onPrevious}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
-              onPrevious
-                ? 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 border-2 border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-            }`}
-          >
-            <ChevronLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Previous</span>
-          </motion.button>
-
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

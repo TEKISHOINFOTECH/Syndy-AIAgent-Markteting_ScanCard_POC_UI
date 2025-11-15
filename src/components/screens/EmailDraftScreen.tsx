@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, ChevronLeft, ChevronRight, Send, Edit2, Loader2, User } from 'lucide-react';
+import { Mail, ChevronLeft, Send, Edit2, Loader2, User } from 'lucide-react';
 import { Card } from '../ui/Card';
 import type { UserInfo } from '../../types/cardScanner';
 import { CardScannerAPI } from '../../services/api';
@@ -164,7 +164,7 @@ Best regards`;
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-6"
+          className="flex items-center justify-start mb-6"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -179,30 +179,6 @@ Best regards`;
           >
             <ChevronLeft className="w-5 h-5" />
             <span className="hidden sm:inline">Previous</span>
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: loadingState || !to.trim() || !subject.trim() || !body.trim() ? 1 : 1.05 }}
-            whileTap={{ scale: loadingState || !to.trim() || !subject.trim() || !body.trim() ? 1 : 0.95 }}
-            onClick={handleSchedule}
-            disabled={!transactionID || !to.trim() || !subject.trim() || !body.trim() || loadingState}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
-              !loadingState && to.trim() && subject.trim() && body.trim()
-                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700 shadow-lg hover:shadow-xl'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {loadingState ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="hidden sm:inline">Scheduling...</span>
-              </>
-            ) : (
-              <>
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight className="w-5 h-5" />
-              </>
-            )}
           </motion.button>
         </motion.div>
 
