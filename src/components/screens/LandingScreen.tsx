@@ -9,7 +9,7 @@ interface LandingScreenProps {
   onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
 }
 
-export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavClick }: LandingScreenProps) {
+export function LandingScreen({ onStartScan, activeView: _activeView = 'cardscanner', onNavClick: _onNavClick }: LandingScreenProps) {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'ready' | 'error'>('checking');
 
   useEffect(() => {
@@ -36,19 +36,6 @@ export function LandingScreen({ onStartScan, activeView = 'cardscanner', onNavCl
       </div>
 
       <div className="relative z-10 max-w-5xl w-full mx-auto flex flex-col items-center justify-center flex-1 space-y-8 sm:space-y-12">
-        {/* Camera Icon */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, type: "spring" }}
-          className="relative"
-        >
-          <div className="absolute inset-0 bg-purple-500/30 rounded-3xl blur-2xl"></div>
-          <div className="relative bg-gradient-to-br from-purple-500/20 to-violet-600/20 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-8 shadow-2xl">
-            <Scan className="w-16 h-16 sm:w-20 sm:h-20 text-purple-400" />
-          </div>
-        </motion.div>
-
         {/* Heading Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

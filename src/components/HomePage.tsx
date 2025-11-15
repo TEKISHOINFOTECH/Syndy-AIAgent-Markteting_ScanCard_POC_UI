@@ -26,7 +26,7 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
-        className="relative w-full max-w-7xl"
+        className="relative w-full max-w-[95%] lg:max-w-[90rem]"
       >
         {/* Glowing Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-violet-700 to-purple-900 rounded-3xl opacity-90 blur-3xl"></div>
@@ -53,7 +53,7 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex justify-center mb-12"
+              className="flex justify-center mb-6"
             >
               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-2">
                 {navItems.map((item) => {

@@ -1,4 +1,4 @@
-import { Home, BarChart3, CreditCard } from 'lucide-react';
+import { Home, CreditCard } from 'lucide-react';
 import tekishoLogo from '../resources/Logo_Tekisho.png';
 
 interface NavbarProps {
@@ -41,7 +41,7 @@ function Navbar({ activeView, onNavClick }: NavbarProps) {
   return (
     <header className="w-full fixed top-0 left-0 z-30">
       <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4">
-        <nav className="flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2 sm:p-2.5 md:p-3 bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm rounded-xl sm:rounded-2xl mt-1.5 sm:mt-2 md:mt-3">
+        <nav className="flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2 sm:p-2.5 md:p-3 bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm rounded-xl sm:rounded-2xl mt-0.5 sm:mt-1 md:mt-1.5">
           {/* Logo/Brand - Always on left */}
           <button
             onClick={() => onNavClick('home')}
