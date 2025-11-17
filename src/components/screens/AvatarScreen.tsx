@@ -40,14 +40,14 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     // Construct iframe URL with return parameters
     const currentUrl = window.location.origin;
     const returnUrl = encodeURIComponent(`${currentUrl}/avatar-callback`);
-    const avatarUrl = `https://syndy-ai-agent-avatar-voice-agent-a-ten.vercel.app//?returnUrl=${returnUrl}&step=selfie&source=card-scanner`;
+    const avatarUrl = `https://syndy-ai-agent-avatar-voice-agent-aria-v45ufl5rl.vercel.app/?returnUrl=${returnUrl}&step=selfie&source=card-scanner`;
     
     setIframeSrc(avatarUrl);
 
     // Listen for messages from the avatar iframe
     const handleMessage = (event: MessageEvent) => {
       // Security: Verify origin
-      if (event.origin !== 'https://syndy-ai-agent-avatar-voice-agent-a-ten.vercel.app/') {
+      if (event.origin !== 'https://syndy-ai-agent-avatar-voice-agent-aria-v45ufl5rl.vercel.app/') {
         console.warn('⚠️ Received message from untrusted origin:', event.origin);
         return;
       }
