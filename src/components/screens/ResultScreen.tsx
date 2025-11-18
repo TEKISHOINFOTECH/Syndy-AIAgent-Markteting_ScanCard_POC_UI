@@ -31,6 +31,21 @@ export function ResultScreen({
   const website = structuredData.website || '';
   const address = structuredData.address || '';
 
+  const nestedCompanyData = structuredData.company_data || {};
+  const additionalCompanyInfo = structuredData.other_info_of_company ||
+    structuredData.additional_information ||
+    structuredData.additional_info ||
+    structuredData.additional_company_information ||
+    structuredData.additional_company_info ||
+    nestedCompanyData.other_info_of_company ||
+    nestedCompanyData.additional_information ||
+    nestedCompanyData.additional_info ||
+    structuredData.additional_details ||
+    structuredData.additionalDetails ||
+    structuredData.company_notes ||
+    structuredData.notes ||
+    null;
+
   const companyInsights = {
     company_description: structuredData.company_description || null,
     products: structuredData.products || null,
@@ -41,7 +56,7 @@ export function ResultScreen({
     market_share: structuredData.market_share || null,
     investors: structuredData.investors || null,
     summarised_llm_company_response: structuredData.summarised_llm_company_response || null,
-    other_info_of_company: structuredData.other_info_of_company || null,
+    other_info_of_company: additionalCompanyInfo,
     website: website,
   };
 
@@ -69,13 +84,15 @@ export function ResultScreen({
     value, 
     loading = false, 
     icon: Icon, 
-    className = "" 
+    className = "",
+    valueClassName = ""
   }: { 
     label: string; 
     value?: string | null; 
     loading?: boolean; 
     icon?: any; 
     className?: string;
+    valueClassName?: string;
   }) => {
     // Don't render if value is empty/invalid and not loading
     if (!loading && isEmptyValue(value)) {
@@ -98,7 +115,7 @@ export function ResultScreen({
             <span className="text-sm text-gray-400 italic">Loading...</span>
           </div>
         ) : (
-          <p className="text-base font-semibold text-gray-900 leading-relaxed">{value}</p>
+          <p className={`text-base font-semibold text-gray-900 leading-relaxed break-words ${valueClassName}`}>{value}</p>
         )}
       </div>
     );
@@ -232,11 +249,9 @@ export function ResultScreen({
                   </div>
 
                   {/* Contact Details */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <InfoField label="Email Address" value={email} />
-                      <InfoField label="Phone Number" value={phone} />
-                    </div>
+                  <div className="pt-4 border-t border-gray-200 space-y-4">
+                    <InfoField label="Email Address" value={email} valueClassName="break-all" />
+                    <InfoField label="Phone Number" value={phone} valueClassName="break-all" />
                   </div>
 
                   {/* Company & Location */}

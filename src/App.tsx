@@ -55,15 +55,25 @@ function App() {
       <div className="flex min-h-screen overflow-y-auto relative z-10">
         {/* Left Sidebar - Navigation & Features */}
         {/* Hide navbar on home page since it's integrated inside the card */}
-        {activeView !== 'home' && (
-          <Navbar   activeView={activeView}
+        {activeView === 'analysis' && (
+          <Navbar
+            activeView={activeView}
             onNavClick={handleNavClick}
             isCollapsed={isCollapsed}
-            toggleCollapse={toggleNavbar}/>
+            toggleCollapse={toggleNavbar}
+          />
         )}
 
         {/* Main Content */}
-        <main className={`flex-1 flex flex-col relative overflow-y-auto ${activeView !== 'home' ? 'p-4 pt-24 sm:p-5 sm:pt-24 md:p-6 md:pt-28' : ''}`}>
+        <main
+          className={`flex-1 flex flex-col relative overflow-y-auto ${
+            activeView === 'analysis'
+              ? 'p-4 pt-24 sm:p-5 sm:pt-24 md:p-6 md:pt-28'
+              : activeView === 'cardscanner'
+              ? 'p-0'
+              : ''
+          }`}
+        >
           {activeView === 'home' && <HomePage onOpenVoiceAssistant={openVoiceAssistant} activeView={activeView} onNavClick={handleNavClick} />}
           {activeView === 'analysis' && (
             <DatabaseView

@@ -40,7 +40,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     // Construct iframe URL with return parameters
     const currentUrl = window.location.origin;
     const returnUrl = encodeURIComponent(`${currentUrl}/avatar-callback`);
-    const avatarUrl = `https://syndy-ai-agent-avatar-voice-agent-a-ten.vercel.app/?returnUrl=${returnUrl}&step=selfie&source=card-scanner`;
+    const avatarUrl = `https://syndy-ai-agent-avatar-voice-agent-a-ten.vercel.app//?returnUrl=${returnUrl}&step=selfie&source=card-scanner`;
     
     setIframeSrc(avatarUrl);
 

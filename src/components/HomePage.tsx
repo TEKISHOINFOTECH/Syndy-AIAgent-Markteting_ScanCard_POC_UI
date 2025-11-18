@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Scan, Sparkles, Database, Zap, Home, BarChart3, CreditCard } from "lucide-react";
+import logo from "../images/logo.png";
 
 interface HomePageProps {
   onOpenVoiceAssistant?: () => void;
@@ -80,6 +81,20 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
                 })}
               </div>
             </motion.div>
+            {/* Logo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="flex justify-center mb-6"
+            >
+              <img 
+                src={logo} 
+                alt="Logo" 
+                className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain"
+              />
+            </motion.div>
+
             {/* Main Heading with LeadQ.AI Branding */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

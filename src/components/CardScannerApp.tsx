@@ -660,20 +660,17 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
   };
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-violet-50/30 overflow-y-auto">
-      {/* Light glassmorphism background elements */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-96 h-96 bg-violet-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-40 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse delay-2000"></div>
-      </div>
-
+  <div className="min-h-screen bg-white overflow-y-auto">
       {/* Step Indicator */}
       <StepIndicator currentStep={state.step} />
 
-      <div className="relative z-50 pb-6">
+      <div className="relative z-10 pb-8 px-3 sm:px-4 md:px-6">
         {state.step === 'landing' && (
-          <LandingScreen onStartScan={handleStartScan} activeView={activeView} onNavClick={onNavClick} />
+          <LandingScreen
+            onStartScan={handleStartScan}
+            activeView={activeView}
+            onNavClick={onNavClick}
+          />
         )}
 
         {state.step === 'capture' && (
