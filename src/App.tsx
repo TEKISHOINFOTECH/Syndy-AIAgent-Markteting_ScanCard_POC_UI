@@ -1,50 +1,16 @@
 import { useState } from 'react';
-import Navbar from './components/Navbar';
-import DatabaseView from './components/DatabaseView';
 import { HomePage } from './components/HomePage';
-import { VoiceAssistant } from './components/VoiceAssistant';
 import { CardScannerApp } from './components/CardScannerApp';
 
 function App() {
-  const [activeView, setActiveView] = useState<'home' | 'analysis' | 'cardscanner'>('home');
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'home' | 'cardscanner'>('home');
 
-  // analysis subsection state
-  const [analysisSubsection, setAnalysisSubsection] =
-    useState<'overview' | 'stats' | 'database' | null>('overview');
-
-  const [isCollapsed, setIsCollapsed] = useState(false); // Navbar collapse state
-  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false); // Side panel state
-
-
-  const handleNavClick = (view: 'home' | 'analysis' | 'cardscanner') => {
+  const handleNavClick = (view: 'home' | 'cardscanner') => {
     setActiveView(view);
-
-    // if opening analysis, default to overview
-    if (view === 'analysis') {
-      setAnalysisSubsection('overview');
-    }
-    setIsCollapsed(false);
-    setIsSidePanelOpen(false);
-  };
-
-  const toggleNavbar = () => {
-    // Prevent navbar from expanding if the side panel is open
-    if (!isSidePanelOpen) {
-      setIsCollapsed((prev) => !prev);
-    }
-  }
-
-  const openVoiceAssistant = () => {
-    setIsVoiceAssistantOpen(true);
-  };
-
-  const closeVoiceAssistant = () => {
-    setIsVoiceAssistantOpen(false);
   };
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-y-auto">
       {/* Light glassmorphism background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -53,45 +19,11 @@ function App() {
       </div>
 
       <div className="flex min-h-screen overflow-y-auto relative z-10">
-        {/* Left Sidebar - Navigation & Features */}
-        {/* Hide navbar on home page since it's integrated inside the card */}
-        {activeView === 'analysis' && (
-          <Navbar
-            activeView={activeView}
-            onNavClick={handleNavClick}
-            isCollapsed={isCollapsed}
-            toggleCollapse={toggleNavbar}
-          />
-        )}
-
-        {/* Main Content */}
-        <main
-          className={`flex-1 flex flex-col relative overflow-y-auto ${
-            activeView === 'analysis'
-              ? 'p-4 pt-24 sm:p-5 sm:pt-24 md:p-6 md:pt-28'
-              : activeView === 'cardscanner'
-              ? 'p-0'
-              : ''
-          }`}
-        >
-          {activeView === 'home' && <HomePage onOpenVoiceAssistant={openVoiceAssistant} activeView={activeView} onNavClick={handleNavClick} />}
-          {activeView === 'analysis' && (
-            <DatabaseView
-              toggleNavbar={toggleNavbar}
-              setIsSidePanelOpen={setIsSidePanelOpen}
-              activeView={activeView}
-              onNavClick={handleNavClick}
-            />
-          )}
-          {activeView === 'cardscanner' && <CardScannerApp activeView={activeView} onNavClick={handleNavClick} />}
+        <main className={`flex-1 flex flex-col relative overflow-y-auto ${activeView === 'cardscanner' ? 'p-0' : ''}`}>
+          {activeView === 'home' && <HomePage onNavClick={handleNavClick} />}
+          {activeView === 'cardscanner' && <CardScannerApp onNavClick={handleNavClick} />}
         </main>
       </div>
-
-      {/* Voice Assistant Modal */}
-      <VoiceAssistant
-        isOpen={isVoiceAssistantOpen}
-        onClose={closeVoiceAssistant}
-      />
     </div>
   );
 }

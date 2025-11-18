@@ -3,7 +3,6 @@ import { Scan, Database, Zap } from "lucide-react";
 import logo from "../images/logo3 .jpg";
 
 interface HomePageProps {
-  onOpenVoiceAssistant?: () => void;
   onNavClick?: (view: 'home' | 'cardscanner') => void;
 }
 

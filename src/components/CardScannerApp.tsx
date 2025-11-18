@@ -15,11 +15,10 @@ import AvatarScreen from './screens/AvatarScreen';
 import { StepIndicator } from './ui/StepIndicator';
 
 interface CardScannerAppProps {
-  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
-  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
+  onNavClick?: (view: 'home' | 'cardscanner') => void;
 }
 
-export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardScannerAppProps) {
+export function CardScannerApp({ onNavClick }: CardScannerAppProps) {
   const [state, setState] = useState<CardScanState>({
     step: 'landing',
     transactionID: null,
@@ -668,7 +667,6 @@ return (
         {state.step === 'landing' && (
           <LandingScreen
             onStartScan={handleStartScan}
-            activeView={activeView}
             onNavClick={onNavClick}
           />
         )}

@@ -5,11 +5,10 @@ import { CardScannerAPI } from '../../services/api';
 import heroVideo from '../../images/5-mascot.mp4';
 interface LandingScreenProps {
   onStartScan: () => void;
-  activeView?: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner';
-  onNavClick?: (view: 'home' | 'chat' | 'scan' | 'upload' | 'analysis' | 'cardscanner') => void;
+  onNavClick?: (view: 'home' | 'cardscanner') => void;
 }
 
-export function LandingScreen({ onStartScan, activeView: _activeView = 'cardscanner', onNavClick }: LandingScreenProps) {
+export function LandingScreen({ onStartScan, onNavClick }: LandingScreenProps) {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'ready' | 'error'>('checking');
 
 useEffect(() => {
