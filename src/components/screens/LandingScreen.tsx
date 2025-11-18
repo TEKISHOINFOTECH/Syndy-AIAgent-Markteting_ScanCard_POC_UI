@@ -23,8 +23,8 @@ useEffect(() => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col overflow-y-auto pb-8 pt-20 relative w-full">
-      <div className="relative z-10 w-full flex flex-col items-center justify-center flex-1 space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col overflow-y-auto pb-8 pt-2 sm:pt-4 relative w-full">
+      <div className="relative z-10 w-full flex flex-col items-center justify-center flex-1 space-y-5 sm:space-y-6">
         {/* Heading Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -46,20 +46,8 @@ useEffect(() => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-3"
+          className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4"
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onStartScan}
-            className="group relative px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gradient-to-r from-purple-500 to-violet-600 text-white text-sm sm:text-base font-semibold rounded-2xl shadow-xl hover:shadow-purple-500/40 transition-all duration-300"
-          >
-            <span className="relative z-10 flex items-center gap-3">
-              Start Scanning
-              <Scan className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-violet-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -71,6 +59,18 @@ useEffect(() => {
               <Home className="w-5 h-5 group-hover:rotate-6 transition-transform" />
             </span>
             <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onStartScan}
+            className="group relative px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gradient-to-r from-purple-500 to-violet-600 text-white text-sm sm:text-base font-semibold rounded-2xl shadow-xl hover:shadow-purple-500/40 transition-all duration-300"
+          >
+            <span className="relative z-10 flex items-center gap-3">
+              Start Scanning
+              <Scan className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-violet-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </motion.button>
           
           {/* Backend Status Indicator */}
@@ -115,30 +115,27 @@ useEffect(() => {
           </motion.div>
         </motion.div>
 
-        {/* Avatar Video */}
+        {/* Avatar Video with Glowing Moving Border */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.4, type: 'spring', stiffness: 100 }}
           className="w-full flex justify-center"
-          style={{ backgroundColor: 'transparent' }}
         >
-          <video
-            src={heroVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full max-w-xs sm:max-w-sm object-contain rounded-2xl"
-            style={{ 
-              backgroundColor: 'transparent',
-              mixBlendMode: 'screen',
-              boxShadow: 'none',
-              filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.1))'
-            }}
-          >
-            Your browser does not support the video tag.
-          </video>
+          <div className="video-glow-border">
+            <div className="video-inner">
+              <video
+                src={heroVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full max-w-xs sm:max-w-sm object-contain block video-enhanced"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
         </motion.div>
 
         {/* Features Grid removed as requested */}

@@ -1,24 +1,20 @@
 import { motion } from "framer-motion";
-import { Scan, Sparkles, Database, Zap, Home, BarChart3, CreditCard } from "lucide-react";
-import logo from "../images/logo.png";
+import { Scan, Database, Zap } from "lucide-react";
+import logo from "../images/logo3 .jpg";
 
 interface HomePageProps {
   onOpenVoiceAssistant?: () => void;
-  activeView?: 'home' |'cardscanner';
   onNavClick?: (view: 'home' | 'cardscanner') => void;
 }
 
-export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
+export const HomePage = ({ onNavClick }: HomePageProps) => {
   const handleStartScanning = () => {
     if (onNavClick) {
       onNavClick('cardscanner');
     }
   };
 
-  const navItems = [
-    { label: 'Home', icon: Home, view: 'home' as const },
-    { label: 'Card Scanner', icon: CreditCard, view: 'cardscanner' as const },
-  ];
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 relative overflow-hidden">
@@ -49,38 +45,7 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
 
           {/* Card Content */}
           <div className="relative z-10 px-8 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-            {/* Navigation inside card - Top Center */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex justify-center mb-6"
-            >
-              <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-2">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeView === item.view;
-                  return (
-                    <motion.button
-                      key={item.view}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => onNavClick && onNavClick(item.view)}
-                      className={`
-                        flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all duration-200
-                        ${isActive 
-                          ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/30' 
-                          : 'text-purple-200 hover:bg-white/10 hover:text-white'
-                        }
-                      `}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="hidden sm:inline">{item.label}</span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </motion.div>
+
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -91,11 +56,15 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
               <img 
                 src={logo} 
                 alt="Logo" 
-                className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain"
+                className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain mix-blend-screen drop-shadow-[0_0_30px_rgba(236,72,153,0.45)]"
+                style={{
+                  backgroundColor: 'transparent',
+                  filter: 'brightness(1.05) saturate(1.1)'
+                }}
               />
             </motion.div>
 
-            {/* Main Heading with LeadQ.AI Branding */}
+            {/* Main Heading */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -112,13 +81,8 @@ export const HomePage = ({ activeView, onNavClick }: HomePageProps) => {
                     LeadQ.AI
                   </span>
                 </h1>
-                <div className="flex items-center justify-center gap-2 mb-6">
-                  <div className="h-1 w-20 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
-                  <Sparkles className="w-5 h-5 text-cyan-400" />
-                  <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                </div>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-purple-200">
-                  AI Lead Intelligence Suite
+                  AI-Powered Contact Management
                 </h2>
               </motion.div>
             </motion.div>

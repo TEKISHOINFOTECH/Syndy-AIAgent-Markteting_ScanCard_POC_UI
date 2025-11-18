@@ -70,6 +70,57 @@
   .group:hover .shimmer-effect {
     transform: translateX(100%) skewX(-20deg);
   }
+
+  /* Glowing moving border animation */
+  .video-glow-border {
+    position: relative;
+    border-radius: 20px;
+    padding: 4px;
+    background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff, #ff00ff);
+    background-size: 400% 400%;
+    animation: glow-border-move 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-border-move {
+    0%, 100% {
+      background-position: 0% 50%;
+      box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.6),
+        0 0 40px rgba(0, 255, 255, 0.4),
+        0 0 60px rgba(0, 255, 255, 0.2);
+    }
+    25% {
+      background-position: 100% 0%;
+      box-shadow: 
+        0 0 20px rgba(255, 0, 255, 0.6),
+        0 0 40px rgba(255, 0, 255, 0.4),
+        0 0 60px rgba(255, 0, 255, 0.2);
+    }
+    50% {
+      background-position: 100% 100%;
+      box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.8),
+        0 0 40px rgba(0, 255, 255, 0.5),
+        0 0 80px rgba(0, 255, 255, 0.3);
+    }
+    75% {
+      background-position: 0% 100%;
+      box-shadow: 
+        0 0 20px rgba(255, 0, 255, 0.8),
+        0 0 40px rgba(255, 0, 255, 0.5),
+        0 0 80px rgba(255, 0, 255, 0.3);
+    }
+  }
+
+  .video-inner {
+    border-radius: 16px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .video-enhanced {
+    filter: brightness(1.1) contrast(1.1) saturate(1.2);
+  }
 }
 
 @media (max-width: 768px) {

@@ -659,8 +659,8 @@ export function CardScannerApp({ activeView = 'cardscanner', onNavClick }: CardS
     setIncludeSelfie(value);
   };
 
-  return (
-  <div className="min-h-screen bg-white overflow-y-auto">
+return (
+  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-y-auto text-white">
       {/* Step Indicator */}
       <StepIndicator currentStep={state.step} />
 
