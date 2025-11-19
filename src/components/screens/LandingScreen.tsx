@@ -24,6 +24,23 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col overflow-y-auto pb-8 pt-2 sm:pt-4 relative w-full">
       <div className="relative z-10 w-full flex flex-col items-center justify-center flex-1 space-y-5 sm:space-y-6">
+        {/* Logo and LeadQ.AI Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex flex-col items-center gap-3 mb-2"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-500">
+              TEKISHO
+            </span>
+            <span className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+              LeadQ.AI
+            </span>
+          </div>
+        </motion.div>
+
         {/* Heading Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -31,12 +48,12 @@ useEffect(() => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-center space-y-2 sm:space-y-3"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-            Scan Business Cards
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+          AI Lead Intelligence Suite 
           </h1>
           
           <p className="text-sm sm:text-base md:text-lg text-purple-200 max-w-xl mx-auto px-2">
-            Transform business cards into digital contacts with AI-powered scanning
+            
           </p>
         </motion.div>
 
@@ -129,7 +146,7 @@ useEffect(() => {
                 loop
                 muted
                 playsInline
-                className="w-full max-w-xs sm:max-w-sm object-contain block video-enhanced"
+                className="w-full max-w-md sm:max-w-lg md:max-w-xl object-contain block video-enhanced"
               >
                 Your browser does not support the video tag.
               </video>

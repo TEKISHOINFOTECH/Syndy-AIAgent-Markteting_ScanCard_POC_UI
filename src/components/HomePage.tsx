@@ -81,7 +81,7 @@ export const HomePage = ({ onNavClick }: HomePageProps) => {
                   </span>
                 </h1>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-purple-200">
-                  AI-Powered Contact Management
+                  AI Lead Intelligence Suite 
                 </h2>
               </motion.div>
             </motion.div>
