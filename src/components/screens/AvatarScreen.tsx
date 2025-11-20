@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle, MessageCircle, Video, Users, Sparkles, Clock, Play, Volume2, Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, Video, Clock, Maximize, Minimize, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../avatar-styles.css';
 
@@ -20,7 +20,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  const leftPanelCollapsed = false;
   const [transcriptInfo, setTranscriptInfo] = useState<{
     name?: string;
     company?: string;
@@ -30,6 +30,7 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
   // Create refs for containers and iframe
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const normalContainerRef = useRef<HTMLDivElement>(null);
+  const refreshDelayRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Simulate loading delay for better UX
@@ -153,6 +154,28 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
     setShowSuccessModal(false);
   };
 
+  const handleRefreshAvatar = () => {
+    if (!iframeRef.current) return;
+
+    setIsLoading(true);
+    const iframe = iframeRef.current;
+    const currentSrc = iframe.src;
+
+    // Force reload without recreating component
+    iframe.src = '';
+    requestAnimationFrame(() => {
+      iframe.src = currentSrc;
+    });
+
+    if (refreshDelayRef.current) {
+      clearTimeout(refreshDelayRef.current);
+    }
+
+    refreshDelayRef.current = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+  };
+
   // Create iframe once on mount - keeps it in one place always
   useEffect(() => {
     if (!iframeSrc) return;
@@ -182,6 +205,9 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
       }
       (iframeRef as React.MutableRefObject<HTMLIFrameElement | null>).current = null;
       console.log('🧹 Iframe cleaned up');
+      if (refreshDelayRef.current) {
+        clearTimeout(refreshDelayRef.current);
+      }
     };
   }, [iframeSrc]);
 
@@ -337,79 +363,8 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
             className={`flex-shrink-0 space-y-6 ${leftPanelCollapsed ? 'overflow-hidden' : ''}`}
             style={{ maxWidth: leftPanelCollapsed ? '60px' : '400px' }}
           >
-            {/* Collapse/Expand Button */}
-            {/* <motion.button
-              onClick={() => setLeftPanelCollapsed(!leftPanelCollapsed)}
-              className="w-full flex items-center justify-center p-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {leftPanelCollapsed ? (
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              ) : (
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
-              )}
-              {!leftPanelCollapsed && (
-                <span className="ml-2 text-sm text-gray-600">Collapse Panel</span>
-              )}
-            </motion.button> */}
-
             {!leftPanelCollapsed && (
               <>
-                {/* Welcome Card */}
-                {/* <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">Meet Aria</h3>
-                      <p className="text-sm text-gray-500">Your AI Assistant</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 mb-4">
-                    Experience natural conversation with our AI-powered avatar. Aria will help gather additional information to personalize your outreach.
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
-                    <Play className="w-4 h-4" />
-                    <span>Click to start conversation</span>
-                  </div>
-                </div> */}
-
-                {/* Features List */}
-                {/* <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">What to Expect</h4>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <MessageCircle className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">Natural Conversation</p>
-                        <p className="text-sm text-gray-600">Chat naturally with voice or text</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Users className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">Context Gathering</p>
-                        <p className="text-sm text-gray-600">Share additional business insights</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <Volume2 className="w-4 h-4 text-purple-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">Smart Recording</p>
-                        <p className="text-sm text-gray-600">Everything is saved for personalization</p>
-                      </div>
-                    </div>
-                  </div>
-                </div> */}
-
                 {/* Session Status */}
                 <AnimatePresence>
                   {(sessionStarted || sessionEnded) && (
@@ -501,6 +456,13 @@ const AvatarScreen: React.FC<AvatarScreenProps> = ({
                          sessionStarted ? 'Live' : 'Ready'}
                       </span>
                     </div>
+                    <button
+                      onClick={handleRefreshAvatar}
+                      className="p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors"
+                      title="Refresh Avatar"
+                    >
+                      <RefreshCw className="w-5 h-5 text-white" />
+                    </button>
                     <button
                       onClick={toggleFullscreen}
                       className="p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors"
